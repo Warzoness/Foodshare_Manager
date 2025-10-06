@@ -47,12 +47,55 @@ class SellerService {
     return this.apiClient.get<SellerProduct>(`/api/seller/products/${productId}`);
   }
 
-  async getShopProducts(shopId: string): Promise<ApiResponse<SellerProduct[]>> {
-    const response = await this.apiClient.get<SellerProduct[]>(`/api/seller/shops/${shopId}/products`);
+  async getShopProducts(shopId: string, params?: {
+    page?: number;
+    size?: number;
+    sortBy?: string;
+    sortDirection?: 'asc' | 'desc';
+  }): Promise<ApiResponse<{
+    content: SellerProduct[];
+    totalElements: number;
+    totalPages: number;
+    size: number;
+    number: number;
+    first: boolean;
+    last: boolean;
+    numberOfElements: number;
+  }>> {
+    const queryParams = new URLSearchParams();
+    
+    if (params?.page !== undefined) queryParams.append('page', params.page.toString());
+    if (params?.size) queryParams.append('size', params.size.toString());
+    if (params?.sortBy) queryParams.append('sortBy', params.sortBy);
+    if (params?.sortDirection) queryParams.append('sortDirection', params.sortDirection);
+    
+    const queryString = queryParams.toString();
+    const url = queryString ? `/api/seller/shops/${shopId}/products?${queryString}` : `/api/seller/shops/${shopId}/products`;
+    
+    const response = await this.apiClient.get<{
+      content: SellerProduct[];
+      totalElements: number;
+      totalPages: number;
+      size: number;
+      number: number;
+      first: boolean;
+      last: boolean;
+      numberOfElements: number;
+    }>(url);
+    
     return {
       success: response.success,
       error: response.error,
-      data: response.data || []
+      data: response.data || {
+        content: [],
+        totalElements: 0,
+        totalPages: 0,
+        size: 20,
+        number: 0,
+        first: true,
+        last: true,
+        numberOfElements: 0
+      }
     };
   }
 

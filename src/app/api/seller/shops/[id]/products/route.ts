@@ -15,14 +15,37 @@ export async function GET(
       );
     }
 
-    // Forward request to backend API
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://foodshare-production-98da.up.railway.app';
-    const productsUrl = `${backendUrl}/api/seller/shops/${shopId}/products`;
-    
-    console.log('Forwarding seller shop products request to backend:', productsUrl);
+    // Extract query parameters for pagination and filtering
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get('page') || '0');
+    const size = parseInt(searchParams.get('size') || '20');
+    const sortBy = searchParams.get('sortBy') || 'createdAt';
+    const sortDirection = searchParams.get('sortDirection') || 'desc';
+
+    console.log('Seller shop products API called with params:', {
+      shopId,
+      page,
+      size,
+      sortBy,
+      sortDirection
+    });
 
     // Get authorization header from request
     const authHeader = request.headers.get('Authorization');
+
+    // Get backend URL from environment
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://foodshare-production-98da.up.railway.app';
+    
+    // Build query parameters for backend API
+    const queryParams = new URLSearchParams();
+    queryParams.append('page', page.toString());
+    queryParams.append('size', size.toString());
+    queryParams.append('sortBy', sortBy);
+    queryParams.append('sortDirection', sortDirection);
+
+    const productsUrl = `${backendUrl}/api/seller/shops/${shopId}/products?${queryParams}`;
+    
+    console.log('Fetching from backend URL:', productsUrl);
 
     const response = await fetch(productsUrl, {
       method: 'GET',
@@ -32,20 +55,29 @@ export async function GET(
       },
     });
 
-    const responseData = await response.json();
-    
     if (!response.ok) {
-      console.error('Backend seller shop products error:', response.status, responseData);
+      const errorText = await response.text();
+      console.error('Backend seller shop products error:', response.status, errorText);
       return NextResponse.json(
         { 
           success: false,
-          error: responseData?.message || 'Failed to fetch shop products',
-          data: []
+          error: errorText || 'Failed to fetch shop products',
+          data: {
+            content: [],
+            totalElements: 0,
+            totalPages: 0,
+            size: size,
+            number: page,
+            first: true,
+            last: true,
+            numberOfElements: 0
+          }
         },
         { status: response.status }
       );
     }
 
+    const responseData = await response.json();
     console.log('Backend seller shop products success:', responseData);
     return NextResponse.json(responseData);
     
@@ -55,7 +87,16 @@ export async function GET(
       {
         success: false,
         error: "Failed to fetch shop products",
-        data: []
+        data: {
+          content: [],
+          totalElements: 0,
+          totalPages: 0,
+          size: 20,
+          number: 0,
+          first: true,
+          last: true,
+          numberOfElements: 0
+        }
       },
       { status: 500 }
     );

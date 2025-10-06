@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { Card } from '@/components/ui/Card';
@@ -9,12 +9,14 @@ import { ImageUpload } from '@/components/ui/ImageUpload';
 import { useSellerShopProducts, useDeleteSellerProduct, useCreateSellerProduct, useUpdateSellerProduct } from '@/hooks/useApi';
 import { SellerProduct } from '@/types';
 import styles from './page.module.css';
-import sharedStyles from '../shared.module.css';
 
 export default function ProductsManagement() {
   const searchParams = useSearchParams();
-  const shopId = searchParams.get('shopId') || '1'; // Get shopId from URL parameter
-  const [currentPage, setCurrentPage] = useState(1);
+  const shopId = searchParams.get('shopId') || '1';
+  const [currentPage, setCurrentPage] = useState(0);
+  const [pageSize, setPageSize] = useState(20);
+  const [sortBy, setSortBy] = useState('createdAt');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
@@ -34,92 +36,57 @@ export default function ProductsManagement() {
     status: '1'
   });
 
-  // Function to calculate discount percentage
-  const calculateDiscountPercentage = (originalPrice: number, currentPrice: number) => {
-    if (originalPrice <= currentPrice) return 0;
-    return Math.round(((originalPrice - currentPrice) / originalPrice) * 100);
-  };
+  // Memoize pagination params
+  const paginationParams = useMemo(() => ({
+    page: currentPage,
+    size: pageSize,
+    sortBy,
+    sortDirection
+  }), [currentPage, pageSize, sortBy, sortDirection]);
 
-  // Memoize params to avoid recreating object on every render
-  // const productsParams = useMemo(() => ({
-  //   page: currentPage - 1,
-  //   limit: pageSize,
-  //   search: searchTerm,
-  //   sortBy: 'name',
-  //   sortOrder: 'asc' as const
-  // }), [currentPage, pageSize, searchTerm]);
-
-  const { data: productsResponse, loading, error, execute: refetchProducts } = useSellerShopProducts(shopId);
+  const { data: productsResponse, loading, error, execute: refetchProducts } = useSellerShopProducts(shopId, paginationParams);
   const { execute: deleteProduct, loading: deleting } = useDeleteSellerProduct();
   const { execute: createProduct, loading: creating } = useCreateSellerProduct();
   const { execute: updateProduct, loading: updating } = useUpdateSellerProduct();
 
-  const products = Array.isArray(productsResponse) ? productsResponse : ((productsResponse as unknown as Record<string, unknown>)?.data || []);
-  const totalPages = 0; // Will be implemented when database is connected
+  // Extract data from response
+  const products = productsResponse?.content || [];
+  const totalElements = productsResponse?.totalElements || 0;
+  const totalPages = productsResponse?.totalPages || 0;
+  const isFirst = productsResponse?.first || false;
+  const isLast = productsResponse?.last || false;
 
+  // Filter products based on search and filters
+  const filteredProducts = useMemo(() => {
+    return products.filter((product: SellerProduct) => {
+      const matchesSearch = !searchTerm || 
+        (product.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+         product.description?.toLowerCase().includes(searchTerm.toLowerCase()));
+      
+      const matchesCategory = !categoryFilter || product.categoryId?.toString() === categoryFilter;
+      const matchesStatus = !statusFilter || product.status === statusFilter;
+      
+      return matchesSearch && matchesCategory && matchesStatus;
+    });
+  }, [products, searchTerm, categoryFilter, statusFilter]);
 
-
-  const handleDeleteProduct = async (productId: string | number) => {
-    if (!productId) {
-      console.error('Product ID is undefined');
-      return;
-    }
-    
-    if (confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
-      await deleteProduct(productId.toString());
-      refetchProducts();
+  // Handlers
+  const handleSort = (field: string) => {
+    if (sortBy === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortDirection('desc');
     }
   };
 
-  const handleCreateProduct = async () => {
-    if (!newProduct.name || !newProduct.description || !newProduct.price || !newProduct.categoryId) {
-      alert('Vui lòng điền đầy đủ thông tin bắt buộc: Tên, Mô tả, Giá, Category ID');
-      return;
-    }
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
 
-    try {
-      const productData = {
-        shopId: parseInt(shopId),
-        categoryId: newProduct.categoryId,
-        name: newProduct.name,
-        description: newProduct.description,
-        price: newProduct.price,
-        originalPrice: newProduct.originalPrice || newProduct.price,
-        imageUrl: newProduct.imageUrl || '',
-        detailImageUrl: newProduct.detailImageUrl || newProduct.imageUrl || '',
-        quantityAvailable: newProduct.quantityAvailable,
-        quantityPending: newProduct.quantityPending,
-        status: newProduct.status
-      };
-
-      console.log('Creating product with data:', productData);
-      
-      const response = await createProduct(productData);
-      
-      if (response.success) {
-        alert('Tạo sản phẩm thành công!');
-        // Reset form and close modal
-        setNewProduct({
-          name: '',
-          description: '',
-          price: 0,
-          originalPrice: 0,
-          categoryId: 1,
-          imageUrl: '',
-          detailImageUrl: '',
-          quantityAvailable: 0,
-          quantityPending: 0,
-          status: '1'
-        });
-        setShowCreateForm(false);
-        refetchProducts();
-      } else {
-        alert(`Lỗi: ${response.error || 'Không thể tạo sản phẩm'}`);
-      }
-    } catch (error) {
-      console.error('Error creating product:', error);
-      alert('Có lỗi xảy ra khi tạo sản phẩm');
-    }
+  const handlePageSizeChange = (size: number) => {
+    setPageSize(size);
+    setCurrentPage(0);
   };
 
   const handleEditProduct = (product: SellerProduct) => {
@@ -139,35 +106,21 @@ export default function ProductsManagement() {
     setShowEditForm(true);
   };
 
-  const handleUpdateProduct = async () => {
-    if (!editingProduct || !newProduct.name || !newProduct.description || !newProduct.price || !newProduct.categoryId) {
-      alert('Vui lòng điền đầy đủ thông tin bắt buộc: Tên, Mô tả, Giá, Category ID');
-      return;
+  const handleDeleteProduct = async (productId: number) => {
+    if (confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
+      try {
+        await deleteProduct(productId.toString());
+        refetchProducts();
+      } catch (error) {
+        console.error('Error deleting product:', error);
+      }
     }
+  };
 
+  const handleCreateProduct = async () => {
     try {
-      const productData = {
-        shopId: parseInt(shopId),
-        categoryId: newProduct.categoryId,
-        name: newProduct.name,
-        description: newProduct.description,
-        price: newProduct.price,
-        originalPrice: newProduct.originalPrice || newProduct.price,
-        imageUrl: newProduct.imageUrl || '',
-        detailImageUrl: newProduct.detailImageUrl || newProduct.imageUrl || '',
-        quantityAvailable: newProduct.quantityAvailable,
-        quantityPending: newProduct.quantityPending,
-        status: newProduct.status
-      };
-
-      console.log('Updating product with data:', productData);
-      
-      const response = await updateProduct(editingProduct.id!.toString(), productData);
-      
-      if (response.success) {
-        alert('Cập nhật sản phẩm thành công!');
-        setShowEditForm(false);
-        setEditingProduct(null);
+      await createProduct({...newProduct, shopId: parseInt(shopId)});
+      setShowCreateForm(false);
         setNewProduct({
           name: '',
           description: '',
@@ -181,26 +134,35 @@ export default function ProductsManagement() {
           status: '1'
         });
         refetchProducts();
-      } else {
-        alert(`Lỗi: ${response.error || 'Không thể cập nhật sản phẩm'}`);
-      }
     } catch (error) {
-      console.error('Error updating product:', error);
-      alert('Có lỗi xảy ra khi cập nhật sản phẩm');
+      console.error('Error creating product:', error);
     }
   };
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
+  const handleUpdateProduct = async () => {
+    if (!editingProduct?.id) return;
+    
+    try {
+      await updateProduct(editingProduct.id.toString(), newProduct);
+      setShowEditForm(false);
+      setEditingProduct(null);
+      refetchProducts();
+    } catch (error) {
+      console.error('Error updating product:', error);
+    }
   };
 
-  // Show message if no shopId is provided
-  if (!searchParams.get('shopId')) {
+  const calculateDiscountPercentage = (original: number, current: number) => {
+    if (original <= current) return 0;
+    return Math.round(((original - current) / original) * 100);
+  };
+
+  if (!shopId) {
     return (
-      <div className={sharedStyles.pageContainer}>
-        <div className={styles.errorContainer}>
-          <p className={styles.errorMessage}>Vui lòng chọn cửa hàng để quản lý sản phẩm</p>
-          <Button variant="primary" onClick={() => window.location.href = '/seller/store'}>
+      <div className={styles.container}>
+        <div className={styles.emptyState}>
+          <h2>Vui lòng chọn cửa hàng để quản lý sản phẩm</h2>
+          <Button onClick={() => window.location.href = '/seller/store'}>
             Quay lại danh sách cửa hàng
           </Button>
         </div>
@@ -208,65 +170,113 @@ export default function ProductsManagement() {
     );
   }
 
-  if (loading) {
-    return (
-      <div className={sharedStyles.pageContainer}>
-        <div className={styles.loadingContainer}>
-          <div className={styles.loadingSpinner}></div>
-          <p>Đang tải danh sách sản phẩm...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className={sharedStyles.pageContainer}>
-        <div className={styles.errorContainer}>
-          <p className={styles.errorMessage}>Lỗi: {error}</p>
-          <Button variant="primary" onClick={() => refetchProducts()}>
-            Thử lại
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className={sharedStyles.pageContainer}>
-      <div className={sharedStyles.pageHeader}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+    <div className={styles.container}>
+      {/* Header */}
+      <div className={styles.header}>
+        <div className={styles.headerContent}>
+          <div className={styles.breadcrumb}>
             <Button 
-              variant="secondary" 
-              size="sm"
+              variant="ghost" 
               onClick={() => window.location.href = '/seller/store'}
-              style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
+              className={styles.backButton}
             >
               ← Quay lại
             </Button>
           </div>
-          <h1 className={sharedStyles.pageTitle}>Quản lý sản phẩm</h1>
-          <p className={sharedStyles.pageSubtitle}>
-            Quản lý menu và sản phẩm của cửa hàng (ID: {shopId})
-          </p>
+          <div className={styles.titleSection}>
+            <h1 className={styles.title}>Quản lý sản phẩm</h1>
+            <p className={styles.subtitle}>Cửa hàng #{shopId}</p>
+          </div>
         </div>
         <Button 
-          variant="primary" 
-          className={sharedStyles.primaryButton}
+          className={styles.addButton}
           onClick={() => setShowCreateForm(true)}
         >
           + Thêm sản phẩm
         </Button>
       </div>
 
-      <div className={styles.filters}>
-        <div className={styles.filterGroup}>
-          <label className={styles.filterLabel}>Danh mục</label>
+      {/* Stats Overview */}
+      <div className={styles.statsGrid}>
+        <div className={styles.statCard}>
+          <div className={styles.statIcon}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+              <circle cx="9" cy="9" r="2"/>
+              <path d="M21 15l-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
+            </svg>
+          </div>
+          <div className={styles.statInfo}>
+            <h3>Tổng sản phẩm</h3>
+            <p className={styles.statNumber}>{totalElements}</p>
+          </div>
+        </div>
+        
+        <div className={styles.statCard}>
+          <div className={styles.statIcon}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <polyline points="20,6 9,17 4,12"/>
+            </svg>
+          </div>
+          <div className={styles.statInfo}>
+            <h3>Đang bán</h3>
+            <p className={styles.statNumber}>{products.filter((p: SellerProduct) => p.status === '1').length}</p>
+          </div>
+        </div>
+        
+        <div className={styles.statCard}>
+          <div className={styles.statIcon}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <rect x="6" y="4" width="4" height="16"/>
+              <rect x="14" y="4" width="4" height="16"/>
+            </svg>
+          </div>
+          <div className={styles.statInfo}>
+            <h3>Ngừng bán</h3>
+            <p className={styles.statNumber}>{products.filter((p: SellerProduct) => p.status === '0').length}</p>
+          </div>
+        </div>
+        
+        <div className={styles.statCard}>
+          <div className={styles.statIcon}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14,2 14,8 20,8"/>
+            </svg>
+          </div>
+          <div className={styles.statInfo}>
+            <h3>Trang hiện tại</h3>
+            <p className={styles.statNumber}>{currentPage + 1} / {totalPages}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Filters */}
+      <div className={styles.filtersCard}>
+        <div className={styles.filtersHeader}>
+          <h2>Bộ lọc và tìm kiếm</h2>
+        </div>
+        <div className={styles.filtersContent}>
+          <div className={styles.searchBox}>
+            <svg className={styles.searchIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="11" cy="11" r="8"/>
+              <path d="m21 21-4.35-4.35"/>
+            </svg>
+            <input
+              type="text"
+              placeholder="Tìm kiếm sản phẩm..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className={styles.searchInput}
+            />
+          </div>
+          
+          <div className={styles.filterControls}>
           <select 
-            className={styles.filterSelect}
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
+              className={styles.filterSelect}
           >
             <option value="">Tất cả danh mục</option>
             <option value="1">Pizza</option>
@@ -274,292 +284,445 @@ export default function ProductsManagement() {
             <option value="3">Salad</option>
             <option value="4">Pasta</option>
           </select>
-        </div>
         
-        <div className={styles.filterGroup}>
-          <label className={styles.filterLabel}>Trạng thái</label>
           <select 
-            className={styles.filterSelect}
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
+              className={styles.filterSelect}
           >
             <option value="">Tất cả trạng thái</option>
             <option value="1">Đang bán</option>
             <option value="0">Ngừng bán</option>
           </select>
+            
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className={styles.filterSelect}
+            >
+              <option value="createdAt">Sắp xếp theo ngày tạo</option>
+              <option value="name">Sắp xếp theo tên</option>
+              <option value="price">Sắp xếp theo giá</option>
+              <option value="quantityAvailable">Sắp xếp theo số lượng</option>
+            </select>
+            
+            <select
+              value={sortDirection}
+              onChange={(e) => setSortDirection(e.target.value as 'asc' | 'desc')}
+              className={styles.filterSelect}
+            >
+              <option value="desc">Giảm dần</option>
+              <option value="asc">Tăng dần</option>
+            </select>
         </div>
-        
-        <div className={styles.searchGroup}>
-          <input
-            type="text"
-            placeholder="Tìm kiếm sản phẩm..."
-            className={styles.searchInput}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
         </div>
       </div>
 
-      <div className={styles.productsGrid}>
+      {/* Products Table */}
+      <div className={styles.tableCard}>
+        <div className={styles.tableHeader}>
+          <h2>Danh sách sản phẩm ({filteredProducts.length})</h2>
+        </div>
+        
         {loading ? (
-          <div className={styles.loadingContainer}>
-            <div className={styles.loadingSpinner}></div>
+          <div className={styles.loadingState}>
+            <div className={styles.spinner}></div>
             <p>Đang tải sản phẩm...</p>
           </div>
         ) : error ? (
-          <div className={styles.errorContainer}>
-            <p className={styles.errorMessage}>Lỗi: {error}</p>
-            <Button variant="primary" onClick={() => refetchProducts()}>
-              Thử lại
-            </Button>
+          <div className={styles.errorState}>
+            <svg className={styles.errorIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="15" y1="9" x2="9" y2="15"/>
+              <line x1="9" y1="9" x2="15" y2="15"/>
+            </svg>
+            <h3>Lỗi tải dữ liệu</h3>
+            <p>{error}</p>
+            <Button onClick={() => refetchProducts()}>Thử lại</Button>
           </div>
-        ) : (Array.isArray(products) && products.length === 0) ? (
+        ) : filteredProducts.length === 0 ? (
           <div className={styles.emptyState}>
-            <p>Không có sản phẩm nào</p>
+            <svg className={styles.emptyIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+              <circle cx="9" cy="9" r="2"/>
+              <path d="M21 15l-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
+            </svg>
+            <h3>Không có sản phẩm nào</h3>
+            <p>
+              {searchTerm || categoryFilter || statusFilter
+                ? 'Không tìm thấy sản phẩm phù hợp với bộ lọc'
+                : 'Chưa có sản phẩm nào trong cửa hàng'
+              }
+            </p>
+            <Button onClick={() => setShowCreateForm(true)}>Thêm sản phẩm đầu tiên</Button>
           </div>
         ) : (
-          Array.isArray(products) ? products.map((product: SellerProduct, index: number) => (
-            <Card key={product.id || `product-${index}`} className={styles.productCard}>
+          <div className={styles.tableContainer}>
+            <table className={styles.productsTable}>
+              <thead>
+                <tr>
+                  <th className={styles.tableHeaderCell}>
+                    <button 
+                      className={styles.sortButton}
+                      onClick={() => handleSort('name')}
+                    >
+                      Hình ảnh & Tên
+                      {sortBy === 'name' && (
+                        <span className={styles.sortIcon}>
+                          {sortDirection === 'asc' ? '↑' : '↓'}
+                        </span>
+                      )}
+                    </button>
+                  </th>
+                  <th className={styles.tableHeaderCell}>
+                    <button 
+                      className={styles.sortButton}
+                      onClick={() => handleSort('categoryId')}
+                    >
+                      Danh mục
+                      {sortBy === 'categoryId' && (
+                        <span className={styles.sortIcon}>
+                          {sortDirection === 'asc' ? '↑' : '↓'}
+                        </span>
+                      )}
+                    </button>
+                  </th>
+                  <th className={styles.tableHeaderCell}>
+                    <button 
+                      className={styles.sortButton}
+                      onClick={() => handleSort('price')}
+                    >
+                      Giá
+                      {sortBy === 'price' && (
+                        <span className={styles.sortIcon}>
+                          {sortDirection === 'asc' ? '↑' : '↓'}
+                        </span>
+                      )}
+                    </button>
+                  </th>
+                  <th className={styles.tableHeaderCell}>
+                    <button 
+                      className={styles.sortButton}
+                      onClick={() => handleSort('quantityAvailable')}
+                    >
+                      Số lượng
+                      {sortBy === 'quantityAvailable' && (
+                        <span className={styles.sortIcon}>
+                          {sortDirection === 'asc' ? '↑' : '↓'}
+                        </span>
+                      )}
+                    </button>
+                  </th>
+                  <th className={styles.tableHeaderCell}>
+                    <button 
+                      className={styles.sortButton}
+                      onClick={() => handleSort('status')}
+                    >
+                      Trạng thái
+                      {sortBy === 'status' && (
+                        <span className={styles.sortIcon}>
+                          {sortDirection === 'asc' ? '↑' : '↓'}
+                        </span>
+                      )}
+                    </button>
+                  </th>
+                  <th className={styles.tableHeaderCell}>Thao tác</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredProducts.map((product: SellerProduct, index: number) => (
+                  <tr key={product.id || `product-${index}`} className={styles.tableRow}>
+                    <td className={styles.tableCell}>
+                      <div className={styles.productInfo}>
               <div className={styles.productImage}>
                 {product.imageUrl ? (
                   <Image
                     src={product.imageUrl}
                     alt={product.name || 'Sản phẩm'}
-                    width={200}
-                    height={150}
+                              width={60}
+                              height={60}
                     className={styles.image}
                   />
                 ) : (
-                  <div className={styles.noImagePlaceholder}>
-                    <div className={styles.noImageIcon}>📷</div>
-                    <p className={styles.noImageText}>Chưa có ảnh</p>
+                            <div className={styles.noImage}>
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                <circle cx="8.5" cy="8.5" r="1.5"/>
+                                <polyline points="21,15 16,10 5,21"/>
+                              </svg>
                   </div>
                 )}
-              </div>
-              
-              <div className={styles.productInfo}>
-                <div className={styles.productContent}>
-                  <h3 className={styles.productName}>{product.name || 'Tên sản phẩm'}</h3>
-                  <p className={styles.productCategory}>Danh mục: {product.categoryId || 'N/A'}</p>
-                  <p className={styles.productDescription}>{product.description || 'Không có mô tả'}</p>
-                  <div className={styles.productPrice}>
-                    {(product.originalPrice || 0) > (product.price || 0) ? (
-                      <div className={styles.priceContainer}>
-                        <div className={styles.originalPrice}>
-                          ₫{(product.originalPrice || 0).toLocaleString()}
                         </div>
-                        <div className={styles.currentPrice}>
-                          ₫{(product.price || 0).toLocaleString()}
+                        <div className={styles.productDetails}>
+                          <h3 className={styles.productName}>{product.name || 'Tên sản phẩm'}</h3>
+                          <p className={styles.productDescription}>
+                            {product.description || 'Không có mô tả'}
+                          </p>
                         </div>
-                        <div className={styles.discountBadge}>
-                          -{calculateDiscountPercentage(product.originalPrice || 0, product.price || 0)}%
-                        </div>
+                      </div>
+                    </td>
+                    <td className={styles.tableCell}>
+                      <span className={styles.category}>
+                        Danh mục {product.categoryId || 'N/A'}
+                      </span>
+                    </td>
+                    <td className={styles.tableCell}>
+                      <div className={styles.priceSection}>
+                        {(product.originalPrice || 0) > (product.price || 0) ? (
+                          <div className={styles.discountPrice}>
+                            <span className={styles.originalPrice}>
+                              ₫{(product.originalPrice || 0).toLocaleString()}
+                            </span>
+                            <span className={styles.currentPrice}>
+                              ₫{(product.price || 0).toLocaleString()}
+                            </span>
+                            <span className={styles.discount}>
+                              -{calculateDiscountPercentage(product.originalPrice || 0, product.price || 0)}%
+                            </span>
                       </div>
                     ) : (
-                      <div className={styles.currentPrice}>
+                          <span className={styles.currentPrice}>
                         ₫{(product.price || 0).toLocaleString()}
+                          </span>
+                        )}
                       </div>
-                    )}
+                    </td>
+                    <td className={styles.tableCell}>
+                      <div className={styles.quantityInfo}>
+                        <div className={styles.quantityItem}>
+                          <span>Còn lại: {product.quantityAvailable || 0}</span>
                   </div>
-                  <div className={styles.productStock}>
-                    <span>Còn lại: {product.quantityAvailable || 0}</span>
+                        <div className={styles.quantityItem}>
                     <span>Đang chờ: {product.quantityPending || 0}</span>
                   </div>
                 </div>
-                <div className={`${styles.statusBadge} ${product.status === '1' ? styles.active : styles.inactive}`}>
+                    </td>
+                    <td className={styles.tableCell}>
+                      <span className={`${styles.statusBadge} ${product.status === '1' ? styles.active : styles.inactive}`}>
                   {product.status === '1' ? 'Đang bán' : 'Ngừng bán'}
-                </div>
-              </div>
-              
-              <div className={styles.productActions}>
+                      </span>
+                    </td>
+                    <td className={styles.tableCell}>
+                      <div className={styles.actions}>
                 <Button 
-                  variant="secondary" 
+                          variant="outline" 
                   size="sm"
                   onClick={() => handleEditProduct(product)}
                   disabled={updating}
-                >
-                  {updating ? 'Đang sửa...' : 'Sửa'}
+                          className={styles.editButton}
+                        >
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                          </svg>
+                          Sửa
                 </Button>
                 <Button 
                   variant="danger" 
                   size="sm"
                   onClick={() => product.id && handleDeleteProduct(product.id)}
                   disabled={deleting || !product.id}
-                >
-                  {deleting ? 'Đang xóa...' : 'Xóa'}
+                          className={styles.deleteButton}
+                        >
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <polyline points="3,6 5,6 21,6"/>
+                            <path d="M19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"/>
+                          </svg>
+                          Xóa
                 </Button>
               </div>
-            </Card>
-          )) : null
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 
+      {/* Pagination */}
       {totalPages > 1 && (
         <div className={styles.pagination}>
+          <div className={styles.paginationInfo}>
+            <span>
+              Hiển thị {currentPage * pageSize + 1} - {Math.min((currentPage + 1) * pageSize, totalElements)} 
+              trong tổng số {totalElements} sản phẩm
+            </span>
+          </div>
+          
+          <div className={styles.paginationControls}>
+            <select
+              value={pageSize}
+              onChange={(e) => handlePageSizeChange(parseInt(e.target.value))}
+              className={styles.pageSizeSelect}
+            >
+              <option value={10}>10/trang</option>
+              <option value={20}>20/trang</option>
+              <option value={50}>50/trang</option>
+              <option value={100}>100/trang</option>
+            </select>
+            
+            <div className={styles.pageButtons}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handlePageChange(0)}
+                disabled={isFirst}
+              >
+                Đầu
+              </Button>
           <Button 
-            variant="secondary" 
-            className={styles.pageButton}
+                variant="outline"
+                size="sm"
             onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
+                disabled={isFirst}
           >
             Trước
           </Button>
+              
           <div className={styles.pageNumbers}>
             {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-              const page = i + 1;
+                  let page;
+                  if (totalPages <= 5) {
+                    page = i;
+                  } else if (currentPage <= 2) {
+                    page = i;
+                  } else if (currentPage >= totalPages - 3) {
+                    page = totalPages - 5 + i;
+                  } else {
+                    page = currentPage - 2 + i;
+                  }
+
               return (
-                <span 
+                    <button
                   key={page}
                   className={`${styles.pageNumber} ${currentPage === page ? styles.active : ''}`}
                   onClick={() => handlePageChange(page)}
                 >
-                  {page}
-                </span>
+                      {page + 1}
+                    </button>
               );
             })}
           </div>
+              
           <Button 
-            variant="secondary" 
-            className={styles.pageButton}
+                variant="outline"
+                size="sm"
             onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
+                disabled={isLast}
           >
             Sau
           </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handlePageChange(totalPages - 1)}
+                disabled={isLast}
+              >
+                Cuối
+              </Button>
+            </div>
+          </div>
         </div>
       )}
 
       {/* Create Product Modal */}
       {showCreateForm && (
         <div className={styles.modalOverlay}>
-          <div className={styles.modalContent}>
+          <div className={styles.modal}>
+            <div className={styles.modalHeader}>
             <h2>Thêm sản phẩm mới</h2>
+              <button 
+                className={styles.closeButton}
+                onClick={() => setShowCreateForm(false)}
+              >
+                ×
+              </button>
+            </div>
+            <div className={styles.modalBody}>
             <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Tên sản phẩm *</label>
+                <label>Tên sản phẩm</label>
               <input
                 type="text"
-                className={styles.formInput}
                 value={newProduct.name}
                 onChange={(e) => setNewProduct({...newProduct, name: e.target.value})}
-                placeholder="Nhập tên sản phẩm"
+                  className={styles.formInput}
               />
             </div>
             
             <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Mô tả *</label>
+                <label>Mô tả</label>
               <textarea
-                className={styles.formTextarea}
                 value={newProduct.description}
                 onChange={(e) => setNewProduct({...newProduct, description: e.target.value})}
-                placeholder="Nhập mô tả sản phẩm"
+                  className={styles.formTextarea}
                 rows={3}
               />
             </div>
             
             <div className={styles.formRow}>
               <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Giá hiện tại (VNĐ) *</label>
+                  <label>Giá hiện tại</label>
                 <input
                   type="number"
+                    value={newProduct.price}
+                    onChange={(e) => setNewProduct({...newProduct, price: parseFloat(e.target.value) || 0})}
                   className={styles.formInput}
-                  value={newProduct.price}
-                  onChange={(e) => setNewProduct({...newProduct, price: parseInt(e.target.value) || 0})}
-                  placeholder="0"
                 />
               </div>
-              
               <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Giá gốc (VNĐ)</label>
+                  <label>Giá gốc</label>
                 <input
                   type="number"
+                    value={newProduct.originalPrice}
+                    onChange={(e) => setNewProduct({...newProduct, originalPrice: parseFloat(e.target.value) || 0})}
                   className={styles.formInput}
-                  value={newProduct.originalPrice}
-                  onChange={(e) => setNewProduct({...newProduct, originalPrice: parseInt(e.target.value) || 0})}
-                  placeholder="0"
                 />
               </div>
             </div>
             
             <div className={styles.formRow}>
               <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Số lượng có sẵn</label>
+                  <label>Số lượng có sẵn</label>
                 <input
                   type="number"
-                  className={styles.formInput}
                   value={newProduct.quantityAvailable}
                   onChange={(e) => setNewProduct({...newProduct, quantityAvailable: parseInt(e.target.value) || 0})}
-                  placeholder="0"
-                />
+                    className={styles.formInput}
+                  />
+                </div>
+                <div className={styles.formGroup}>
+                  <label>Danh mục</label>
+                  <select
+                    value={newProduct.categoryId}
+                    onChange={(e) => setNewProduct({...newProduct, categoryId: parseInt(e.target.value)})}
+                    className={styles.formSelect}
+                  >
+                    <option value={1}>Pizza</option>
+                    <option value={2}>Burger</option>
+                    <option value={3}>Salad</option>
+                    <option value={4}>Pasta</option>
+                  </select>
+                </div>
               </div>
               
               <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Số lượng đang chờ</label>
-                <input
-                  type="number"
-                  className={styles.formInput}
-                  value={newProduct.quantityPending}
-                  onChange={(e) => setNewProduct({...newProduct, quantityPending: parseInt(e.target.value) || 0})}
-                  placeholder="0"
+                <ImageUpload
+                  label="Hình ảnh sản phẩm"
+                  currentImage={newProduct.imageUrl}
+                  onImageUpload={(url) => setNewProduct({...newProduct, imageUrl: url})}
+                  className={styles.imageUploadField}
                 />
               </div>
             </div>
-            
-            <div className={styles.formRow}>
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Category ID *</label>
-                <input
-                  type="number"
-                  className={styles.formInput}
-                  value={newProduct.categoryId}
-                  onChange={(e) => setNewProduct({...newProduct, categoryId: parseInt(e.target.value) || 1})}
-                  placeholder="1"
-                  min="1"
-                />
-              </div>
-              
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Trạng thái</label>
-                <select
-                  className={styles.formSelect}
-                  value={newProduct.status}
-                  onChange={(e) => setNewProduct({...newProduct, status: e.target.value})}
-                >
-                  <option value="1">Đang bán</option>
-                  <option value="0">Ngừng bán</option>
-                </select>
-              </div>
-            </div>
-            
-            <div className={styles.formGroup}>
-              <ImageUpload
-                label="Ảnh chính sản phẩm"
-                onImageUpload={(url) => setNewProduct({...newProduct, imageUrl: url})}
-                currentImage={newProduct.imageUrl}
-                className={styles.imageUpload}
-              />
-            </div>
-            
-            <div className={styles.formGroup}>
-              <ImageUpload
-                label="Ảnh phụ sản phẩm"
-                multiple={true}
-                maxFiles={5}
-                onMultipleImageUpload={(urls) => setNewProduct({...newProduct, detailImageUrl: urls.join(',')})}
-                currentImages={newProduct.detailImageUrl ? newProduct.detailImageUrl.split(',') : []}
-                className={styles.imageUpload}
-              />
-            </div>
-            
-            <div className={styles.modalActions}>
+            <div className={styles.modalFooter}>
               <Button 
-                variant="secondary" 
+                variant="outline" 
                 onClick={() => setShowCreateForm(false)}
-                disabled={creating}
               >
                 Hủy
               </Button>
               <Button 
-                variant="primary" 
                 onClick={handleCreateProduct}
                 disabled={creating}
               >
@@ -573,97 +736,74 @@ export default function ProductsManagement() {
       {/* Edit Product Modal */}
       {showEditForm && (
         <div className={styles.modalOverlay}>
-          <div className={styles.modalContent}>
+          <div className={styles.modal}>
+            <div className={styles.modalHeader}>
             <h2>Sửa sản phẩm</h2>
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Tên sản phẩm *</label>
-              <input
-                type="text"
-                className={styles.formInput}
-                value={newProduct.name}
-                onChange={(e) => setNewProduct({...newProduct, name: e.target.value})}
-                placeholder="Nhập tên sản phẩm"
-              />
+              <button 
+                className={styles.closeButton}
+                onClick={() => setShowEditForm(false)}
+              >
+                ×
+              </button>
             </div>
-            
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Mô tả *</label>
-              <textarea
-                className={styles.formTextarea}
-                value={newProduct.description}
-                onChange={(e) => setNewProduct({...newProduct, description: e.target.value})}
-                placeholder="Nhập mô tả sản phẩm"
-                rows={3}
-              />
-            </div>
-            
-            <div className={styles.formRow}>
+            <div className={styles.modalBody}>
               <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Giá hiện tại (VNĐ) *</label>
+                <label>Tên sản phẩm</label>
                 <input
-                  type="number"
+                  type="text"
+                  value={newProduct.name}
+                  onChange={(e) => setNewProduct({...newProduct, name: e.target.value})}
                   className={styles.formInput}
-                  value={newProduct.price}
-                  onChange={(e) => setNewProduct({...newProduct, price: parseInt(e.target.value) || 0})}
-                  placeholder="0"
                 />
               </div>
               
               <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Giá gốc (VNĐ)</label>
-                <input
-                  type="number"
-                  className={styles.formInput}
-                  value={newProduct.originalPrice}
-                  onChange={(e) => setNewProduct({...newProduct, originalPrice: parseInt(e.target.value) || 0})}
-                  placeholder="0"
+                <label>Mô tả</label>
+                <textarea
+                  value={newProduct.description}
+                  onChange={(e) => setNewProduct({...newProduct, description: e.target.value})}
+                  className={styles.formTextarea}
+                  rows={3}
                 />
-              </div>
             </div>
             
             <div className={styles.formRow}>
               <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Số lượng có sẵn</label>
+                  <label>Giá hiện tại</label>
                 <input
                   type="number"
+                    value={newProduct.price}
+                    onChange={(e) => setNewProduct({...newProduct, price: parseFloat(e.target.value) || 0})}
                   className={styles.formInput}
-                  value={newProduct.quantityAvailable}
-                  onChange={(e) => setNewProduct({...newProduct, quantityAvailable: parseInt(e.target.value) || 0})}
-                  placeholder="0"
                 />
               </div>
-              
               <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Số lượng đang chờ</label>
+                  <label>Giá gốc</label>
                 <input
                   type="number"
+                    value={newProduct.originalPrice}
+                    onChange={(e) => setNewProduct({...newProduct, originalPrice: parseFloat(e.target.value) || 0})}
                   className={styles.formInput}
-                  value={newProduct.quantityPending}
-                  onChange={(e) => setNewProduct({...newProduct, quantityPending: parseInt(e.target.value) || 0})}
-                  placeholder="0"
                 />
               </div>
             </div>
             
             <div className={styles.formRow}>
               <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Category ID *</label>
+                  <label>Số lượng có sẵn</label>
                 <input
                   type="number"
+                    value={newProduct.quantityAvailable}
+                    onChange={(e) => setNewProduct({...newProduct, quantityAvailable: parseInt(e.target.value) || 0})}
                   className={styles.formInput}
-                  value={newProduct.categoryId}
-                  onChange={(e) => setNewProduct({...newProduct, categoryId: parseInt(e.target.value) || 1})}
-                  placeholder="1"
-                  min="1"
                 />
               </div>
-              
               <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Trạng thái</label>
+                  <label>Trạng thái</label>
                 <select
-                  className={styles.formSelect}
                   value={newProduct.status}
                   onChange={(e) => setNewProduct({...newProduct, status: e.target.value})}
+                    className={styles.formSelect}
                 >
                   <option value="1">Đang bán</option>
                   <option value="0">Ngừng bán</option>
@@ -673,41 +813,25 @@ export default function ProductsManagement() {
             
             <div className={styles.formGroup}>
               <ImageUpload
-                label="Ảnh chính sản phẩm"
-                onImageUpload={(url) => setNewProduct({...newProduct, imageUrl: url})}
+                label="Hình ảnh sản phẩm"
                 currentImage={newProduct.imageUrl}
-                className={styles.imageUpload}
+                onImageUpload={(url) => setNewProduct({...newProduct, imageUrl: url})}
+                className={styles.imageUploadField}
               />
             </div>
-            
-            <div className={styles.formGroup}>
-              <ImageUpload
-                label="Ảnh phụ sản phẩm"
-                multiple={true}
-                maxFiles={5}
-                onMultipleImageUpload={(urls) => setNewProduct({...newProduct, detailImageUrl: urls.join(',')})}
-                currentImages={newProduct.detailImageUrl ? newProduct.detailImageUrl.split(',') : []}
-                className={styles.imageUpload}
-              />
             </div>
-            
-            <div className={styles.modalActions}>
+            <div className={styles.modalFooter}>
               <Button 
-                variant="secondary" 
-                onClick={() => {
-                  setShowEditForm(false);
-                  setEditingProduct(null);
-                }}
-                disabled={updating}
+                variant="outline" 
+                onClick={() => setShowEditForm(false)}
               >
                 Hủy
               </Button>
               <Button 
-                variant="primary" 
                 onClick={handleUpdateProduct}
                 disabled={updating}
               >
-                {updating ? 'Đang cập nhật...' : 'Cập nhật sản phẩm'}
+                {updating ? 'Đang cập nhật...' : 'Cập nhật'}
               </Button>
             </div>
           </div>

@@ -10,6 +10,7 @@ import styles from './layout.module.css';
 const navigation = [
   { name: 'Dashboard', href: '/seller/dashboard', icon: '📊' },
   { name: 'Cửa hàng', href: '/seller/store', icon: '🏪' },
+  { name: 'Cài đặt', href: '/seller/settings', icon: '⚙️' },
 ];
 
 export default function SellerLayout({

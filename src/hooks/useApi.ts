@@ -231,9 +231,24 @@ export function useAdminProductsByShop(shopId: string, params?: Record<string, u
   return apiResult;
 }
 
-export function useSellerShopProducts(shopId: string) {
-  const apiCall = useCallback(() => sellerService.getShopProducts(shopId), [shopId]);
-  return useApi(apiCall, { immediate: !!shopId });
+export function useSellerShopProducts(shopId: string, params?: {
+  page?: number;
+  size?: number;
+  sortBy?: string;
+  sortDirection?: 'asc' | 'desc';
+}) {
+  const paramsString = JSON.stringify(params);
+  const apiCall = useCallback(() => sellerService.getShopProducts(shopId, params), [shopId, paramsString]);
+  const apiResult = useApi(apiCall, { immediate: !!shopId });
+  
+  // Re-execute when params change
+  useEffect(() => {
+    if (shopId) {
+      apiResult.execute();
+    }
+  }, [shopId, paramsString, apiResult.execute]);
+  
+  return apiResult;
 }
 
 // Admin mutation hooks
