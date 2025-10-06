@@ -1,0 +1,338 @@
+/* Shared styles for seller pages */
+
+/* Common Layout */
+.pageContainer {
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+.pageContainer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 20%, rgba(84, 166, 92, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(84, 166, 92, 0.08) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+/* Common Header */
+.pageHeader {
+  margin-bottom: 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+.pageTitle {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, #54A65C, #7bb881);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.pageSubtitle {
+  color: #94a3b8;
+  font-size: 1rem;
+}
+
+/* Common Buttons */
+.primaryButton {
+  background: linear-gradient(135deg, #54A65C, #7bb881);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--border-radius);
+  font-weight: 500;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px 0 rgba(84, 166, 92, 0.3);
+  cursor: pointer;
+  margin: 10px 0;
+}
+
+.primaryButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px 0 rgba(84, 166, 92, 0.4);
+}
+
+.secondaryButton {
+  background: transparent;
+  color: #94a3b8;
+  border: 1px solid rgba(84, 166, 92, 0.3);
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--border-radius);
+  font-weight: 500;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.secondaryButton:hover {
+  background: rgba(84, 166, 92, 0.1);
+  color: #f1f5f9;
+  border-color: rgba(84, 166, 92, 0.5);
+}
+
+/* Common Form Elements */
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.formLabel {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #f1f5f9;
+}
+
+.formInput, .formSelect, .formTextarea {
+  padding: 0.75rem;
+  border: 1px solid rgba(84, 166, 92, 0.3);
+  border-radius: var(--border-radius);
+  background: transparent;
+  color: #f1f5f9;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+}
+
+.formInput:focus, .formSelect:focus, .formTextarea:focus {
+  outline: none;
+  border-color: #54A65C;
+  box-shadow: 0 0 0 3px rgba(84, 166, 92, 0.2);
+  background: transparent;
+}
+
+.formInput::placeholder, .formTextarea::placeholder {
+  color: #64748b;
+}
+
+/* Common Cards */
+.card {
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(84, 166, 92, 0.3);
+  border-radius: var(--border-radius-lg);
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #54A65C, #7bb881);
+  border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px -8px rgba(84, 166, 92, 0.3);
+  border-color: rgba(84, 166, 92, 0.5);
+}
+
+/* Common Status Badges */
+.statusBadge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--border-radius-sm);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.statusBadge.pending {
+  background: rgba(251, 191, 36, 0.2);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+.statusBadge.confirmed {
+  background: rgba(84, 166, 92, 0.2);
+  color: #54A65C;
+  border: 1px solid rgba(84, 166, 92, 0.3);
+}
+
+.statusBadge.completed {
+  background: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.statusBadge.cancelled {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.statusBadge.active {
+  background: rgba(84, 166, 92, 0.2);
+  color: #54A65C;
+  border: 1px solid rgba(84, 166, 92, 0.3);
+}
+
+.statusBadge.inactive {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* Common Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  position: relative;
+  z-index: 1;
+}
+
+.pageButton {
+  padding: 0.5rem 1rem;
+  border: 1px solid rgba(84, 166, 92, 0.3);
+  background: transparent;
+  color: #94a3b8;
+  border-radius: var(--border-radius);
+  font-weight: 500;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.pageButton:hover {
+  background: rgba(84, 166, 92, 0.1);
+  color: #f1f5f9;
+  border-color: rgba(84, 166, 92, 0.5);
+}
+
+.pageNumbers {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.pageNumber {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid rgba(84, 166, 92, 0.3);
+  background: rgba(84, 166, 92, 0.1);
+  color: #54A65C;
+  border-radius: var(--border-radius);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pageNumber:hover {
+  background: rgba(84, 166, 92, 0.2);
+  border-color: rgba(84, 166, 92, 0.5);
+}
+
+/* Common Filters */
+.filters {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+.filterGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filterLabel {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #f1f5f9;
+}
+
+.filterSelect, .filterInput {
+  padding: 0.75rem;
+  border: 1px solid rgba(84, 166, 92, 0.3);
+  border-radius: var(--border-radius);
+  background: transparent;
+  color: #f1f5f9;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+  min-width: 150px;
+}
+
+.filterSelect:focus, .filterInput:focus {
+  outline: none;
+  border-color: #54A65C;
+  box-shadow: 0 0 0 3px rgba(84, 166, 92, 0.2);
+}
+
+.filterInput::placeholder {
+  color: #64748b;
+}
+
+.searchGroup {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Common Actions */
+.actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  position: relative;
+  z-index: 1;
+}
+
+.actionButton {
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius-sm);
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+/* Common Grid Layouts */
+.grid {
+  display: grid;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+.grid2Col {
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+}
+
+.grid3Col {
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.grid4Col {
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+/* Common Section Titles */
+.sectionTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #f1f5f9;
+  margin-bottom: 1rem;
+  position: relative;
+  z-index: 1;
+}

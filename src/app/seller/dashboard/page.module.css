@@ -1,0 +1,466 @@
+.dashboardContainer {
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  min-height: 100vh;
+}
+
+.header {
+  margin-bottom: 2rem;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  color: var(--gray-600);
+  font-size: 0.875rem;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.statCard {
+  border-radius: var(--border-radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--gray-200);
+  transition: all 0.2s ease;
+  animation: fadeInUp 0.5s ease-out;
+}
+
+.statCard:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.statContent {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.statIcon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--border-radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.statIcon.blue {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: white;
+}
+
+.statIcon.green {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+}
+
+.statIcon.yellow {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+}
+
+.statIcon.red {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+}
+
+.statInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.statLabel {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--gray-600);
+  margin-bottom: 0.25rem;
+}
+
+.statValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--gray-900);
+}
+
+.contentGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.contentCard {
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--gray-200);
+  overflow: hidden;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.cardHeader {
+  padding: 1.5rem 1.5rem 0 1.5rem;
+  border-bottom: 1px solid var(--gray-200);
+  margin-bottom: 1.5rem;
+}
+
+.cardTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--gray-900);
+  margin-bottom: 1rem;
+}
+
+.cardContent {
+  padding: 0 1.5rem 1.5rem 1.5rem;
+}
+
+.orderList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.orderItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  background: var(--gray-50);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--gray-200);
+  transition: all 0.2s ease;
+}
+
+.orderItem:hover {
+  background: var(--gray-100);
+  transform: translateX(4px);
+}
+
+.orderInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.orderId {
+  font-weight: 600;
+  color: var(--gray-900);
+  margin-bottom: 0.25rem;
+}
+
+.orderCustomer {
+  font-size: 0.875rem;
+  color: var(--gray-600);
+}
+
+.orderDetails {
+  text-align: right;
+}
+
+.orderAmount {
+  font-weight: 600;
+  color: var(--gray-900);
+  margin-bottom: 0.25rem;
+}
+
+.orderStatus {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.orderStatus.pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.orderStatus.confirmed {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.orderStatus.completed {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.productList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.productItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.productItem:last-child {
+  border-bottom: none;
+}
+
+.productInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.productName {
+  font-weight: 500;
+  color: var(--gray-900);
+  margin-bottom: 0.25rem;
+}
+
+.productSold {
+  font-size: 0.875rem;
+  color: var(--gray-600);
+}
+
+.productRevenue {
+  font-weight: 600;
+  color: var(--gray-900);
+}
+
+/* Mobile Optimizations */
+@media (max-width: 768px) {
+  .dashboardContainer {
+    padding: 0.75rem;
+  }
+  
+  .header {
+    margin-bottom: 1.5rem;
+  }
+  
+  .title {
+    font-size: 1.75rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .subtitle {
+    font-size: 0.95rem;
+  }
+  
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .statCard {
+    padding: 0.875rem;
+    border-radius: 0.5rem;
+  }
+  
+  .statContent {
+    gap: 0.5rem;
+  }
+  
+  .statIcon {
+    width: 2rem;
+    height: 2rem;
+    font-size: 1rem;
+  }
+  
+  .statLabel {
+    font-size: 0.75rem;
+    margin-bottom: 0.25rem;
+  }
+  
+  .statValue {
+    font-size: 1.125rem;
+  }
+  
+  .contentGrid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .recentOrdersCard {
+    padding: 1rem;
+  }
+  
+  .cardHeader {
+    margin-bottom: 1rem;
+  }
+  
+  .cardTitle {
+    font-size: 1rem;
+  }
+  
+  .cardSubtitle {
+    font-size: 0.8rem;
+  }
+  
+  .orderItem {
+    padding: 0.75rem 0;
+  }
+  
+  .orderInfo {
+    gap: 0.5rem;
+  }
+  
+  .orderIcon {
+    width: 1.75rem;
+    height: 1.75rem;
+    font-size: 0.75rem;
+  }
+  
+  .orderText {
+    font-size: 0.8rem;
+  }
+  
+  .orderTime {
+    font-size: 0.7rem;
+  }
+  
+  .topProductsCard {
+    padding: 1rem;
+  }
+  
+  .productItem {
+    padding: 0.75rem 0;
+  }
+  
+  .productInfo {
+    gap: 0.5rem;
+  }
+  
+  .productName {
+    font-size: 0.8rem;
+    margin-bottom: 0.125rem;
+  }
+  
+  .productSold {
+    font-size: 0.75rem;
+  }
+  
+  .productRevenue {
+    font-size: 0.8rem;
+  }
+}
+
+/* Small Mobile Screens */
+@media (max-width: 480px) {
+  .dashboardContainer {
+    padding: 0.5rem;
+  }
+  
+  .header {
+    margin-bottom: 1rem;
+  }
+  
+  .title {
+    font-size: 1.5rem;
+  }
+  
+  .subtitle {
+    font-size: 0.9rem;
+  }
+  
+  .statsGrid {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .statCard {
+    padding: 0.75rem;
+  }
+  
+  .statContent {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  
+  .statIcon {
+    width: 1.75rem;
+    height: 1.75rem;
+    font-size: 0.875rem;
+  }
+  
+  .statLabel {
+    font-size: 0.7rem;
+  }
+  
+  .statValue {
+    font-size: 1rem;
+  }
+  
+  .contentGrid {
+    gap: 0.75rem;
+  }
+  
+  .recentOrdersCard {
+    padding: 0.75rem;
+  }
+  
+  .cardTitle {
+    font-size: 0.9rem;
+  }
+  
+  .cardSubtitle {
+    font-size: 0.75rem;
+  }
+  
+  .orderItem {
+    padding: 0.5rem 0;
+  }
+  
+  .orderText {
+    font-size: 0.75rem;
+  }
+  
+  .orderTime {
+    font-size: 0.65rem;
+  }
+  
+  .topProductsCard {
+    padding: 0.75rem;
+  }
+  
+  .productItem {
+    padding: 0.5rem 0;
+  }
+  
+  .productName {
+    font-size: 0.75rem;
+  }
+  
+  .productSold {
+    font-size: 0.7rem;
+  }
+  
+  .productRevenue {
+    font-size: 0.75rem;
+  }
+}

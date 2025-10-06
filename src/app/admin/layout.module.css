@@ -1,0 +1,688 @@
+/* Admin Layout Styles */
+.container {
+  height: 100vh;
+  display: flex;
+  overflow: hidden;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.sidebar {
+  display: none;
+  flex-shrink: 0;
+}
+
+.sidebarOpen {
+  display: block;
+}
+
+.sidebarContent {
+  display: flex;
+  flex-direction: column;
+  width: 16rem;
+}
+
+.sidebarInner {
+  display: flex;
+  flex-direction: column;
+  height: 0;
+  flex: 1;
+  background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+}
+
+.sidebarHeader {
+  display: flex;
+  flex-direction: column;
+  padding-top: 1.5rem;
+  padding-bottom: 1rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.logoSection {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 0 1.5rem;
+}
+
+.logoContainer {
+  display: flex;
+  align-items: center;
+}
+
+.logoIcon {
+  width: 2.5rem;
+  height: 2.5rem;
+  background: linear-gradient(135deg, #54A65C 0%, #7bb881 50%, #8dd196 100%);
+  border-radius: var(--border-radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 0.75rem;
+  box-shadow: 0 4px 14px 0 rgba(84, 166, 92, 0.4);
+  position: relative;
+  overflow: hidden;
+}
+
+.logoIcon::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 100%);
+  border-radius: var(--border-radius);
+}
+
+.logoText {
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: white;
+  letter-spacing: -0.025em;
+  background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.navigation {
+  margin-top: 2rem;
+  flex: 1;
+  padding: 0 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  padding: 0.875rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: var(--border-radius);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+  color: #cbd5e1;
+  position: relative;
+  margin-bottom: 0.25rem;
+}
+
+.navItem:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+  transform: translateX(4px);
+}
+
+.navItemActive {
+  background: linear-gradient(135deg, #54A65C 0%, #7bb881 100%);
+  color: white;
+  box-shadow: 0 8px 25px -8px rgba(84, 166, 92, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  transform: translateX(4px);
+}
+
+.navItemActive::before {
+  content: '';
+  position: absolute;
+  left: -1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 1.5rem;
+  background: linear-gradient(135deg, #54A65C 0%, #7bb881 100%);
+  border-radius: 0 2px 2px 0;
+}
+
+.navIcon {
+  margin-right: 0.75rem;
+  font-size: 1.125rem;
+}
+
+.userSection {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1.5rem;
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+}
+
+.userAvatar {
+  width: 2.75rem;
+  height: 2.75rem;
+  background: linear-gradient(135deg, #22c55e 0%, #6366f1 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 0.75rem;
+  box-shadow: 0 4px 14px 0 rgba(34, 197, 94, 0.4);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.userName {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: white;
+}
+
+.userEmail {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.logoutButton {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 0.5rem;
+  color: #fca5a5;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.logoutButton:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.5);
+  color: #f87171;
+}
+
+/* Main Content */
+.mainContent {
+  display: flex;
+  flex-direction: column;
+  width: 0;
+  flex: 1;
+  overflow: hidden;
+}
+
+.topBar {
+  position: relative;
+  z-index: 10;
+  flex-shrink: 0;
+  display: flex;
+  height: 4.5rem;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid rgba(51, 65, 85, 0.8);
+}
+
+.mobileMenuButton {
+  padding: 1rem;
+  border-right: 1px solid #334155;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.mobileMenuButton:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.topBarContent {
+  flex: 1;
+  padding: 0 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.searchContainer {
+  flex: 1;
+  display: flex;
+  max-width: 32rem;
+}
+
+.searchWrapper {
+  position: relative;
+  width: 100%;
+}
+
+.searchIcon {
+  position: absolute;
+  inset-y: 0;
+  left: 0;
+  padding-left: 0.75rem;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+  color: #9ca3af;
+}
+
+.searchInput {
+  display: block;
+  width: 100%;
+  padding-left: 2.5rem;
+  padding-right: 0.75rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  border: 1px solid #334155;
+  border-radius: var(--border-radius);
+  background: #0f172a;
+  color: #f1f5f9;
+  line-height: 1.25;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+  background: rgba(30, 41, 59, 1);
+}
+
+.searchInput::placeholder {
+  color: #64748b;
+}
+
+.topBarActions {
+  margin-left: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.notificationButton {
+  padding: 0.5rem;
+  color: #94a3b8;
+  background: none;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+
+.notificationButton:hover {
+  color: #cbd5e1;
+  background: rgba(51, 65, 85, 0.5);
+}
+
+.notificationButton:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.userButton {
+  display: flex;
+  align-items: center;
+  font-size: 0.875rem;
+  border-radius: 50%;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.userButton:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.userButtonAvatar {
+  width: 2rem;
+  height: 2rem;
+  background: linear-gradient(to right, #9333ea, #ec4899);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+/* Page Content */
+.pageContent {
+  flex: 1;
+  position: relative;
+  overflow-y: auto;
+  background: #0f172a;
+}
+
+.pageContentInner {
+  padding: 1.5rem 0;
+}
+
+.pageContentContainer {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* Mobile Sidebar Overlay */
+.mobileOverlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  z-index: 40;
+}
+
+.mobileOverlayBg {
+  position: fixed;
+  inset: 0;
+  background: #4b5563;
+  opacity: 0.75;
+}
+
+.mobileSidebar {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  max-width: 20rem;
+  width: 100%;
+  background: linear-gradient(to bottom, #111827, #1f2937);
+}
+
+.mobileCloseButton {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin-right: -3rem;
+  padding-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.5rem;
+  width: 2.5rem;
+  border-radius: 50%;
+  background: white;
+  border: none;
+  cursor: pointer;
+}
+
+.mobileCloseButton:focus {
+  outline: 2px solid white;
+  outline-offset: 2px;
+}
+
+/* Mobile Sidebar Content */
+.mobileSidebarContent {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 1.5rem;
+}
+
+.mobileLogoSection {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  margin-bottom: 2rem;
+}
+
+.mobileLogoContainer {
+  display: flex;
+  align-items: center;
+}
+
+.mobileLogoIcon {
+  width: 2.5rem;
+  height: 2.5rem;
+  background: linear-gradient(135deg, #54A65C 0%, #7bb881 50%, #8dd196 100%);
+  border-radius: var(--border-radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 0.75rem;
+  box-shadow: 0 4px 14px 0 rgba(84, 166, 92, 0.4);
+}
+
+.mobileLogoText {
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: white;
+  letter-spacing: -0.025em;
+  background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.mobileNavigation {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.mobileNavItem {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  color: #94a3b8;
+  text-decoration: none;
+  border-radius: var(--border-radius);
+  transition: all 0.2s ease;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.mobileNavItem:hover {
+  background: rgba(84, 166, 92, 0.1);
+  color: #54A65C;
+}
+
+.mobileNavItemActive {
+  background: rgba(84, 166, 92, 0.2);
+  color: #54A65C;
+  border: 1px solid rgba(84, 166, 92, 0.3);
+}
+
+.mobileNavIcon {
+  margin-right: 0.75rem;
+  font-size: 1.125rem;
+}
+
+.mobileUserSection {
+  margin-top: auto;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(51, 65, 85, 0.8);
+}
+
+.mobileUserInfo {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.mobileUserAvatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  background: linear-gradient(135deg, #54A65C 0%, #7bb881 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 0.75rem;
+  color: white;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.mobileUserName {
+  color: #f1f5f9;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin: 0 0 0.25rem 0;
+}
+
+.mobileUserEmail {
+  color: #94a3b8;
+  font-size: 0.75rem;
+  margin: 0;
+}
+
+.mobileLogoutButton {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: rgba(239, 68, 68, 0.1);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: var(--border-radius);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mobileLogoutButton:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+}
+
+/* Mobile Optimizations */
+@media (max-width: 767px) {
+  .container {
+    height: 100vh;
+    overflow: hidden;
+  }
+  
+  .mainContent {
+    width: 100%;
+  }
+  
+  .topBar {
+    height: 3.5rem;
+    padding: 0;
+  }
+  
+  .mobileMenuButton {
+    padding: 0.75rem;
+    border-right: 1px solid #334155;
+  }
+  
+  .topBarContent {
+    padding: 0 1rem;
+  }
+  
+  .searchContainer {
+    max-width: none;
+    flex: 1;
+  }
+  
+  .searchInput {
+    font-size: 0.8rem;
+    padding: 0.5rem 0.5rem 0.5rem 2rem;
+  }
+  
+  .searchIcon {
+    padding-left: 0.5rem;
+  }
+  
+  .pageContentContainer {
+    padding: 0 0.75rem;
+  }
+  
+  .pageContentInner {
+    padding: 1rem 0;
+  }
+  
+  .mobileSidebar {
+    max-width: 18rem;
+  }
+  
+  .mobileSidebarContent {
+    padding: 1rem;
+  }
+  
+  .mobileLogoSection {
+    margin-bottom: 1.5rem;
+  }
+  
+  .mobileLogoText {
+    font-size: 1.25rem;
+  }
+  
+  .mobileNavItem {
+    padding: 0.875rem 0.75rem;
+    font-size: 0.8rem;
+  }
+  
+  .mobileUserSection {
+    padding-top: 1rem;
+  }
+  
+  .mobileUserInfo {
+    margin-bottom: 0.75rem;
+  }
+  
+  .mobileUserAvatar {
+    width: 2.25rem;
+    height: 2.25rem;
+    font-size: 0.8rem;
+  }
+  
+  .mobileUserName {
+    font-size: 0.8rem;
+  }
+  
+  .mobileUserEmail {
+    font-size: 0.7rem;
+  }
+  
+  .mobileLogoutButton {
+    padding: 0.625rem 0.75rem;
+    font-size: 0.8rem;
+  }
+}
+
+/* Tablet and Desktop */
+@media (min-width: 768px) {
+  .sidebar {
+    display: block;
+  }
+  
+  .mobileMenuButton {
+    display: none;
+  }
+  
+  .mobileOverlay {
+    display: none;
+  }
+}
+
+/* Large Mobile Screens */
+@media (min-width: 480px) and (max-width: 767px) {
+  .mobileSidebar {
+    max-width: 20rem;
+  }
+  
+  .mobileSidebarContent {
+    padding: 1.25rem;
+  }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fadeIn {
+  animation: fadeIn 0.3s ease-in-out;
+}
