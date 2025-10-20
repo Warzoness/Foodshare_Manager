@@ -19,7 +19,7 @@ interface CreateShopRequest {
 export async function GET(request: NextRequest) {
   try {
     // Forward request to backend API
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://foodshare-production-98da.up.railway.app';
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://foodshare-production-98da.up.railway.app';
     const shopsUrl = `${backendUrl}/api/seller/shops`;
     
     console.log('Forwarding seller shops request to backend:', shopsUrl);
@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
     const authHeader = request.headers.get('Authorization');
 
     // Get backend URL from environment
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://foodshare-production-98da.up.railway.app';
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://foodshare-production-98da.up.railway.app';
     const fullUrl = `${backendUrl}/api/seller/shops`;
     
     console.log('Creating shop via backend URL:', fullUrl);

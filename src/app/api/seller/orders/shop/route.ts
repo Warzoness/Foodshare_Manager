@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+// GET /api/seller/orders/shop - Get orders for seller shops
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -14,7 +15,7 @@ export async function GET(request: NextRequest) {
     const sortBy = searchParams.get('sortBy') || 'createdAt';
     const sortDirection = searchParams.get('sortDirection') || 'desc';
 
-    console.log('Admin orders API called with params:', {
+    console.log('Seller shop orders API called with params:', {
       shopId, status, fromDate, toDate, page, size, sortBy, sortDirection
     });
 
@@ -32,7 +33,7 @@ export async function GET(request: NextRequest) {
 
     // Get backend URL from environment
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://foodshare-production-98da.up.railway.app';
-    const fullUrl = `${backendUrl}/api/admin/orders?${queryParams}`;
+    const fullUrl = `${backendUrl}/api/seller/orders/shop?${queryParams}`;
     
     console.log('Fetching from backend URL:', fullUrl);
 
@@ -50,46 +51,35 @@ export async function GET(request: NextRequest) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(`Backend API error: ${response.status} - ${errorText}`);
-      
-      // Return specific error based on status code
-      if (response.status === 401) {
-        return NextResponse.json(
-          { 
-            code: "UNAUTHORIZED",
-            success: false,
-            error: 'Authentication required',
-            message: 'Backend API requires valid authentication token',
-            data: {
-              content: [],
-              page: 0,
-              size: 20,
-              totalElements: 0,
-              totalPages: 0,
-              hasNext: false,
-              hasPrevious: false
-            }
-          },
-          { status: 401 }
-        );
-      }
-      
-      throw new Error(`Backend API error: ${response.status} - ${errorText}`);
+      console.error('Backend seller shop orders error:', response.status, errorText);
+      return NextResponse.json(
+        { 
+          success: false,
+          error: errorText || 'Failed to fetch shop orders',
+          data: {
+            content: [],
+            page: 0,
+            size: 20,
+            totalElements: 0,
+            totalPages: 0,
+            hasNext: false,
+            hasPrevious: false
+          }
+        },
+        { status: response.status }
+      );
     }
 
-    const data = await response.json();
-    console.log('Backend orders response:', data);
+    const responseData = await response.json();
+    console.log('Backend seller shop orders success:', responseData);
+    return NextResponse.json(responseData);
     
-    return NextResponse.json(data);
-
   } catch (error) {
-    console.error('Error fetching admin orders:', error);
+    console.error('Error fetching seller shop orders:', error);
     return NextResponse.json(
-      { 
-        code: "ERROR",
+      {
         success: false,
-        error: 'Failed to fetch orders',
-        message: error instanceof Error ? error.message : 'Unknown error',
+        error: 'Failed to fetch shop orders',
         data: {
           content: [],
           page: 0,

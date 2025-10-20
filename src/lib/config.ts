@@ -2,8 +2,9 @@
 export const config = {
   // API Configuration
   api: {
-    baseUrl: process.env.NODE_ENV === 'development' ? '' : (process.env.NEXT_PUBLIC_API_URL || 'https://foodshare-production-98da.up.railway.app'),
+    baseUrl: process.env.NEXT_PUBLIC_API_URL || 'https://foodshare-production-98da.up.railway.app',
     ordersBaseUrl: process.env.NEXT_PUBLIC_ORDERS_API_URL || 'https://foodshare-production-98da.up.railway.app',
+    backendUrl: process.env.NEXT_PUBLIC_BACKEND_URL || 'https://foodshare-production-98da.up.railway.app',
     timeout: 10000, // 10 seconds
   },
   

@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
     const authHeader = request.headers.get('Authorization');
 
     // Get backend URL from environment
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://foodshare-production-98da.up.railway.app';
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://foodshare-production-98da.up.railway.app';
     const queryParams = new URLSearchParams();
     
     queryParams.append('page', page.toString());

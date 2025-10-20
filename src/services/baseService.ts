@@ -94,8 +94,20 @@ export class ApiClient {
         data,
         dataType: typeof data,
         isArray: Array.isArray(data),
-        isEmpty: data && typeof data === 'object' && Object.keys(data).length === 0
+        isEmpty: data && typeof data === 'object' && Object.keys(data).length === 0,
+        hasSuccessField: data && typeof data === 'object' && 'success' in data,
+        successValue: data && typeof data === 'object' ? data.success : undefined
       });
+
+      // Check if response has success field and it's false
+      if (data && typeof data === 'object' && 'success' in data && data.success === false) {
+        console.log('Backend returned success: false, treating as error');
+        return {
+          success: false,
+          error: data.message || data.error || 'Backend returned success: false',
+          data: data.data || null
+        };
+      }
 
       return {
         success: data?.success !== false,

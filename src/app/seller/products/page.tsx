@@ -3,7 +3,6 @@
 import { useState, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
-import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { ImageUpload } from '@/components/ui/ImageUpload';
 import { useSellerShopProducts, useDeleteSellerProduct, useCreateSellerProduct, useUpdateSellerProduct } from '@/hooks/useApi';
@@ -31,6 +30,7 @@ export default function ProductsManagement() {
     categoryId: 1,
     imageUrl: '',
     detailImageUrl: '',
+    detailImages: [] as string[],
     quantityAvailable: 0,
     quantityPending: 0,
     status: '1'
@@ -50,7 +50,7 @@ export default function ProductsManagement() {
   const { execute: updateProduct, loading: updating } = useUpdateSellerProduct();
 
   // Extract data from response
-  const products = productsResponse?.content || [];
+  const products = useMemo(() => productsResponse?.content || [], [productsResponse?.content]);
   const totalElements = productsResponse?.totalElements || 0;
   const totalPages = productsResponse?.totalPages || 0;
   const isFirst = productsResponse?.first || false;
@@ -91,6 +91,7 @@ export default function ProductsManagement() {
 
   const handleEditProduct = (product: SellerProduct) => {
     setEditingProduct(product);
+    const detailImages = product.detailImageUrl ? product.detailImageUrl.split(',').filter(url => url.trim()) : [];
     setNewProduct({
       name: product.name || '',
       description: product.description || '',
@@ -99,6 +100,7 @@ export default function ProductsManagement() {
       categoryId: product.categoryId || 1,
       imageUrl: product.imageUrl || '',
       detailImageUrl: product.detailImageUrl || '',
+      detailImages: detailImages,
       quantityAvailable: product.quantityAvailable || 0,
       quantityPending: product.quantityPending || 0,
       status: product.status || '1'
@@ -119,7 +121,12 @@ export default function ProductsManagement() {
 
   const handleCreateProduct = async () => {
     try {
-      await createProduct({...newProduct, shopId: parseInt(shopId)});
+      const productData = {
+        ...newProduct,
+        shopId: parseInt(shopId),
+        detailImageUrl: newProduct.detailImages.join(',')
+      };
+      await createProduct(productData);
       setShowCreateForm(false);
         setNewProduct({
           name: '',
@@ -129,6 +136,7 @@ export default function ProductsManagement() {
           categoryId: 1,
           imageUrl: '',
           detailImageUrl: '',
+          detailImages: [],
           quantityAvailable: 0,
           quantityPending: 0,
           status: '1'
@@ -143,7 +151,11 @@ export default function ProductsManagement() {
     if (!editingProduct?.id) return;
     
     try {
-      await updateProduct(editingProduct.id.toString(), newProduct);
+      const productData = {
+        ...newProduct,
+        detailImageUrl: newProduct.detailImages.join(',')
+      };
+      await updateProduct(editingProduct.id.toString(), productData);
       setShowEditForm(false);
       setEditingProduct(null);
       refetchProducts();
@@ -426,6 +438,7 @@ export default function ProductsManagement() {
                       )}
                     </button>
                   </th>
+                  <th className={styles.tableHeaderCell}>Hình chi tiết</th>
                   <th className={styles.tableHeaderCell}>Thao tác</th>
                 </tr>
               </thead>
@@ -501,6 +514,41 @@ export default function ProductsManagement() {
                       <span className={`${styles.statusBadge} ${product.status === '1' ? styles.active : styles.inactive}`}>
                   {product.status === '1' ? 'Đang bán' : 'Ngừng bán'}
                       </span>
+                    </td>
+                    <td className={styles.tableCell}>
+                      <div className={styles.detailImagesContainer}>
+                        {product.detailImageUrl ? (
+                          <div className={styles.detailImagesGrid}>
+                            {(() => {
+                              const images = product.detailImageUrl.split(',').filter(url => url.trim());
+                              const displayImages = images.slice(0, 3);
+                              const remainingCount = images.length - 3;
+                              
+                              return (
+                                <>
+                                  {displayImages.map((url, index) => (
+                                    <Image 
+                                      key={index}
+                                      src={url.trim()} 
+                                      alt={`${product.name} - Hình chi tiết ${index + 1}`} 
+                                      width={40} 
+                                      height={40} 
+                                      className={styles.detailImageThumbnail}
+                                    />
+                                  ))}
+                                  {remainingCount > 0 && (
+                                    <div className={styles.moreImagesIndicator}>
+                                      +{remainingCount}
+                                    </div>
+                                  )}
+                                </>
+                              );
+                            })()}
+                          </div>
+                        ) : (
+                          <span className={styles.noDetailImages}>Không có</span>
+                        )}
+                      </div>
                     </td>
                     <td className={styles.tableCell}>
                       <div className={styles.actions}>
@@ -714,6 +762,17 @@ export default function ProductsManagement() {
                   className={styles.imageUploadField}
                 />
               </div>
+              
+              <div className={styles.formGroup}>
+                <ImageUpload
+                  label="Hình ảnh chi tiết"
+                  multiple={true}
+                  maxFiles={5}
+                  currentImages={newProduct.detailImages}
+                  onMultipleImageUpload={(urls) => setNewProduct({...newProduct, detailImages: urls})}
+                  className={styles.imageUploadField}
+                />
+              </div>
             </div>
             <div className={styles.modalFooter}>
               <Button 
@@ -816,6 +875,17 @@ export default function ProductsManagement() {
                 label="Hình ảnh sản phẩm"
                 currentImage={newProduct.imageUrl}
                 onImageUpload={(url) => setNewProduct({...newProduct, imageUrl: url})}
+                className={styles.imageUploadField}
+              />
+            </div>
+            
+            <div className={styles.formGroup}>
+              <ImageUpload
+                label="Hình ảnh chi tiết"
+                multiple={true}
+                maxFiles={5}
+                currentImages={newProduct.detailImages}
+                onMultipleImageUpload={(urls) => setNewProduct({...newProduct, detailImages: urls})}
                 className={styles.imageUploadField}
               />
             </div>

@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     const token = authHeader.substring(7); // Remove 'Bearer ' prefix
 
     // Forward request to backend API
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://foodshare-production-98da.up.railway.app';
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://foodshare-production-98da.up.railway.app';
     const meUrl = `${backendUrl}/api/back-office/auth/me`;
     
     console.log('Forwarding me request to backend:', meUrl);

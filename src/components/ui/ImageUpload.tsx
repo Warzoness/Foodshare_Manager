@@ -81,6 +81,7 @@ export function ImageUpload({
     }
 
     const data = await response.json();
+    // API returns array of objects with secureUrl property
     return data.data.map((item: { secureUrl: string }) => item.secureUrl);
   };
 
@@ -105,8 +106,9 @@ export function ImageUpload({
     try {
       if (multiple) {
         const urls = await uploadMultipleImages(validFiles);
-        setPreviewImages(prev => [...prev, ...urls]);
-        onMultipleImageUpload?.(urls);
+        const newImages = [...previewImages, ...urls];
+        setPreviewImages(newImages);
+        onMultipleImageUpload?.(newImages);
       } else {
         const url = await uploadImage(validFiles[0]);
         setPreviewImage(url);
@@ -118,7 +120,7 @@ export function ImageUpload({
     } finally {
       setUploading(false);
     }
-  }, [multiple, maxFiles, onImageUpload, onMultipleImageUpload]);
+  }, [multiple, maxFiles, onImageUpload, onMultipleImageUpload, previewImages]);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -171,6 +173,7 @@ export function ImageUpload({
     if (multiple) {
       const newImages = previewImages.filter((_, i) => i !== index);
       setPreviewImages(newImages);
+      onMultipleImageUpload?.(newImages);
     } else {
       setPreviewImage('');
       onImageUpload?.('');

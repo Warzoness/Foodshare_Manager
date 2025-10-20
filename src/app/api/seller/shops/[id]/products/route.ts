@@ -34,7 +34,7 @@ export async function GET(
     const authHeader = request.headers.get('Authorization');
 
     // Get backend URL from environment
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://foodshare-production-98da.up.railway.app';
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://foodshare-production-98da.up.railway.app';
     
     // Build query parameters for backend API
     const queryParams = new URLSearchParams();

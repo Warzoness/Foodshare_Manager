@@ -25,7 +25,7 @@ export async function GET(
     const authHeader = request.headers.get('Authorization');
 
     // Get backend URL from environment
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://foodshare-production-98da.up.railway.app';
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://foodshare-production-98da.up.railway.app';
     const fullUrl = `${backendUrl}/api/admin/products/${productId}`;
     
     console.log('Fetching from backend URL:', fullUrl);
@@ -96,7 +96,7 @@ export async function PUT(
     const authHeader = request.headers.get('Authorization');
 
     // Get backend URL from environment
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://foodshare-production-98da.up.railway.app';
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://foodshare-production-98da.up.railway.app';
     const fullUrl = `${backendUrl}/api/admin/products/${productId}`;
     
     console.log('Updating via backend URL:', fullUrl);
@@ -167,7 +167,7 @@ export async function DELETE(
     const authHeader = request.headers.get('Authorization');
 
     // Get backend URL from environment
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://foodshare-production-98da.up.railway.app';
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://foodshare-production-98da.up.railway.app';
     const fullUrl = `${backendUrl}/api/admin/products/${productId}`;
     
     console.log('Deleting via backend URL:', fullUrl);

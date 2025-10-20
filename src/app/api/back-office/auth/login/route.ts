@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Forward authentication request to backend API
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://foodshare-production-98da.up.railway.app';
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://foodshare-production-98da.up.railway.app';
     const loginUrl = `${backendUrl}/api/back-office/auth/login`;
     
     console.log('Forwarding login request to backend:', loginUrl);

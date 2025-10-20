@@ -977,8 +977,14 @@ export function useRegister() {
   };
 }
 
-export function useGetCurrentUser() {
-  const [state, setState] = useState<UseApiState<unknown>>({
+// Seller Dashboard hooks
+export function useSellerDashboardStats() {
+  const [state, setState] = useState<UseApiState<{
+    todayOrders: number;
+    todayRevenue: number;
+    activeProducts: number;
+    pendingOrders: number;
+  }>>({
     data: null,
     loading: false,
     error: null,
@@ -989,24 +995,14 @@ export function useGetCurrentUser() {
     setState(prev => ({ ...prev, loading: true, error: null }));
     
     try {
-      const { getCurrentUserInfo } = await import('@/lib/auth');
-      const response = await getCurrentUserInfo();
-      
-      if (response.user) {
-        setState({
-          data: response.user,
-          loading: false,
-          error: null,
-          success: true,
-        });
-      } else {
-        setState({
-          data: null,
-          loading: false,
-          error: response.error || 'Không thể lấy thông tin người dùng',
-          success: false,
-        });
-      }
+      const { sellerDashboardService } = await import('@/services/sellerDashboardService');
+      const stats = await sellerDashboardService.getStats();
+      setState({
+        data: stats,
+        loading: false,
+        error: null,
+        success: true,
+      });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       setState({
@@ -1017,6 +1013,123 @@ export function useGetCurrentUser() {
       });
     }
   }, []);
+
+  useEffect(() => {
+    execute();
+  }, [execute]);
+
+  const reset = useCallback(() => {
+    setState({
+      data: null,
+      loading: false,
+      error: null,
+      success: false,
+    });
+  }, []);
+
+  return {
+    ...state,
+    execute,
+    reset,
+  };
+}
+
+export function useSellerRecentOrders(limit: number = 5) {
+  const [state, setState] = useState<UseApiState<Array<{
+    id: string;
+    customerName: string;
+    amount: number;
+    status: string;
+    createdAt: string;
+  }>>>({
+    data: null,
+    loading: false,
+    error: null,
+    success: false,
+  });
+
+  const execute = useCallback(async () => {
+    setState(prev => ({ ...prev, loading: true, error: null }));
+    
+    try {
+      const { sellerDashboardService } = await import('@/services/sellerDashboardService');
+      const orders = await sellerDashboardService.getRecentOrders(limit);
+      setState({
+        data: orders,
+        loading: false,
+        error: null,
+        success: true,
+      });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      setState({
+        data: null,
+        loading: false,
+        error: errorMessage,
+        success: false,
+      });
+    }
+  }, [limit]);
+
+  useEffect(() => {
+    execute();
+  }, [execute]);
+
+  const reset = useCallback(() => {
+    setState({
+      data: null,
+      loading: false,
+      error: null,
+      success: false,
+    });
+  }, []);
+
+  return {
+    ...state,
+    execute,
+    reset,
+  };
+}
+
+export function useSellerTopProducts(limit: number = 5) {
+  const [state, setState] = useState<UseApiState<Array<{
+    id: string;
+    name: string;
+    sold: number;
+    revenue: number;
+  }>>>({
+    data: null,
+    loading: false,
+    error: null,
+    success: false,
+  });
+
+  const execute = useCallback(async () => {
+    setState(prev => ({ ...prev, loading: true, error: null }));
+    
+    try {
+      const { sellerDashboardService } = await import('@/services/sellerDashboardService');
+      const products = await sellerDashboardService.getTopProducts(limit);
+      setState({
+        data: products,
+        loading: false,
+        error: null,
+        success: true,
+      });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      setState({
+        data: null,
+        loading: false,
+        error: errorMessage,
+        success: false,
+      });
+    }
+  }, [limit]);
+
+  useEffect(() => {
+    execute();
+  }, [execute]);
 
   const reset = useCallback(() => {
     setState({

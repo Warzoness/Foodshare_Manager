@@ -6,16 +6,16 @@ import { getCurrentUserInfo } from '@/lib/auth';
 import styles from './page.module.css';
 
 interface UserProfile {
-  id: number;
+  id: string;
   name: string;
   email: string;
   role: string;
-  createdAt?: string;
-  updatedAt?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export default function SellerSettingsPage() {
-  const { user, updateUser } = useAuth();
+  const { user } = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -82,7 +82,6 @@ export default function SellerSettingsPage() {
           email: editForm.email,
         };
         setProfile(updatedProfile);
-        updateUser(updatedProfile);
       }
       
       setIsEditing(false);
@@ -267,14 +266,14 @@ export default function SellerSettingsPage() {
                   <div className={styles.infoItem}>
                     <span className={styles.infoLabel}>Ngày tạo:</span>
                     <span className={styles.infoValue}>
-                      {new Date(profile.createdAt).toLocaleDateString('vi-VN')}
+                      {profile.createdAt.toLocaleDateString('vi-VN')}
                     </span>
                   </div>
                   {profile.updatedAt && (
                     <div className={styles.infoItem}>
                       <span className={styles.infoLabel}>Cập nhật lần cuối:</span>
                       <span className={styles.infoValue}>
-                        {new Date(profile.updatedAt).toLocaleDateString('vi-VN')}
+                        {profile.updatedAt.toLocaleDateString('vi-VN')}
                       </span>
                     </div>
                   )}

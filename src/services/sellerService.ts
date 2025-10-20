@@ -17,7 +17,7 @@ class SellerService {
   
   constructor(private apiClient: ApiClient) {
     // Create separate API client for orders with different base URL
-    this.ordersApiClient = new ApiClient(config.api.ordersBaseUrl);
+    this.ordersApiClient = new ApiClient(config.api.backendUrl);
   }
 
   // Shop management
@@ -144,10 +144,11 @@ class SellerService {
       console.log('Updating order status:', { 
         orderId: numericOrderId, 
         requestBody, 
-        url: `/api/seller/orders/${numericOrderId}/status` 
+        url: `/api/seller/orders/${numericOrderId}/status`,
+        ordersApiClientBaseUrl: config.api.backendUrl
       });
       
-      const response = await this.apiClient.put<ApiOrder>(`/api/seller/orders/${numericOrderId}/status`, requestBody);
+      const response = await this.ordersApiClient.put<ApiOrder>(`/api/seller/orders/${numericOrderId}/status`, requestBody);
       
       console.log('Order status update response:', response);
       
