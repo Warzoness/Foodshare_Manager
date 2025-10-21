@@ -67,7 +67,6 @@ export default function SettingsPage() {
         address: '' // API doesn't return address, will be empty
       });
     } catch (err) {
-      console.error('Error loading current user:', err);
       setError('Không thể tải thông tin người dùng.');
     } finally {
       setUserLoading(false);
@@ -81,7 +80,6 @@ export default function SettingsPage() {
       const response = await adminManagementService.getAdmins();
       setAdmins(response.content);
     } catch (err) {
-      console.error('Error loading admins:', err);
       setError('Không thể tải danh sách admin. Vui lòng thử lại.');
     } finally {
       setLoading(false);
@@ -121,7 +119,6 @@ export default function SettingsPage() {
       alert('Cập nhật thông tin thành công!');
       
     } catch (err: unknown) {
-      console.error('Error updating user info:', err);
       const errorMessage = err instanceof Error ? err.message : 'Có lỗi xảy ra khi cập nhật thông tin';
       alert(errorMessage);
     } finally {
@@ -169,7 +166,6 @@ export default function SettingsPage() {
       alert('Thay đổi mật khẩu thành công!');
       
     } catch (err: unknown) {
-      console.error('Error changing password:', err);
       const errorMessage = err instanceof Error ? err.message : 'Có lỗi xảy ra khi thay đổi mật khẩu';
       alert(errorMessage);
     } finally {
@@ -232,7 +228,6 @@ export default function SettingsPage() {
       alert('Thêm admin thành công!');
       
     } catch (err: unknown) {
-      console.error('Error creating admin:', err);
       const errorMessage = err instanceof Error ? err.message : 'Có lỗi xảy ra khi thêm admin';
       alert(errorMessage);
     } finally {
@@ -255,7 +250,6 @@ export default function SettingsPage() {
         await loadAdmins(); // Reload list
         alert('Xóa admin thành công!');
       } catch (err: unknown) {
-        console.error('Error deleting admin:', err);
         const errorMessage = err instanceof Error ? err.message : 'Có lỗi xảy ra khi xóa admin';
         alert(errorMessage);
       } finally {
@@ -278,7 +272,6 @@ export default function SettingsPage() {
       await adminManagementService.toggleAdminStatus(adminId, admin.status);
       await loadAdmins(); // Reload list
     } catch (err: unknown) {
-      console.error('Error toggling admin status:', err);
       const errorMessage = err instanceof Error ? err.message : 'Có lỗi xảy ra khi thay đổi trạng thái admin';
       alert(errorMessage);
     } finally {
@@ -288,7 +281,7 @@ export default function SettingsPage() {
 
   // const handleSave = () => {
   //   // Tạm thời chỉ log ra console
-  //   console.log('Saving settings:', settings);
+  //   ('Saving settings:', settings);
   //   alert('Cài đặt đã được lưu! (Dữ liệu cứng)');
   // };
   return (

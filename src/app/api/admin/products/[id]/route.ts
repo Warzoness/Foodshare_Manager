@@ -19,7 +19,6 @@ export async function GET(
       );
     }
 
-    console.log('Admin product detail API called for product ID:', productId);
 
     // Get authorization header from request
     const authHeader = request.headers.get('Authorization');
@@ -28,7 +27,6 @@ export async function GET(
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://foodshare-production-98da.up.railway.app';
     const fullUrl = `${backendUrl}/api/admin/products/${productId}`;
     
-    console.log('Fetching from backend URL:', fullUrl);
 
     // Forward the request to the backend API
     const response = await fetch(fullUrl, {
@@ -41,7 +39,6 @@ export async function GET(
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Backend admin product detail error:', response.status, errorText);
       return NextResponse.json(
         { 
           success: false,
@@ -53,11 +50,9 @@ export async function GET(
     }
 
     const responseData = await response.json();
-    console.log('Backend admin product detail success:', responseData);
     return NextResponse.json(responseData);
 
   } catch (error) {
-    console.error('Error fetching admin product detail:', error);
     
     return NextResponse.json(
       {
@@ -90,7 +85,6 @@ export async function PUT(
     }
 
     const updateData = await request.json();
-    console.log('Admin product update API called for product ID:', productId, 'with data:', updateData);
 
     // Get authorization header from request
     const authHeader = request.headers.get('Authorization');
@@ -99,7 +93,6 @@ export async function PUT(
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://foodshare-production-98da.up.railway.app';
     const fullUrl = `${backendUrl}/api/admin/products/${productId}`;
     
-    console.log('Updating via backend URL:', fullUrl);
 
     // Forward the request to the backend API
     const response = await fetch(fullUrl, {
@@ -113,7 +106,6 @@ export async function PUT(
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Backend admin product update error:', response.status, errorText);
       return NextResponse.json(
         { 
           success: false,
@@ -125,11 +117,9 @@ export async function PUT(
     }
 
     const responseData = await response.json();
-    console.log('Backend admin product update success:', responseData);
     return NextResponse.json(responseData);
 
   } catch (error) {
-    console.error('Error updating admin product:', error);
     
     return NextResponse.json(
       {
@@ -161,7 +151,6 @@ export async function DELETE(
       );
     }
 
-    console.log('Admin product delete API called for product ID:', productId);
 
     // Get authorization header from request
     const authHeader = request.headers.get('Authorization');
@@ -170,7 +159,6 @@ export async function DELETE(
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://foodshare-production-98da.up.railway.app';
     const fullUrl = `${backendUrl}/api/admin/products/${productId}`;
     
-    console.log('Deleting via backend URL:', fullUrl);
 
     // Forward the request to the backend API
     const response = await fetch(fullUrl, {
@@ -183,7 +171,6 @@ export async function DELETE(
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Backend admin product delete error:', response.status, errorText);
       return NextResponse.json(
         { 
           success: false,
@@ -195,11 +182,9 @@ export async function DELETE(
     }
 
     const responseData = await response.json();
-    console.log('Backend admin product delete success:', responseData);
     return NextResponse.json(responseData);
 
   } catch (error) {
-    console.error('Error deleting admin product:', error);
     
     return NextResponse.json(
       {

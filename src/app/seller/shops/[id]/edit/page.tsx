@@ -110,7 +110,6 @@ export default function EditShopPage({ params }: EditShopPageProps) {
   useEffect(() => {
     const requestLocationPermission = async () => {
       if (!navigator.geolocation) {
-        console.log('Geolocation is not supported by this browser.');
         return;
       }
 
@@ -130,7 +129,6 @@ export default function EditShopPage({ params }: EditShopPageProps) {
         }));
         setLocationPermission('granted');
       } catch (error) {
-        console.log('Location access denied or error:', error);
         setLocationPermission('denied');
       }
     };

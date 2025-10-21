@@ -104,7 +104,6 @@ export default function OrdersManagement() {
         alert(`❌ Lỗi: ${errorMessage}`);
       }
     } catch (error) {
-      console.error('Error updating order status:', error);
       alert('❌ Có lỗi xảy ra khi cập nhật trạng thái đơn hàng');
     }
   };

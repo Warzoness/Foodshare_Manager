@@ -9,12 +9,6 @@ export async function GET(request: NextRequest) {
     const size = parseInt(searchParams.get('size') || '20');
     const sort = searchParams.getAll('sort') || [];
 
-    console.log('Admin products API called with params:', {
-      page,
-      size,
-      sort
-    });
-
     // Get authorization header from request
     const authHeader = request.headers.get('Authorization');
 
@@ -28,7 +22,6 @@ export async function GET(request: NextRequest) {
 
     const fullUrl = `${backendUrl}/api/admin/products?${queryParams}`;
     
-    console.log('Fetching from backend URL:', fullUrl);
 
     // Forward the request to the backend API
     const response = await fetch(fullUrl, {
@@ -41,7 +34,6 @@ export async function GET(request: NextRequest) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(`Backend API error: ${response.status} - ${errorText}`);
       
       // Return specific error based on status code
       if (response.status === 401) {
@@ -68,12 +60,10 @@ export async function GET(request: NextRequest) {
     }
 
     const data = await response.json();
-    console.log('Backend products response:', data);
     
     return NextResponse.json(data);
 
   } catch (error) {
-    console.error('Error fetching admin products:', error);
     return NextResponse.json(
       { 
         success: false,

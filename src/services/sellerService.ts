@@ -141,20 +141,12 @@ class SellerService {
         status: status
       };
       
-      console.log('Updating order status:', { 
-        orderId: numericOrderId, 
-        requestBody, 
-        url: `/api/seller/orders/${numericOrderId}/status`,
-        ordersApiClientBaseUrl: config.api.backendUrl
-      });
       
       const response = await this.ordersApiClient.put<ApiOrder>(`/api/seller/orders/${numericOrderId}/status`, requestBody);
       
-      console.log('Order status update response:', response);
       
       return response;
     } catch (error) {
-      console.error('Error in updateOrderStatus:', error);
       throw error;
     }
   }
@@ -177,7 +169,6 @@ class SellerService {
     hasNext: boolean;
     hasPrevious: boolean;
   }>> {
-    console.log('🔍 getShopOrders called with params:', params);
     
     const queryParams = new URLSearchParams();
     
@@ -193,7 +184,6 @@ class SellerService {
     const queryString = queryParams.toString();
     const url = queryString ? `/api/seller/orders/shop?${queryString}` : '/api/seller/orders/shop';
     
-    console.log('🌐 Making API call to:', url);
     
     return this.ordersApiClient.get<{
       content: ApiOrder[];

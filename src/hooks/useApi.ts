@@ -854,10 +854,8 @@ export function useSellerShopOrders(params?: {
   sortBy?: string;
   sortDirection?: 'asc' | 'desc';
 }) {
-  console.log('🎯 useSellerShopOrders hook called with params:', params);
   const paramsString = JSON.stringify(params);
   const apiCall = useCallback(() => {
-    console.log('🚀 API call triggered with params:', params);
     return sellerService.getShopOrders(params);
   }, [paramsString]);
   return useApi(apiCall, { immediate: true });

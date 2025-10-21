@@ -5,7 +5,7 @@ import { config } from './config';
 const AUTH_ENDPOINTS = {
   LOGIN: '/api/back-office/auth/login',
   LOGOUT: '/api/back-office/auth/logout',
-  REGISTER: '/api/register',
+  REGISTER: '/api/back-office/auth/register',
   ME: '/api/back-office/auth/me',
 };
 
@@ -101,7 +101,6 @@ export const login = async (email: string, password: string): Promise<{ user: Us
 
     return { user };
   } catch (error) {
-    console.error('Login error:', error);
     return {
       user: null,
       error: 'Lỗi kết nối. Vui lòng thử lại.',
@@ -138,11 +137,11 @@ export const register = async (name: string, email: string, password: string): P
       };
     }
 
-    // Extract user data and token from response
-    const { id, name: userName, email: userEmail, role, accessToken } = responseData.data;
+    // Extract user data from response
+    const { id, name: userName, email: userEmail, role } = responseData.data;
     
-    // Validate required fields
-    if (!id || !userName || !userEmail || !role || !accessToken) {
+    // Validate required fields (no accessToken needed for registration)
+    if (!id || !userName || !userEmail || !role) {
       return {
         user: null,
         error: 'Dữ liệu người dùng không đầy đủ',
@@ -158,15 +157,12 @@ export const register = async (name: string, email: string, password: string): P
       updatedAt: new Date(),
     };
 
-    // Store user data and token
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('user', JSON.stringify(user));
-      localStorage.setItem('token', accessToken);
-    }
-
+    // For registration, we don't store user data or token in localStorage
+    // The component will handle user state management after successful registration
+    // User should login separately to get proper authentication token
+    
     return { user };
   } catch (error) {
-    console.error('Register error:', error);
     return {
       user: null,
       error: 'Lỗi kết nối. Vui lòng thử lại.',
@@ -239,7 +235,6 @@ export const getCurrentUserInfo = async (): Promise<{ user: User | null; error?:
 
     return { user };
   } catch (error) {
-    console.error('Get current user error:', error);
     return {
       user: null,
       error: 'Lỗi kết nối. Vui lòng thử lại.',
@@ -262,7 +257,6 @@ export const logout = async (): Promise<void> => {
       });
     }
   } catch (error) {
-    console.error('Logout error:', error);
   } finally {
     // Clear local storage regardless of API call success
     if (typeof window !== 'undefined') {

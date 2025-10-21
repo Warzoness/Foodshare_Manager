@@ -58,20 +58,11 @@ export class ApiClient {
           data = await response.text();
         }
       } catch (parseError) {
-        console.error('Error parsing response:', parseError);
         data = await response.text().catch(() => 'Unable to parse response');
       }
 
       // Only treat as error if HTTP status is not OK
       if (!response.ok) {
-        console.error('HTTP Error Response:', {
-          url,
-          status: response.status,
-          statusText: response.statusText,
-          data: data,
-          dataType: typeof data,
-          dataStringified: JSON.stringify(data, null, 2)
-        });
         // Extract error message from various response formats
         let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
         
@@ -88,20 +79,9 @@ export class ApiClient {
       }
       
       // If we get here, it's a successful response (even if data is empty object or empty array)
-      console.log('API Success Response:', {
-        url,
-        status: response.status,
-        data,
-        dataType: typeof data,
-        isArray: Array.isArray(data),
-        isEmpty: data && typeof data === 'object' && Object.keys(data).length === 0,
-        hasSuccessField: data && typeof data === 'object' && 'success' in data,
-        successValue: data && typeof data === 'object' ? data.success : undefined
-      });
 
       // Check if response has success field and it's false
       if (data && typeof data === 'object' && 'success' in data && data.success === false) {
-        console.log('Backend returned success: false, treating as error');
         return {
           success: false,
           error: data.message || data.error || 'Backend returned success: false',
@@ -118,14 +98,12 @@ export class ApiClient {
       clearTimeout(timeoutId);
       
       if (error instanceof Error && error.name === 'AbortError') {
-        console.error('API Request Timeout:', url);
         return {
           success: false,
           error: 'Request timeout',
         };
       }
       
-      console.error('API Request Error:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Network error',

@@ -79,7 +79,6 @@ export default function SellerLayout({
   };
 
   const toggleSidebar = () => {
-    console.log('Toggle sidebar clicked, current state:', sidebarOpen);
     setSidebarOpen(!sidebarOpen);
   };
 

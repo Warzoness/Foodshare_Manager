@@ -36,7 +36,6 @@ class SellerDashboardService {
         return response.data;
       }
     } catch (error) {
-      console.error('Error fetching seller dashboard stats:', error);
     }
     
     // Return empty stats if API fails
@@ -56,7 +55,6 @@ class SellerDashboardService {
         return response.data;
       }
     } catch (error) {
-      console.error('Error fetching recent orders:', error);
     }
     
     // Return empty array if API fails
@@ -71,7 +69,6 @@ class SellerDashboardService {
         return response.data;
       }
     } catch (error) {
-      console.error('Error fetching top products:', error);
     }
     
     // Return empty array if API fails

@@ -19,38 +19,55 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '0');
     const size = parseInt(searchParams.get('size') || '20');
+    const search = searchParams.get('search') || '';
+    const role = searchParams.get('role') || '';
 
-    // TODO: Replace with actual database call
-    // const users = await db.user.findMany({
-    //   where: {
-    //     ...(role && { role }),
-    //     ...(search && {
-    //       OR: [
-    //         { name: { contains: search, mode: 'insensitive' } },
-    //         { email: { contains: search, mode: 'insensitive' } }
-    //       ]
-    //     })
-    //   },
-    //   skip: page * size,
-    //   take: size,
-    //   orderBy: { createdAt: 'desc' }
-    // });
+    // Call external API to get users
+    const externalApiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://foodshare-production-98da.up.railway.app';
+    
+    try {
+      const queryParams = new URLSearchParams({
+        page: page.toString(),
+        size: size.toString(),
+        ...(search && { search }),
+        ...(role && { role }),
+      });
 
-    // Mock response for now
-    return NextResponse.json({
-      success: true,
-      data: {
-        content: [],
-        totalElements: 0,
-        totalPages: 0,
-        size: size,
-        number: page
-      },
-      message: 'Database not connected. Please implement user management.'
-    });
+      const response = await fetch(`${externalApiUrl}/api/back-office/users?${queryParams}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+      });
+
+      const responseData = await response.json();
+
+      if (!response.ok) {
+        return NextResponse.json(
+          { 
+            success: false, 
+            message: responseData?.message || 'Không thể lấy danh sách users' 
+          },
+          { status: response.status }
+        );
+      }
+
+      // Return the response from external API
+      return NextResponse.json(responseData);
+
+    } catch (apiError) {
+      console.error('External API error:', apiError);
+      return NextResponse.json(
+        { 
+          success: false, 
+          message: 'Lỗi kết nối đến server' 
+        },
+        { status: 503 }
+      );
+    }
 
   } catch (error) {
-    console.error('Error fetching users:', error);
     return NextResponse.json(
       {
         success: false,
@@ -118,37 +135,46 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // TODO: Replace with actual database call
-    // Check if email already exists
-    // const existingUser = await db.user.findUnique({
-    //   where: { email }
-    // });
-    // if (existingUser) {
-    //   return NextResponse.json(
-    //     { success: false, message: 'Email đã được sử dụng' },
-    //     { status: 409 }
-    //   );
-    // }
+    // Call external API to create user
+    const externalApiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://foodshare-production-98da.up.railway.app';
+    
+    try {
+      const response = await fetch(`${externalApiUrl}/api/back-office/users`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({ name, email, password, role }),
+      });
 
-    // Hash password and create user
-    // const hashedPassword = await bcrypt.hash(password, 10);
-    // const newUser = await db.user.create({
-    //   data: {
-    //     name,
-    //     email,
-    //     password: hashedPassword,
-    //     role,
-    //     status: 'ACTIVE'
-    //   }
-    // });
+      const responseData = await response.json();
 
-    return NextResponse.json({
-      success: false,
-      message: 'Database not connected. Please implement user creation.'
-    }, { status: 501 });
+      if (!response.ok) {
+        return NextResponse.json(
+          { 
+            success: false, 
+            message: responseData?.message || 'Không thể tạo user' 
+          },
+          { status: response.status }
+        );
+      }
+
+      // Return the response from external API
+      return NextResponse.json(responseData);
+
+    } catch (apiError) {
+      console.error('External API error:', apiError);
+      return NextResponse.json(
+        { 
+          success: false, 
+          message: 'Lỗi kết nối đến server' 
+        },
+        { status: 503 }
+      );
+    }
 
   } catch (error) {
-    console.error('Error creating user:', error);
     return NextResponse.json(
       {
         success: false,

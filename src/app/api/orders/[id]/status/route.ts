@@ -57,7 +57,6 @@ export async function PUT(
     );
     
   } catch (error) {
-    console.error('Error updating order status:', error);
     return NextResponse.json(
       { success: false, error: "Failed to update order status", data: null },
       { status: 500 }

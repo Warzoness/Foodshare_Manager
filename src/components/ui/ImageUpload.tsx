@@ -115,7 +115,6 @@ export function ImageUpload({
         onImageUpload?.(url);
       }
     } catch (error) {
-      console.error('Upload error:', error);
       alert('Có lỗi xảy ra khi upload ảnh');
     } finally {
       setUploading(false);

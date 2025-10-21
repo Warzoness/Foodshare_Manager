@@ -114,7 +114,6 @@ export default function ProductsManagement() {
         await deleteProduct(productId.toString());
         refetchProducts();
       } catch (error) {
-        console.error('Error deleting product:', error);
       }
     }
   };
@@ -143,7 +142,6 @@ export default function ProductsManagement() {
         });
         refetchProducts();
     } catch (error) {
-      console.error('Error creating product:', error);
     }
   };
 
@@ -160,7 +158,6 @@ export default function ProductsManagement() {
       setEditingProduct(null);
       refetchProducts();
     } catch (error) {
-      console.error('Error updating product:', error);
     }
   };
 

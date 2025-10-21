@@ -44,7 +44,6 @@ export default function SellerSettingsPage() {
           setError(response.error || 'Không thể tải thông tin người dùng');
         }
       } catch (err) {
-        console.error('Error fetching profile:', err);
         setError('Có lỗi xảy ra khi tải thông tin');
       } finally {
         setLoading(false);
@@ -86,7 +85,6 @@ export default function SellerSettingsPage() {
       
       setIsEditing(false);
     } catch (err) {
-      console.error('Error updating profile:', err);
       setError('Có lỗi xảy ra khi cập nhật thông tin');
     } finally {
       setLoading(false);

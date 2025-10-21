@@ -16,7 +16,6 @@ export async function GET(
       );
     }
 
-    console.log('Seller shop detail API called for shop ID:', shopId);
 
     // Get authorization header from request
     const authHeader = request.headers.get('Authorization');
@@ -25,7 +24,6 @@ export async function GET(
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://foodshare-production-98da.up.railway.app';
     const fullUrl = `${backendUrl}/api/seller/shops/${shopId}`;
     
-    console.log('Fetching from backend URL:', fullUrl);
 
     // Forward the request to the backend API
     const response = await fetch(fullUrl, {
@@ -38,7 +36,6 @@ export async function GET(
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Backend seller shop detail error:', response.status, errorText);
       return NextResponse.json(
         { 
           success: false,
@@ -50,11 +47,9 @@ export async function GET(
     }
 
     const responseData = await response.json();
-    console.log('Backend seller shop detail success:', responseData);
     return NextResponse.json(responseData);
     
   } catch (error) {
-    console.error('Error fetching seller shop detail:', error);
     return NextResponse.json(
       { success: false, error: "Failed to fetch shop", data: null },
       { status: 500 }
@@ -79,7 +74,6 @@ export async function PUT(
       );
     }
 
-    console.log('Seller shop update API called for shop ID:', shopId, 'with data:', updateData);
 
     // Get authorization header from request
     const authHeader = request.headers.get('Authorization');
@@ -88,7 +82,6 @@ export async function PUT(
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://foodshare-production-98da.up.railway.app';
     const fullUrl = `${backendUrl}/api/seller/shops/${shopId}`;
     
-    console.log('Updating via backend URL:', fullUrl);
 
     // Forward the request to the backend API
     const response = await fetch(fullUrl, {
@@ -102,7 +95,6 @@ export async function PUT(
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Backend seller shop update error:', response.status, errorText);
       return NextResponse.json(
         { 
           success: false,
@@ -114,11 +106,9 @@ export async function PUT(
     }
 
     const responseData = await response.json();
-    console.log('Backend seller shop update success:', responseData);
     return NextResponse.json(responseData);
     
   } catch (error) {
-    console.error('Error updating shop:', error);
     return NextResponse.json(
       { success: false, error: "Failed to update shop", data: null },
       { status: 500 }
@@ -155,7 +145,6 @@ export async function DELETE(
     );
     
   } catch (error) {
-    console.error('Error deleting shop:', error);
     return NextResponse.json(
       { success: false, error: "Failed to delete shop", data: null },
       { status: 500 }

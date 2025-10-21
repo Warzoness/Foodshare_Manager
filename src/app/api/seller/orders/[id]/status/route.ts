@@ -20,9 +20,7 @@ export async function PUT(
     try {
       body = await request.json();
     } catch (parseError) {
-      console.error('Failed to parse request body as JSON:', {
-        parseError: parseError instanceof Error ? parseError.message : 'Unknown parse error'
-      });
+      
       return NextResponse.json(
         { code: "400", success: false, message: "Invalid request body format" },
         { status: 400 }
@@ -44,15 +42,9 @@ export async function PUT(
     // Get backend URL from environment
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://foodshare-production-98da.up.railway.app';
     
-    console.log('Seller order status update API called with params:', {
-      orderId,
-      status,
-      authHeader: authHeader ? 'Present' : 'Missing',
-      backendUrl
-    });
+   
     const fullUrl = `${backendUrl}/api/seller/orders/${orderId}/status`;
     
-    console.log('Updating order status at backend URL:', fullUrl);
 
     // Forward the request to the backend API
     const response = await fetch(fullUrl, {
@@ -66,14 +58,7 @@ export async function PUT(
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Backend seller order status update error:', {
-        httpStatus: response.status,
-        statusText: response.statusText,
-        errorText,
-        orderId,
-        newStatus: status,
-        fullUrl
-      });
+    
       return NextResponse.json(
         { 
           code: response.status.toString(),
@@ -88,11 +73,7 @@ export async function PUT(
     try {
       responseData = await response.json();
     } catch (parseError) {
-      console.error('Failed to parse backend response as JSON:', {
-        parseError: parseError instanceof Error ? parseError.message : 'Unknown parse error',
-        responseStatus: response.status,
-        responseHeaders: Object.fromEntries(response.headers.entries())
-      });
+      
       return NextResponse.json(
         {
           code: "500",
@@ -103,11 +84,10 @@ export async function PUT(
       );
     }
     
-    console.log('Backend seller order status update success:', responseData);
     return NextResponse.json(responseData);
     
   } catch (error) {
-    console.error('Error updating seller order status:', {
+    console.log('Unexpected error in order status update:', {
       error: error,
       message: error instanceof Error ? error.message : 'Unknown error',
       stack: error instanceof Error ? error.stack : undefined,

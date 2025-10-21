@@ -78,7 +78,6 @@ export default function ProductDetailPage() {
             setProduct(response.data);
           }
         } catch (err) {
-          console.error('Error refreshing product data:', err);
         }
       };
       fetchProductDetail();

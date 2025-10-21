@@ -21,15 +21,6 @@ export async function GET(
     const size = parseInt(searchParams.get('size') || '20');
     const sortBy = searchParams.get('sortBy') || 'createdAt';
     const sortDirection = searchParams.get('sortDirection') || 'desc';
-
-    console.log('Seller shop products API called with params:', {
-      shopId,
-      page,
-      size,
-      sortBy,
-      sortDirection
-    });
-
     // Get authorization header from request
     const authHeader = request.headers.get('Authorization');
 
@@ -44,9 +35,6 @@ export async function GET(
     queryParams.append('sortDirection', sortDirection);
 
     const productsUrl = `${backendUrl}/api/seller/shops/${shopId}/products?${queryParams}`;
-    
-    console.log('Fetching from backend URL:', productsUrl);
-
     const response = await fetch(productsUrl, {
       method: 'GET',
       headers: {
@@ -57,7 +45,6 @@ export async function GET(
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Backend seller shop products error:', response.status, errorText);
       return NextResponse.json(
         { 
           success: false,
@@ -78,11 +65,9 @@ export async function GET(
     }
 
     const responseData = await response.json();
-    console.log('Backend seller shop products success:', responseData);
     return NextResponse.json(responseData);
     
   } catch (error) {
-    console.error('Error fetching shop products:', error);
     return NextResponse.json(
       {
         success: false,

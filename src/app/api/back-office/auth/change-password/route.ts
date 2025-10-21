@@ -110,7 +110,6 @@ export async function POST(request: NextRequest) {
     }, { status: 501 });
 
   } catch (error) {
-    console.error('Change password API error:', error);
     return NextResponse.json(
       {
         success: false,

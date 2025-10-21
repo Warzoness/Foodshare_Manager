@@ -44,7 +44,6 @@ export async function POST(request: NextRequest) {
     );
 
   } catch (error) {
-    console.error('Error uploading image:', error);
     
     return NextResponse.json(
       {

@@ -149,7 +149,6 @@ export async function POST(
     }, { status: 501 });
 
   } catch (error) {
-    console.error('Error updating user:', error);
     return NextResponse.json(
       {
         success: false,

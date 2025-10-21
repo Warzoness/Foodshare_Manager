@@ -26,13 +26,6 @@ export async function GET(request: NextRequest) {
     const size = parseInt(searchParams.get('size') || '20');
     const sort = searchParams.getAll('sort') || [];
 
-    console.log('Seller products API called with params:', {
-      shopId,
-      page,
-      size,
-      sort
-    });
-
     // Get authorization header from request
     const authHeader = request.headers.get('Authorization');
 
@@ -47,7 +40,6 @@ export async function GET(request: NextRequest) {
 
     const fullUrl = `${backendUrl}/api/seller/products?${queryParams}`;
     
-    console.log('Fetching from backend URL:', fullUrl);
 
     // Forward the request to the backend API
     const response = await fetch(fullUrl, {
@@ -60,7 +52,6 @@ export async function GET(request: NextRequest) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Backend seller products error:', response.status, errorText);
       return NextResponse.json(
         { 
           success: false,
@@ -72,11 +63,9 @@ export async function GET(request: NextRequest) {
     }
 
     const responseData = await response.json();
-    console.log('Backend seller products success:', responseData);
     return NextResponse.json(responseData);
     
   } catch (error) {
-    console.error('Error fetching seller products:', error);
     return NextResponse.json(
       {
         success: false,
@@ -105,7 +94,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('Seller create product API called with data:', body);
 
     // Get authorization header from request
     const authHeader = request.headers.get('Authorization');
@@ -114,7 +102,6 @@ export async function POST(request: NextRequest) {
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://foodshare-production-98da.up.railway.app';
     const fullUrl = `${backendUrl}/api/seller/products`;
     
-    console.log('Creating product via backend URL:', fullUrl);
 
     // Forward the request to the backend API
     const response = await fetch(fullUrl, {
@@ -128,7 +115,6 @@ export async function POST(request: NextRequest) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Backend seller create product error:', response.status, errorText);
       return NextResponse.json(
         { 
           success: false,
@@ -140,11 +126,9 @@ export async function POST(request: NextRequest) {
     }
 
     const responseData = await response.json();
-    console.log('Backend seller create product success:', responseData);
     return NextResponse.json(responseData);
     
   } catch (error) {
-    console.error('Error creating seller product:', error);
     return NextResponse.json(
       {
         success: false,

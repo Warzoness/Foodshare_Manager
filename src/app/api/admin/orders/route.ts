@@ -14,9 +14,6 @@ export async function GET(request: NextRequest) {
     const sortBy = searchParams.get('sortBy') || 'createdAt';
     const sortDirection = searchParams.get('sortDirection') || 'desc';
 
-    console.log('Admin orders API called with params:', {
-      shopId, status, fromDate, toDate, page, size, sortBy, sortDirection
-    });
 
     // Build query parameters for the backend API
     const queryParams = new URLSearchParams();
@@ -33,9 +30,6 @@ export async function GET(request: NextRequest) {
     // Get backend URL from environment
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://foodshare-production-98da.up.railway.app';
     const fullUrl = `${backendUrl}/api/admin/orders?${queryParams}`;
-    
-    console.log('Fetching from backend URL:', fullUrl);
-
     // Get authorization header from request
     const authHeader = request.headers.get('Authorization');
 
@@ -50,7 +44,7 @@ export async function GET(request: NextRequest) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(`Backend API error: ${response.status} - ${errorText}`);
+(`Backend API error: ${response.status} - ${errorText}`);
       
       // Return specific error based on status code
       if (response.status === 401) {
@@ -78,12 +72,9 @@ export async function GET(request: NextRequest) {
     }
 
     const data = await response.json();
-    console.log('Backend orders response:', data);
-    
     return NextResponse.json(data);
 
   } catch (error) {
-    console.error('Error fetching admin orders:', error);
     return NextResponse.json(
       { 
         code: "ERROR",

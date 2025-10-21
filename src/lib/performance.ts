@@ -24,7 +24,6 @@ class PerformanceMonitor {
       const lcpObserver = new PerformanceObserver((list) => {
         const entries = list.getEntries();
         const lastEntry = entries[entries.length - 1];
-        console.log('LCP:', lastEntry.startTime);
       });
       lcpObserver.observe({ entryTypes: ['largest-contentful-paint'] });
 
@@ -34,7 +33,6 @@ class PerformanceMonitor {
         entries.forEach((entry) => {
           const fidEntry = entry as PerformanceEntry & { processingStart?: number };
           if (fidEntry.processingStart) {
-            console.log('FID:', fidEntry.processingStart - entry.startTime);
           }
         });
       });
@@ -49,7 +47,6 @@ class PerformanceMonitor {
             clsValue += (entry as PerformanceEntry & { value?: number }).value || 0;
           }
         });
-        console.log('CLS:', clsValue);
       });
       clsObserver.observe({ entryTypes: ['layout-shift'] });
 
@@ -60,20 +57,20 @@ class PerformanceMonitor {
   // Measure API call performance
   measureApiCall<T>(apiCall: () => Promise<T>, endpoint: string): Promise<T> {
     const startTime = performance.now();
-    
+
     return apiCall().then((result) => {
       const endTime = performance.now();
       const duration = endTime - startTime;
-      
-      console.log(`API Call ${endpoint}: ${duration.toFixed(2)}ms`);
-      
+
+      (`API Call ${endpoint}: ${duration.toFixed(2)}ms`);
+
       this.metrics.push({
         loadTime: 0,
         renderTime: 0,
         apiCallTime: duration,
         bundleSize: 0,
       });
-      
+
       return result;
     });
   }
@@ -84,16 +81,16 @@ class PerformanceMonitor {
     const result = renderFn();
     const endTime = performance.now();
     const duration = endTime - startTime;
-    
-    console.log(`Render ${componentName}: ${duration.toFixed(2)}ms`);
-    
+
+    (`Render ${componentName}: ${duration.toFixed(2)}ms`);
+
     this.metrics.push({
       loadTime: 0,
       renderTime: duration,
       apiCallTime: 0,
       bundleSize: 0,
     });
-    
+
     return result;
   }
 
@@ -160,7 +157,7 @@ export function analyzeBundleSize() {
 
   const scripts = Array.from(document.querySelectorAll('script[src]'));
   const stylesheets = Array.from(document.querySelectorAll('link[rel="stylesheet"]'));
-  
+
   const totalScriptSize = scripts.reduce((total, script) => {
     const src = script.getAttribute('src');
     if (src && src.includes('_next/static')) {
@@ -177,7 +174,7 @@ export function analyzeBundleSize() {
   };
 }
 
-  // Memory usage monitor
+// Memory usage monitor
 export function getMemoryUsage() {
   if (typeof window === 'undefined' || !('memory' in performance)) {
     return null;
@@ -185,7 +182,7 @@ export function getMemoryUsage() {
 
   const memory = (performance as Performance & { memory?: { usedJSHeapSize: number; totalJSHeapSize: number; jsHeapSizeLimit: number } }).memory;
   if (!memory) return null;
-  
+
   return {
     used: Math.round(memory.usedJSHeapSize / 1024 / 1024), // MB
     total: Math.round(memory.totalJSHeapSize / 1024 / 1024), // MB
@@ -201,21 +198,21 @@ export const PERFORMANCE_RECOMMENDATIONS = {
     'Use WebP/AVIF formats for better compression',
     'Set appropriate sizes attribute for responsive images',
   ],
-  
+
   BUNDLE: [
     'Implement code splitting for large components',
     'Use dynamic imports for heavy libraries',
     'Remove unused dependencies',
     'Optimize bundle with webpack-bundle-analyzer',
   ],
-  
+
   API: [
     'Implement request caching with appropriate TTL',
     'Use pagination for large data sets',
     'Implement request deduplication',
     'Add request timeout handling',
   ],
-  
+
   RENDERING: [
     'Use React.memo for expensive components',
     'Implement useMemo for expensive calculations',

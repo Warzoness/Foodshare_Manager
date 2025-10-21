@@ -16,7 +16,6 @@ export async function GET(
       );
     }
 
-    console.log('Seller product detail API called for product ID:', productId);
 
     // Get authorization header from request
     const authHeader = request.headers.get('Authorization');
@@ -25,7 +24,6 @@ export async function GET(
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://foodshare-production-98da.up.railway.app';
     const fullUrl = `${backendUrl}/api/seller/products/${productId}`;
     
-    console.log('Fetching from backend URL:', fullUrl);
 
     // Forward the request to the backend API
     const response = await fetch(fullUrl, {
@@ -38,7 +36,6 @@ export async function GET(
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Backend seller product detail error:', response.status, errorText);
       return NextResponse.json(
         { 
           success: false,
@@ -50,11 +47,9 @@ export async function GET(
     }
 
     const responseData = await response.json();
-    console.log('Backend seller product detail success:', responseData);
     return NextResponse.json(responseData);
     
   } catch (error) {
-    console.error('Error fetching seller product detail:', error);
     return NextResponse.json(
       { success: false, error: "Failed to fetch product", data: null },
       { status: 500 }
@@ -79,7 +74,6 @@ export async function PUT(
       );
     }
 
-    console.log('Seller product update API called for product ID:', productId, 'with data:', updateData);
 
     // Get authorization header from request
     const authHeader = request.headers.get('Authorization');
@@ -88,7 +82,6 @@ export async function PUT(
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://foodshare-production-98da.up.railway.app';
     const fullUrl = `${backendUrl}/api/seller/products/${productId}`;
     
-    console.log('Updating via backend URL:', fullUrl);
 
     // Forward the request to the backend API
     const response = await fetch(fullUrl, {
@@ -102,7 +95,6 @@ export async function PUT(
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Backend seller product update error:', response.status, errorText);
       return NextResponse.json(
         { 
           success: false,
@@ -114,11 +106,9 @@ export async function PUT(
     }
 
     const responseData = await response.json();
-    console.log('Backend seller product update success:', responseData);
     return NextResponse.json(responseData);
     
   } catch (error) {
-    console.error('Error updating seller product:', error);
     return NextResponse.json(
       { success: false, error: "Failed to update product", data: null },
       { status: 500 }
@@ -142,7 +132,6 @@ export async function DELETE(
       );
     }
 
-    console.log('Seller product delete API called for product ID:', productId);
 
     // Get authorization header from request
     const authHeader = request.headers.get('Authorization');
@@ -151,7 +140,6 @@ export async function DELETE(
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://foodshare-production-98da.up.railway.app';
     const fullUrl = `${backendUrl}/api/seller/products/${productId}`;
     
-    console.log('Deleting via backend URL:', fullUrl);
 
     // Forward the request to the backend API
     const response = await fetch(fullUrl, {
@@ -164,7 +152,6 @@ export async function DELETE(
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Backend seller product delete error:', response.status, errorText);
       return NextResponse.json(
         { 
           success: false,
@@ -176,11 +163,9 @@ export async function DELETE(
     }
 
     const responseData = await response.json();
-    console.log('Backend seller product delete success:', responseData);
     return NextResponse.json(responseData);
     
   } catch (error) {
-    console.error('Error deleting seller product:', error);
     return NextResponse.json(
       { success: false, error: "Failed to delete product", data: null },
       { status: 500 }

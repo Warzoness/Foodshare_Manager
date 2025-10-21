@@ -88,7 +88,6 @@ export default function StoreDetailPage() {
         }
       } catch (err) {
         setError('Lỗi khi tải dữ liệu');
-        console.error('Error fetching store detail:', err);
       } finally {
         setLoading(false);
       }
@@ -111,7 +110,6 @@ export default function StoreDetailPage() {
             setStore(response.data);
           }
         } catch (err) {
-          console.error('Error refreshing store data:', err);
         }
       };
       fetchStoreDetail();

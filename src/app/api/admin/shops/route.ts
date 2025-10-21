@@ -10,11 +10,6 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get('search') || '';
     const status = searchParams.get('status') || '';
     const sort = searchParams.getAll('sort') || [];
-
-    console.log('Admin shops API called with params:', {
-      page, size, search, status, sort
-    });
-
     // Get authorization header from request
     const authHeader = request.headers.get('Authorization');
 
@@ -30,9 +25,6 @@ export async function GET(request: NextRequest) {
     sort.forEach(sortItem => queryParams.append('sort', sortItem));
 
     const fullUrl = `${backendUrl}/api/admin/shops?${queryParams}`;
-    
-    console.log('Fetching from backend URL:', fullUrl);
-
     // Forward the request to the backend API
     const response = await fetch(fullUrl, {
       method: 'GET',
@@ -44,7 +36,7 @@ export async function GET(request: NextRequest) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(`Backend API error: ${response.status} - ${errorText}`);
+(`Backend API error: ${response.status} - ${errorText}`);
       
       // Return specific error based on status code
       if (response.status === 401) {
@@ -72,12 +64,8 @@ export async function GET(request: NextRequest) {
     }
 
     const data = await response.json();
-    console.log('Backend shops response:', data);
-    
-    return NextResponse.json(data);
 
   } catch (error) {
-    console.error('Error fetching admin shops:', error);
     return NextResponse.json(
       { 
         code: "ERROR",

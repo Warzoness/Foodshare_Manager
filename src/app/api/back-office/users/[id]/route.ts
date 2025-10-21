@@ -49,7 +49,6 @@ export async function GET(
     }, { status: 501 });
 
   } catch (error) {
-    console.error('Error getting user:', error);
     return NextResponse.json(
       {
         success: false,
@@ -192,7 +191,6 @@ export async function PUT(
     }, { status: 501 });
 
   } catch (error) {
-    console.error('Error updating user:', error);
     return NextResponse.json(
       {
         success: false,
@@ -265,7 +263,6 @@ export async function DELETE(
     }, { status: 501 });
 
   } catch (error) {
-    console.error('Error deleting user:', error);
     return NextResponse.json(
       {
         success: false,

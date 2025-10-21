@@ -1,20 +1,30 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { login } from '@/lib/auth';
 import { hasRole } from '@/lib/auth';
 import { useAuth } from '@/contexts/AuthContext';
 import styles from './page.module.css';
 
-export default function LoginPage() {
+function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user, login: setUser, loading: authLoading } = useAuth();
+
+  // Check for success message from URL params
+  useEffect(() => {
+    const message = searchParams.get('message');
+    if (message) {
+      setSuccessMessage(message);
+    }
+  }, [searchParams]);
 
   // Redirect if already logged in
   useEffect(() => {
@@ -109,6 +119,10 @@ export default function LoginPage() {
             />
           </div>
 
+          {successMessage && (
+            <div className={styles.successMessage}>{successMessage}</div>
+          )}
+
           {error && (
             <div className={styles.errorMessage}>{error}</div>
           )}
@@ -139,5 +153,21 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className={styles.loginContainer}>
+        <div className={styles.loginCard}>
+          <div className="flex items-center justify-center p-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          </div>
+        </div>
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
   );
 }

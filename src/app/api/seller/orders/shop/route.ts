@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     const sortBy = searchParams.get('sortBy') || 'createdAt';
     const sortDirection = searchParams.get('sortDirection') || 'desc';
 
-    console.log('Seller shop orders API called with params:', {
+    console.log('Fetching shop orders with params:', {
       shopId, status, fromDate, toDate, page, size, sortBy, sortDirection
     });
 
@@ -35,7 +35,6 @@ export async function GET(request: NextRequest) {
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://foodshare-production-98da.up.railway.app';
     const fullUrl = `${backendUrl}/api/seller/orders/shop?${queryParams}`;
     
-    console.log('Fetching from backend URL:', fullUrl);
 
     // Get authorization header from request
     const authHeader = request.headers.get('Authorization');
@@ -51,7 +50,6 @@ export async function GET(request: NextRequest) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Backend seller shop orders error:', response.status, errorText);
       return NextResponse.json(
         { 
           success: false,
@@ -71,11 +69,9 @@ export async function GET(request: NextRequest) {
     }
 
     const responseData = await response.json();
-    console.log('Backend seller shop orders success:', responseData);
     return NextResponse.json(responseData);
     
   } catch (error) {
-    console.error('Error fetching seller shop orders:', error);
     return NextResponse.json(
       {
         success: false,

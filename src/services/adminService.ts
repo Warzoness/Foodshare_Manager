@@ -206,7 +206,6 @@ class AdminService {
       
       // Use local API endpoint
       const url = `/api/admin/products?${queryParams}`;
-      console.log('Calling local API:', url);
       
       const result = await this.apiClient.get(url);
       return {

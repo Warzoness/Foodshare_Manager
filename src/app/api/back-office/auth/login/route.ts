@@ -5,7 +5,6 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { email, password } = body;
 
-    console.log('Login API called with:', { email, password: '***' });
 
     // Validate required fields
     if (!email || !password) {
@@ -34,7 +33,6 @@ export async function POST(request: NextRequest) {
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://foodshare-production-98da.up.railway.app';
     const loginUrl = `${backendUrl}/api/back-office/auth/login`;
     
-    console.log('Forwarding login request to backend:', loginUrl);
 
     try {
       const response = await fetch(loginUrl, {
@@ -49,9 +47,22 @@ export async function POST(request: NextRequest) {
       const responseData = await response.json();
       
       if (!response.ok) {
-        console.error('Backend login error:', response.status, responseData);
+        
+        // Handle specific error cases
+        if (response.status === 404 || response.status === 401) {
+          return NextResponse.json(
+            { 
+              code: "404",
+              success: false, 
+              message: 'Email hoặc mật khẩu không đúng' 
+            },
+            { status: 404 }
+          );
+        }
+        
         return NextResponse.json(
           { 
+            code: response.status.toString(),
             success: false, 
             message: responseData?.message || 'Đăng nhập thất bại' 
           },
@@ -59,11 +70,9 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      console.log('Backend login success:', responseData);
       return NextResponse.json(responseData);
 
     } catch (error) {
-      console.error('Error forwarding login request:', error);
       return NextResponse.json(
         { 
           success: false, 
@@ -74,7 +83,6 @@ export async function POST(request: NextRequest) {
     }
 
   } catch (error) {
-    console.error('Login API error:', error);
     return NextResponse.json(
       { 
         success: false, 

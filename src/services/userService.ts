@@ -21,6 +21,12 @@ export interface UpdateUserRequest {
   role?: 'ADMIN' | 'SELLER' | 'USER' | 'SUPER_ADMIN';
 }
 
+export interface RegisterRequest {
+  name: string;
+  email: string;
+  password: string;
+}
+
 export interface ChangePasswordRequest {
   currentPassword: string;
   newPassword: string;
@@ -37,6 +43,13 @@ export interface CurrentUser {
 }
 
 class UserService {
+  // Đăng ký user mới
+  async register(userData: RegisterRequest): Promise<User> {
+    const response = await apiClient.post<User>('/api/back-office/auth/register', userData);
+    if (!response.data) throw new Error('Failed to register user');
+    return response.data;
+  }
+
   // Lấy thông tin user hiện tại
   async getCurrentUser(): Promise<CurrentUser> {
     const response = await apiClient.get<CurrentUser>('/api/back-office/auth/me');

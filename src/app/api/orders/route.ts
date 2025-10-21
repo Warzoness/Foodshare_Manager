@@ -11,12 +11,6 @@ export async function GET(request: NextRequest) {
     const size = parseInt(searchParams.get('size') || '20');
     const sort = searchParams.getAll('sort') || [];
 
-    console.log('Orders API called with params:', {
-      status,
-      page,
-      size,
-      sort
-    });
 
     // Get authorization header from request
     const authHeader = request.headers.get('Authorization');
@@ -31,9 +25,6 @@ export async function GET(request: NextRequest) {
     sort.forEach(sortItem => queryParams.append('sort', sortItem));
 
     const fullUrl = `${backendUrl}/api/orders?${queryParams}`;
-    
-    console.log('Fetching from backend URL:', fullUrl);
-
     // Forward the request to the backend API
     const response = await fetch(fullUrl, {
       method: 'GET',
@@ -45,7 +36,6 @@ export async function GET(request: NextRequest) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Backend orders error:', response.status, errorText);
       return NextResponse.json(
         { 
           success: false,
@@ -57,11 +47,9 @@ export async function GET(request: NextRequest) {
     }
 
     const responseData = await response.json();
-    console.log('Backend orders success:', responseData);
     return NextResponse.json(responseData);
     
   } catch (error) {
-    console.error('Error fetching orders:', error);
     return NextResponse.json(
       {
         success: false,

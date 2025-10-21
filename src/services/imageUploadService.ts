@@ -24,10 +24,6 @@ class ImageUploadService {
 
       const url = `${this.baseUrl}/api/images/upload?${params.toString()}`;
       
-      console.log('Image upload URL:', url);
-      console.log('Base URL:', this.baseUrl);
-      console.log('File name:', request.file.name);
-      console.log('File size:', request.file.size);
 
       const response = await fetch(url, {
         method: 'POST',
@@ -36,8 +32,6 @@ class ImageUploadService {
 
       const result = await response.json();
       
-      console.log('Upload response status:', response.status);
-      console.log('Upload response:', result);
 
       if (!response.ok) {
         return {
@@ -53,7 +47,6 @@ class ImageUploadService {
         error: undefined,
       };
     } catch (error) {
-      console.error('Image upload error:', error);
       return {
         success: false,
         data: undefined,
@@ -104,7 +97,6 @@ class ImageUploadService {
         error: undefined,
       };
     } catch (error) {
-      console.error('Multiple image upload error:', error);
       return {
         success: false,
         data: undefined,

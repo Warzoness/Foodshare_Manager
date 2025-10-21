@@ -21,9 +21,6 @@ export async function GET(request: NextRequest) {
     // Forward request to backend API
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://foodshare-production-98da.up.railway.app';
     const shopsUrl = `${backendUrl}/api/seller/shops`;
-    
-    console.log('Forwarding seller shops request to backend:', shopsUrl);
-
     // Get authorization header from request
     const authHeader = request.headers.get('Authorization');
 
@@ -38,7 +35,6 @@ export async function GET(request: NextRequest) {
     const responseData = await response.json();
     
     if (!response.ok) {
-      console.error('Backend seller shops error:', response.status, responseData);
       return NextResponse.json(
         { 
           success: false,
@@ -48,12 +44,9 @@ export async function GET(request: NextRequest) {
         { status: response.status }
       );
     }
-
-    console.log('Backend seller shops success:', responseData);
     return NextResponse.json(responseData);
 
   } catch (error) {
-    console.error('Error fetching seller shops:', error);
     return NextResponse.json(
       {
         success: false,
@@ -80,18 +73,12 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-
-    console.log('Seller create shop API called with data:', body);
-
     // Get authorization header from request
     const authHeader = request.headers.get('Authorization');
 
     // Get backend URL from environment
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://foodshare-production-98da.up.railway.app';
     const fullUrl = `${backendUrl}/api/seller/shops`;
-    
-    console.log('Creating shop via backend URL:', fullUrl);
-
     // Forward the request to the backend API
     const response = await fetch(fullUrl, {
       method: 'POST',
@@ -104,7 +91,6 @@ export async function POST(request: NextRequest) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Backend seller create shop error:', response.status, errorText);
       return NextResponse.json(
         { 
           success: false,
@@ -116,11 +102,9 @@ export async function POST(request: NextRequest) {
     }
 
     const responseData = await response.json();
-    console.log('Backend seller create shop success:', responseData);
     return NextResponse.json(responseData);
     
   } catch (error) {
-    console.error('Error creating shop:', error);
     return NextResponse.json(
       {
         code: "INTERNAL_SERVER_ERROR",
@@ -159,7 +143,6 @@ export async function PUT(request: NextRequest) {
     );
     
   } catch (error) {
-    console.error('Error updating shop:', error);
     return NextResponse.json(
       { success: false, error: "Failed to update shop", data: null },
       { status: 500 }
@@ -192,7 +175,6 @@ export async function DELETE(request: NextRequest) {
     );
     
   } catch (error) {
-    console.error('Error deleting shop:', error);
     return NextResponse.json(
       { success: false, error: "Failed to delete shop", data: null },
       { status: 500 }

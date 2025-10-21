@@ -15,44 +15,37 @@ export default function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [isRegistering, setIsRegistering] = useState(false);
   const router = useRouter();
   const { user, login: setUser, loading: authLoading } = useAuth();
   const { execute: register, loading: registering, success: registerSuccess, data: registerData, error: registerError } = useRegister();
 
-  // Redirect if already logged in
+  // Redirect if already logged in (but not during registration process)
   useEffect(() => {
-    if (!authLoading && user) {
+    if (!authLoading && user && !isRegistering) {
       if (hasRole(user, 'admin')) {
         router.push('/admin/dashboard');
       } else if (hasRole(user, 'seller')) {
         router.push('/seller/dashboard');
       }
     }
-  }, [user, authLoading, router]);
+  }, [user, authLoading, router, isRegistering]);
 
   // Handle successful registration
   useEffect(() => {
     if (registerSuccess) {
-      // Get the user data from the register response
-      const userData = registerData as { id: number; name: string; email: string; role: string };
-      if (userData) {
-        const fullUserData = {
-          ...userData,
-          id: userData.id.toString(),
-          role: userData.role as 'ADMIN' | 'SELLER',
-          createdAt: new Date(),
-          updatedAt: new Date()
-        };
-        setUser(fullUserData);
-        router.push('/seller/dashboard');
-      }
+      // After successful registration, redirect to login page
+      // User needs to login to get proper authentication token
+      router.push('/login?message=Đăng ký thành công! Vui lòng đăng nhập để tiếp tục.');
+      setIsRegistering(false);
     }
-  }, [registerSuccess, registerData, setUser, router]);
+  }, [registerSuccess, router]);
 
   // Handle registration error
   useEffect(() => {
     if (registerError) {
       setError(registerError);
+      setIsRegistering(false);
     }
   }, [registerError]);
 
@@ -60,35 +53,41 @@ export default function RegisterPage() {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setIsRegistering(true);
 
     // Validation
     if (!name.trim()) {
       setError('Vui lòng nhập tên');
       setLoading(false);
+      setIsRegistering(false);
       return;
     }
 
     if (!email.trim()) {
       setError('Vui lòng nhập email');
       setLoading(false);
+      setIsRegistering(false);
       return;
     }
 
     if (!password.trim()) {
       setError('Vui lòng nhập mật khẩu');
       setLoading(false);
+      setIsRegistering(false);
       return;
     }
 
     if (password !== confirmPassword) {
       setError('Mật khẩu xác nhận không khớp');
       setLoading(false);
+      setIsRegistering(false);
       return;
     }
 
     if (password.length < 6) {
       setError('Mật khẩu phải có ít nhất 6 ký tự');
       setLoading(false);
+      setIsRegistering(false);
       return;
     }
 
@@ -99,6 +98,7 @@ export default function RegisterPage() {
     if (!hasUppercase || !hasLowercase) {
       setError('Mật khẩu phải có ít nhất 1 chữ hoa và 1 chữ thường');
       setLoading(false);
+      setIsRegistering(false);
       return;
     }
 
@@ -106,6 +106,7 @@ export default function RegisterPage() {
       await register(name.trim(), email.trim(), password);
     } catch {
       setError('Lỗi kết nối. Vui lòng thử lại.');
+      setIsRegistering(false);
     } finally {
       setLoading(false);
     }

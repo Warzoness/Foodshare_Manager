@@ -93,7 +93,6 @@ export default function ProductsManagement() {
 
   // Debug logging
   useEffect(() => {
-    console.log('Products params changed:', productsParams);
   }, [productsParams]);
 
   // Delete product hook
@@ -192,24 +191,19 @@ export default function ProductsManagement() {
   };
 
   const handleDeleteClick = (product: Product) => {
-    console.log('Delete button clicked for product:', product.id);
     setProductToDelete(product);
     setShowDeleteModal(true);
   };
 
   const handleDeleteConfirm = async () => {
     if (!productToDelete) return;
-    
-    console.log('Confirming delete for product:', productToDelete.id);
     try {
       await executeDelete(productToDelete.id.toString());
     } catch (error) {
-      console.error('Delete error:', error);
     }
   };
 
   const handleDeleteCancel = () => {
-    console.log('Delete cancelled');
     setShowDeleteModal(false);
     setProductToDelete(null);
     resetDelete();
@@ -218,7 +212,6 @@ export default function ProductsManagement() {
   // Handle delete success
   useEffect(() => {
     if (deleteSuccess) {
-      console.log('Delete successful, showing alert');
       alert('Xóa sản phẩm thành công!');
       setShowDeleteModal(false);
       setProductToDelete(null);
@@ -230,7 +223,6 @@ export default function ProductsManagement() {
   // Handle delete error
   useEffect(() => {
     if (deleteError) {
-      console.error('Delete error:', deleteError);
       alert(`Lỗi khi xóa sản phẩm: ${deleteError}`);
     }
   }, [deleteError]);

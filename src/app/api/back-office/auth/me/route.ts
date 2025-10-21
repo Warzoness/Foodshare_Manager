@@ -21,7 +21,6 @@ export async function GET(request: NextRequest) {
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://foodshare-production-98da.up.railway.app';
     const meUrl = `${backendUrl}/api/back-office/auth/me`;
     
-    console.log('Forwarding me request to backend:', meUrl);
 
     try {
       const response = await fetch(meUrl, {
@@ -36,7 +35,6 @@ export async function GET(request: NextRequest) {
       const responseData = await response.json();
       
       if (!response.ok) {
-        console.error('Backend me error:', response.status, responseData);
         return NextResponse.json(
           { 
             success: false, 
@@ -46,11 +44,9 @@ export async function GET(request: NextRequest) {
         );
       }
 
-      console.log('Backend me success:', responseData);
       return NextResponse.json(responseData);
 
     } catch (error) {
-      console.error('Error forwarding me request:', error);
       return NextResponse.json(
         { 
           success: false, 
@@ -62,7 +58,6 @@ export async function GET(request: NextRequest) {
 
 
   } catch (error) {
-    console.error('Get current user API error:', error);
     return NextResponse.json(
       { 
         success: false, 

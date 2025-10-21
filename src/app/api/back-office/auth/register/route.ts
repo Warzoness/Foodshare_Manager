@@ -53,25 +53,47 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Mock successful registration
-    const mockUser = {
-      id: Math.floor(Math.random() * 1000) + 1,
-      name,
-      email,
-      role: 'SELLER',
-      accessToken: `mock_token_${Date.now()}`,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
+    // Call external API to register user
+    const externalApiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://foodshare-production-98da.up.railway.app';
+    
+    try {
+      const response = await fetch(`${externalApiUrl}/api/back-office/auth/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({ name, email, password }),
+      });
 
-    return NextResponse.json({
-      success: true,
-      message: 'Đăng ký thành công',
-      data: mockUser
-    });
+      const responseData = await response.json();
+
+      if (!response.ok) {
+        return NextResponse.json(
+          { 
+            success: false, 
+            message: responseData?.message || 'Đăng ký thất bại' 
+          },
+          { status: response.status }
+        );
+      }
+
+      // Return the response from external API
+      return NextResponse.json(responseData);
+
+    } catch (apiError) {
+      console.error('External API error:', apiError);
+      return NextResponse.json(
+        { 
+          success: false, 
+          message: 'Lỗi kết nối đến server' 
+        },
+        { status: 503 }
+      );
+    }
 
   } catch (error) {
-    console.error('Register API error:', error);
+    console.error('Register error:', error);
     return NextResponse.json(
       { 
         success: false, 
