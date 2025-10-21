@@ -1,0 +1,142 @@
+/* Mobile Font Size System */
+/* This file contains CSS variables for consistent font sizing across mobile devices */
+
+:root {
+  /* Mobile Font Size Variables */
+  --mobile-font-xs: 0.5rem;    /* 8px */
+  --mobile-font-sm: 0.6rem;    /* 9.6px */
+  --mobile-font-base: 0.7rem;  /* 11.2px */
+  --mobile-font-md: 0.75rem;   /* 12px */
+  --mobile-font-lg: 0.8rem;    /* 12.8px */
+  --mobile-font-xl: 0.9rem;    /* 14.4px */
+  --mobile-font-2xl: 1rem;     /* 16px */
+  --mobile-font-3xl: 1.125rem; /* 18px */
+  
+  /* Desktop Font Size Variables */
+  --desktop-font-xs: 0.75rem;   /* 12px */
+  --desktop-font-sm: 0.875rem;  /* 14px */
+  --desktop-font-base: 1rem;    /* 16px */
+  --desktop-font-md: 1.125rem;  /* 18px */
+  --desktop-font-lg: 1.25rem;   /* 20px */
+  --desktop-font-xl: 1.5rem;    /* 24px */
+  --desktop-font-2xl: 1.875rem; /* 30px */
+  --desktop-font-3xl: 2.25rem;  /* 36px */
+}
+
+/* Mobile Font Size System - 768px and below */
+@media (max-width: 768px) {
+  :root {
+    --font-xs: var(--mobile-font-xs);
+    --font-sm: var(--mobile-font-sm);
+    --font-base: var(--mobile-font-base);
+    --font-md: var(--mobile-font-md);
+    --font-lg: var(--mobile-font-lg);
+    --font-xl: var(--mobile-font-xl);
+    --font-2xl: var(--mobile-font-2xl);
+    --font-3xl: var(--mobile-font-3xl);
+  }
+  
+  /* Global mobile font size adjustments */
+  body {
+    font-size: var(--font-base);
+  }
+  
+  h1, .text-3xl {
+    font-size: var(--font-3xl);
+  }
+  
+  h2, .text-2xl {
+    font-size: var(--font-2xl);
+  }
+  
+  h3, .text-xl {
+    font-size: var(--font-xl);
+  }
+  
+  h4, .text-lg {
+    font-size: var(--font-lg);
+  }
+  
+  h5, .text-md {
+    font-size: var(--font-md);
+  }
+  
+  h6, .text-sm {
+    font-size: var(--font-sm);
+  }
+  
+  .text-xs {
+    font-size: var(--font-xs);
+  }
+  
+  /* Button font sizes */
+  button, .btn {
+    font-size: var(--font-base);
+  }
+  
+  /* Input font sizes */
+  input, textarea, select {
+    font-size: var(--font-base);
+  }
+  
+  /* Table font sizes */
+  table {
+    font-size: var(--font-sm);
+  }
+  
+  th {
+    font-size: var(--font-sm);
+  }
+  
+  td {
+    font-size: var(--font-sm);
+  }
+}
+
+/* Smaller Mobile Font Sizes - 480px and below */
+@media (max-width: 480px) {
+  :root {
+    --font-xs: 0.45rem;    /* 7.2px */
+    --font-sm: 0.55rem;    /* 8.8px */
+    --font-base: 0.65rem;  /* 10.4px */
+    --font-md: 0.7rem;     /* 11.2px */
+    --font-lg: 0.75rem;    /* 12px */
+    --font-xl: 0.85rem;    /* 13.6px */
+    --font-2xl: 0.95rem;   /* 15.2px */
+    --font-3xl: 1rem;      /* 16px */
+  }
+}
+
+/* Extra Small Mobile Font Sizes - 360px and below */
+@media (max-width: 360px) {
+  :root {
+    --font-xs: 0.4rem;     /* 6.4px */
+    --font-sm: 0.5rem;     /* 8px */
+    --font-base: 0.6rem;   /* 9.6px */
+    --font-md: 0.65rem;    /* 10.4px */
+    --font-lg: 0.7rem;     /* 11.2px */
+    --font-xl: 0.8rem;     /* 12.8px */
+    --font-2xl: 0.9rem;    /* 14.4px */
+    --font-3xl: 0.95rem;   /* 15.2px */
+  }
+}
+
+/* Utility Classes for Font Sizes */
+.font-xs { font-size: var(--font-xs); }
+.font-sm { font-size: var(--font-sm); }
+.font-base { font-size: var(--font-base); }
+.font-md { font-size: var(--font-md); }
+.font-lg { font-size: var(--font-lg); }
+.font-xl { font-size: var(--font-xl); }
+.font-2xl { font-size: var(--font-2xl); }
+.font-3xl { font-size: var(--font-3xl); }
+
+/* Text Size Classes */
+.text-xs { font-size: var(--font-xs); }
+.text-sm { font-size: var(--font-sm); }
+.text-base { font-size: var(--font-base); }
+.text-md { font-size: var(--font-md); }
+.text-lg { font-size: var(--font-lg); }
+.text-xl { font-size: var(--font-xl); }
+.text-2xl { font-size: var(--font-2xl); }
+.text-3xl { font-size: var(--font-3xl); }

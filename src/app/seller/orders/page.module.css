@@ -1,5 +1,74 @@
 /* Simplified Orders Management Styles */
 
+/* Statistics Dashboard */
+.statsSection {
+  margin-bottom: 2rem;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.statCard {
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(84, 166, 92, 0.3);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.statCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px -8px rgba(84, 166, 92, 0.3);
+  border-color: rgba(84, 166, 92, 0.5);
+}
+
+.statIcon {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #54A65C 0%, #7bb881 100%);
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+  box-shadow: 0 4px 8px rgba(84, 166, 92, 0.3);
+}
+
+.statIcon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.statInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.statInfo h3 {
+  font-size: var(--font-sm);
+  font-weight: 500;
+  color: #94a3b8;
+  margin: 0 0 0.5rem 0;
+  line-height: 1.2;
+}
+
+.statNumber {
+  font-size: var(--font-3xl);
+  font-weight: 700;
+  color: #f1f5f9;
+  line-height: 1;
+}
+
 /* Header */
 .header {
   margin-bottom: 2rem;
@@ -20,7 +89,7 @@
 }
 
 .title {
-  font-size: 1.875rem;
+  font-size: var(--font-3xl);
   font-weight: 700;
   color: #f1f5f9;
   margin: 0 0 0.5rem 0;
@@ -28,7 +97,7 @@
 
 .subtitle {
   color: #94a3b8;
-  font-size: 1rem;
+  font-size: var(--font-base);
   margin: 0;
 }
 
@@ -38,11 +107,12 @@
 }
 
 .filterContainer {
-  background: rgba(30, 41, 59, 0.6);
+  background: rgba(30, 41, 59, 0.8);
   border: 1px solid rgba(84, 166, 92, 0.3);
   border-radius: 0.75rem;
   padding: 1.5rem;
   backdrop-filter: blur(10px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 .filterRow {
@@ -59,7 +129,7 @@
 }
 
 .filterLabel {
-  font-size: 0.875rem;
+  font-size: var(--font-sm);
   font-weight: 500;
   color: #f1f5f9;
 }
@@ -68,8 +138,8 @@
   padding: 0.75rem 1rem;
   border: 1px solid rgba(84, 166, 92, 0.3);
   border-radius: 0.5rem;
-  background: rgba(30, 41, 59, 0.8);
-  font-size: 0.875rem;
+  background: rgba(30, 41, 59, 0.9);
+  font-size: var(--font-base);
   color: #f1f5f9;
   transition: all 0.2s ease;
   backdrop-filter: blur(10px);
@@ -79,6 +149,7 @@
   outline: none;
   border-color: #54A65C;
   box-shadow: 0 0 0 3px rgba(84, 166, 92, 0.2);
+  background: rgba(30, 41, 59, 1);
 }
 
 .filterInput::placeholder {
@@ -89,21 +160,24 @@
   display: flex;
   gap: 1rem;
   justify-content: center;
+  flex-wrap: wrap;
 }
 
 .filterButton, .clearButton {
   padding: 0.75rem 1.5rem;
   border-radius: 0.5rem;
-  font-size: 0.875rem;
+  font-size: var(--font-sm);
   font-weight: 500;
   transition: all 0.2s ease;
   min-width: 120px;
+  border: none;
+  cursor: pointer;
 }
 
 .filterButton {
   background: linear-gradient(135deg, #54A65C 0%, #7bb881 100%);
   color: white;
-  border: none;
+  box-shadow: 0 2px 4px rgba(84, 166, 92, 0.2);
 }
 
 .filterButton:hover:not(:disabled) {
@@ -112,8 +186,14 @@
   box-shadow: 0 4px 8px rgba(84, 166, 92, 0.3);
 }
 
+.filterButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .clearButton {
-  background: rgba(30, 41, 59, 0.8);
+  background: rgba(30, 41, 59, 0.9);
   color: #f1f5f9;
   border: 1px solid rgba(84, 166, 92, 0.3);
 }
@@ -121,11 +201,68 @@
 .clearButton:hover {
   background: rgba(84, 166, 92, 0.1);
   border-color: #54A65C;
+  transform: translateY(-1px);
 }
 
 /* Orders Container */
 .ordersContainer {
   margin-bottom: 2rem;
+}
+
+/* Hide elements on mobile */
+.hideOnMobile {
+  display: table-cell; /* Default for desktop */
+}
+
+/* Mobile-only info */
+.mobileOnlyInfo {
+  display: none; /* Hidden on desktop */
+}
+
+.mobileCustomerInfo {
+  font-size: var(--font-xs);
+  color: #94a3b8;
+  margin-top: 0.25rem;
+  line-height: 1.2;
+}
+
+.mobileDateInfo {
+  font-size: var(--font-xs);
+  color: #94a3b8;
+  margin-top: 0.125rem;
+  line-height: 1.2;
+}
+
+.mobileOrderId {
+  font-size: var(--font-xs);
+  color: #f1f5f9;
+  font-weight: 600;
+  margin-top: 0.25rem;
+  line-height: 1.2;
+}
+
+.mobileStatus {
+  margin-top: 0.25rem;
+}
+
+.mobileStatusBadge {
+  padding: 0.15rem 0.3rem;
+  border-radius: 9999px;
+  font-size: var(--font-xs);
+  font-weight: 600;
+  text-align: center;
+  display: inline-block;
+  min-width: 60px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.mobileTotalPrice {
+  font-size: var(--font-xs);
+  color: #54A65C;
+  font-weight: 600;
+  margin-top: 0.125rem;
+  line-height: 1.2;
 }
 
 .tableWrapper {
@@ -150,10 +287,10 @@
 
 .ordersTable th {
   padding: 1rem 0.75rem;
-  text-align: left;
+  text-align: center;
   font-weight: 600;
   color: white;
-  font-size: 0.875rem;
+  font-size: var(--font-sm);
   border-right: 1px solid rgba(255, 255, 255, 0.2);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
@@ -582,12 +719,108 @@
 }
 
 @media (max-width: 768px) {
+  /* Hide columns on mobile */
+  .hideOnMobile {
+    display: none !important;
+  }
+
+  /* Show mobile-only info */
+  .mobileOnlyInfo {
+    display: block;
+  }
+
+  /* Filter responsive */
+  .filterContainer {
+    padding: 1rem;
+  }
+
+  .filterRow {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .filterSelect, .filterInput {
+    padding: 0.75rem;
+    font-size: var(--font-base);
+  }
+
+  .filterButton, .clearButton {
+    padding: 0.75rem 1rem;
+    font-size: var(--font-sm);
+    min-width: 100px;
+  }
+
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .statCard {
+    padding: 1rem;
+    gap: 0.75rem;
+  }
+
+  .statIcon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .statIcon svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .statInfo h3 {
+    font-size: var(--font-xs);
+    margin-bottom: 0.25rem;
+  }
+
+  .statNumber {
+    font-size: var(--font-xl);
+  }
+
+  .filterContainer {
+    padding: 1rem;
+  }
+
+  .filterRow {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .filterSelect, .filterInput {
+    padding: 0.75rem;
+    font-size: var(--font-base);
+  }
+
+  .filterButton, .clearButton {
+    padding: 0.75rem 1rem;
+    font-size: var(--font-sm);
+    min-width: 100px;
+  }
+
   .tableWrapper {
     overflow-x: auto;
   }
   
   .ordersTable {
-    min-width: 600px;
+    min-width: 350px; /* Reduced for 2 columns only */
+    font-size: var(--font-sm);
+  }
+
+  .ordersTable th,
+  .ordersTable td {
+    padding: 0.75rem 0.5rem;
+  }
+
+  /* Optimize table columns for mobile - only 2 columns */
+  .productCell {
+    width: 250px; /* Increased to accommodate all mobile info */
+  }
+
+  .actionsCell {
+    width: 100px;
   }
   
   .headerContent {
@@ -597,17 +830,49 @@
   }
   
   .title {
-    font-size: 1.5rem;
+    font-size: var(--font-2xl);
   }
-  
-  .statusFilter {
-    min-width: 100%;
-    max-width: 300px;
+
+  .subtitle {
+    font-size: var(--font-sm);
   }
   
   .pagination {
     flex-direction: column;
     gap: 0.75rem;
+    padding: 1rem;
+  }
+
+  .paginationInfo {
+    flex-direction: column;
+    gap: 0.75rem;
+    text-align: center;
+  }
+
+  .pageSizeSelector {
+    justify-content: center;
+  }
+
+  .pageSizeLabel,
+  .pageSizeText,
+  .pageInfo {
+    font-size: var(--font-sm);
+  }
+
+  .pageSizeSelect {
+    padding: 0.5rem;
+    font-size: var(--font-sm);
+  }
+
+  .pageButton {
+    padding: 0.75rem 1rem;
+    font-size: var(--font-sm);
+  }
+
+  .pageNumber {
+    padding: 0.5rem 0.75rem;
+    font-size: var(--font-sm);
+    min-width: 35px;
   }
   
   .actionButtons {
@@ -619,19 +884,118 @@
     width: 100%;
     min-width: 28px;
     height: 28px;
-    font-size: 0.7rem;
+    font-size: var(--font-xs);
+  }
+
+  .productName {
+    font-size: var(--font-sm);
+  }
+
+  .productQuantity {
+    font-size: var(--font-xs);
+  }
+
+  .customerName {
+    font-size: var(--font-sm);
+  }
+
+  .customerPhone {
+    font-size: var(--font-xs);
+  }
+
+  .statusBadge {
+    font-size: var(--font-xs);
+    padding: 0.25rem 0.5rem;
+    min-width: 70px;
+  }
+
+  .orderDate {
+    font-size: var(--font-sm);
+  }
+
+  .totalPrice {
+    font-size: var(--font-sm);
   }
 }
 
 @media (max-width: 480px) {
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+
+  /* Filter responsive for small mobile */
+  .filterContainer {
+    padding: 0.75rem;
+  }
+
+  .filterSelect, .filterInput {
+    padding: 0.6rem;
+    font-size: var(--font-sm);
+  }
+
+  .filterButton, .clearButton {
+    padding: 0.6rem 0.75rem;
+    font-size: var(--font-xs);
+    min-width: 80px;
+  }
+
+  .statCard {
+    padding: 0.75rem;
+    gap: 0.5rem;
+  }
+
+  .statIcon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .statIcon svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .statInfo h3 {
+    font-size: var(--font-xs);
+    margin-bottom: 0.2rem;
+  }
+
+  .statNumber {
+    font-size: var(--font-lg);
+  }
+
+  .filterContainer {
+    padding: 0.75rem;
+  }
+
+  .filterSelect, .filterInput {
+    padding: 0.6rem;
+    font-size: var(--font-sm);
+  }
+
+  .filterButton, .clearButton {
+    padding: 0.6rem 0.75rem;
+    font-size: var(--font-xs);
+    min-width: 80px;
+  }
+
   .ordersTable {
-    min-width: 500px;
-    font-size: 0.75rem;
+    min-width: 320px; /* Further reduced for 2 columns */
+    font-size: var(--font-xs);
   }
   
   .ordersTable th,
   .ordersTable td {
     padding: 0.5rem 0.25rem;
+  }
+
+  /* Further optimize columns for small mobile - only 2 columns */
+  .productCell {
+    width: 220px;
+  }
+
+  .actionsCell {
+    width: 90px;
   }
   
   .productInfo {
@@ -644,32 +1008,200 @@
   }
   
   .productName {
-    font-size: 0.8rem;
+    font-size: var(--font-xs);
   }
   
   .productQuantity {
-    font-size: 0.7rem;
+    font-size: var(--font-xs);
   }
   
   .customerName {
-    font-size: 0.8rem;
+    font-size: var(--font-xs);
   }
   
   .customerPhone {
-    font-size: 0.7rem;
+    font-size: var(--font-xs);
   }
   
   .statusBadge {
-    font-size: 0.7rem;
+    font-size: var(--font-xs);
     padding: 0.2rem 0.4rem;
     min-width: 60px;
   }
   
   .orderDate {
-    font-size: 0.8rem;
+    font-size: var(--font-xs);
   }
   
   .totalPrice {
-    font-size: 0.8rem;
+    font-size: var(--font-xs);
+  }
+
+  .pagination {
+    padding: 0.75rem;
+  }
+
+  .pageSizeLabel,
+  .pageSizeText,
+  .pageInfo {
+    font-size: var(--font-xs);
+  }
+
+  .pageSizeSelect {
+    padding: 0.4rem;
+    font-size: var(--font-xs);
+  }
+
+  .pageButton {
+    padding: 0.6rem 0.75rem;
+    font-size: var(--font-xs);
+  }
+
+  .pageNumber {
+    padding: 0.4rem 0.6rem;
+    font-size: var(--font-xs);
+    min-width: 30px;
+  }
+}
+
+/* Extra small mobile screens (360px and below) */
+@media (max-width: 360px) {
+  .statsGrid {
+    gap: 0.4rem;
+  }
+
+  /* Filter responsive for extra small mobile */
+  .filterContainer {
+    padding: 0.6rem;
+  }
+
+  .filterSelect, .filterInput {
+    padding: 0.5rem;
+    font-size: var(--font-xs);
+  }
+
+  .filterButton, .clearButton {
+    padding: 0.5rem 0.6rem;
+    font-size: var(--font-xs);
+    min-width: 70px;
+  }
+
+  .statCard {
+    padding: 0.6rem;
+    gap: 0.4rem;
+  }
+
+  .statIcon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .statIcon svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .statInfo h3 {
+    font-size: var(--font-xs);
+    margin-bottom: 0.15rem;
+  }
+
+  .statNumber {
+    font-size: var(--font-md);
+  }
+
+  .filterContainer {
+    padding: 0.6rem;
+  }
+
+  .filterSelect, .filterInput {
+    padding: 0.5rem;
+    font-size: var(--font-xs);
+  }
+
+  .filterButton, .clearButton {
+    padding: 0.5rem 0.6rem;
+    font-size: var(--font-xs);
+    min-width: 70px;
+  }
+
+  .ordersTable {
+    min-width: 300px; /* Ultra compact for 2 columns */
+    font-size: var(--font-xs);
+  }
+  
+  .ordersTable th,
+  .ordersTable td {
+    padding: 0.4rem 0.2rem;
+  }
+
+  /* Ultra compact columns for very small screens - only 2 columns */
+  .productCell {
+    width: 200px;
+  }
+
+  .actionsCell {
+    width: 80px;
+  }
+  
+  .productImage {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .productName {
+    font-size: var(--font-xs);
+  }
+  
+  .productQuantity {
+    font-size: var(--font-xs);
+  }
+  
+  .customerName {
+    font-size: var(--font-xs);
+  }
+  
+  .customerPhone {
+    font-size: var(--font-xs);
+  }
+  
+  .statusBadge {
+    font-size: var(--font-xs);
+    padding: 0.15rem 0.3rem;
+    min-width: 50px;
+  }
+  
+  .orderDate {
+    font-size: var(--font-xs);
+  }
+  
+  .totalPrice {
+    font-size: var(--font-xs);
+  }
+
+  .pagination {
+    padding: 0.6rem;
+  }
+
+  .pageSizeLabel,
+  .pageSizeText,
+  .pageInfo {
+    font-size: var(--font-xs);
+  }
+
+  .pageSizeSelect {
+    padding: 0.35rem;
+    font-size: var(--font-xs);
+  }
+
+  .pageButton {
+    padding: 0.5rem 0.6rem;
+    font-size: var(--font-xs);
+  }
+
+  .pageNumber {
+    padding: 0.35rem 0.5rem;
+    font-size: var(--font-xs);
+    min-width: 28px;
   }
 }

@@ -8,7 +8,7 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 import styles from './layout.module.css';
 
 const navigation = [
-  { name: 'Dashboard', href: '/seller/dashboard', icon: '📊' },
+  // { name: 'Dashboard', href: '/seller/dashboard', icon: '📊' }, // Temporarily commented out
   { name: 'Cửa hàng', href: '/seller/store', icon: '🏪' },
   { name: 'Cài đặt', href: '/seller/settings', icon: '⚙️' },
 ];

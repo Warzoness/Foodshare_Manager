@@ -826,7 +826,7 @@
 }
 
 .modalHeader h2 {
-  font-size: 1.5rem;
+  font-size: var(--font-xl);
   font-weight: 700;
   color: var(--foreground);
   margin: 0;
@@ -835,7 +835,7 @@
 .closeButton {
   background: none;
   border: none;
-  font-size: 2rem;
+  font-size: var(--font-2xl);
   color: var(--gray-400);
   cursor: pointer;
   padding: 0;
@@ -863,7 +863,7 @@
 
 .formGroup label {
   display: block;
-  font-size: 0.95rem;
+  font-size: var(--font-sm);
   font-weight: 600;
   color: var(--foreground);
   margin-bottom: 0.5rem;
@@ -876,7 +876,7 @@
   padding: 0.875rem 1rem;
   border: 2px solid var(--gray-200);
   border-radius: var(--border-radius);
-  font-size: 0.95rem;
+  font-size: var(--font-base);
   background: var(--background);
   color: var(--foreground);
   transition: all 0.3s ease;
@@ -909,6 +909,93 @@
   border-top: 1px solid var(--gray-200);
 }
 
+/* Hide elements on mobile */
+.hideOnMobile {
+  display: table-cell;
+}
+
+/* Mobile-only info */
+.mobileOnlyInfo {
+  display: none; /* Hidden on desktop */
+}
+
+.mobileCategory {
+  font-size: var(--font-xs);
+  color: #94a3b8;
+  margin-top: 0.25rem;
+  line-height: 1.2;
+}
+
+.mobilePrice {
+  margin-top: 0.25rem;
+}
+
+.mobilePriceSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.mobileOriginalPrice {
+  font-size: var(--font-xs);
+  color: #94a3b8;
+  text-decoration: line-through;
+}
+
+.mobileCurrentPrice {
+  font-size: var(--font-sm);
+  color: #54A65C;
+  font-weight: 600;
+}
+
+.mobileDiscount {
+  font-size: var(--font-xs);
+  color: #ef4444;
+  font-weight: 600;
+}
+
+.mobileQuantity {
+  font-size: var(--font-xs);
+  color: #f1f5f9;
+  margin-top: 0.25rem;
+  line-height: 1.2;
+}
+
+.mobileStatus {
+  margin-top: 0.25rem;
+}
+
+.mobileStatusBadge {
+  padding: 0.15rem 0.3rem;
+  border-radius: 9999px;
+  font-size: var(--font-xs);
+  font-weight: 600;
+  text-align: center;
+  display: inline-block;
+  min-width: 60px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.mobileStatusBadge.active {
+  background: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+.mobileStatusBadge.inactive {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.mobileDetailImages {
+  font-size: var(--font-xs);
+  color: #94a3b8;
+  margin-top: 0.25rem;
+  line-height: 1.2;
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
   .filterControls {
@@ -925,46 +1012,235 @@
 
 @media (max-width: 768px) {
   .container {
-    padding: 1rem;
+    padding: 0.75rem;
   }
 
   .header {
     flex-direction: column;
     align-items: stretch;
-    gap: 1rem;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
   }
 
   .title {
-    font-size: 1.5rem;
+    font-size: var(--font-2xl);
+  }
+
+  .subtitle {
+    font-size: var(--font-sm);
+  }
+
+  /* Compact stats grid for mobile */
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .statCard {
+    padding: 0.875rem;
+    flex-direction: column;
+    text-align: center;
+    gap: 0.375rem;
+  }
+
+  .statIcon {
+    width: 36px;
+    height: 36px;
+    margin: 0 auto;
+  }
+
+  .statIcon svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .statInfo h3 {
+    font-size: var(--font-xs);
+    margin-bottom: 0.2rem;
+  }
+
+  .statNumber {
+    font-size: var(--font-xl);
   }
 
   .filtersCard {
-    padding: 1rem;
+    padding: 0.875rem;
+    margin-bottom: 1rem;
+  }
+
+  .filtersHeader h2 {
+    font-size: var(--font-lg);
+  }
+
+  .searchBox {
+    margin-bottom: 0.75rem;
+  }
+
+  .searchInput {
+    padding: 0.75rem 0.75rem 0.75rem 2.25rem;
+    font-size: var(--font-base);
+  }
+
+  .filterControls {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .filterSelect {
+    padding: 0.75rem;
+    font-size: var(--font-base);
+  }
+
+  /* Filter buttons font size */
+  .filterControls button {
+    font-size: var(--font-base) !important;
   }
 
   .tableCard {
     border-radius: 0.5rem;
+    overflow: hidden;
+  }
+
+  /* Hide category and detail images columns on mobile */
+  .hideOnMobile {
+    display: none !important;
+  }
+
+  /* Show mobile-only info */
+  .mobileOnlyInfo {
+    display: block;
+  }
+
+  .productsTable {
+    min-width: 350px; /* Reduced for 2 columns only */
+    font-size: var(--font-sm);
+  }
+
+  .productCell {
+    width: 250px; /* Increased to accommodate all mobile info */
+  }
+
+  .actionsCell {
+    width: 100px;
+  }
+
+  /* Modal responsive for mobile */
+  .modalHeader {
+    padding: 1.5rem 1.5rem 0.75rem 1.5rem;
+  }
+
+  .modalHeader h2 {
+    font-size: var(--font-lg);
+  }
+
+  .closeButton {
+    font-size: var(--font-xl);
+    width: 35px;
+    height: 35px;
+  }
+
+  .modalBody {
+    padding: 1.5rem;
+  }
+
+  .formGroup label {
+    font-size: var(--font-xs);
+  }
+
+  .formInput,
+  .formTextarea,
+  .formSelect {
+    font-size: var(--font-sm);
+    padding: 0.75rem 0.875rem;
+  }
+
+  .modalFooter {
+    padding: 0.75rem 1.5rem 1.5rem 1.5rem;
   }
 
   .tableHeaderCell,
   .tableCell {
-    padding: 0.75rem 0.5rem;
+    padding: 0.5rem 0.25rem;
+    font-size: var(--font-sm);
+  }
+
+  .tableHeaderCell {
+    font-size: var(--font-xs);
+    padding: 0.5rem 0.25rem;
   }
 
   .productInfo {
-    flex-direction: column;
-    align-items: flex-start;
+    flex-direction: row;
+    align-items: center;
     gap: 0.5rem;
   }
 
   .productImage {
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+  }
+
+  .productName {
+    font-size: var(--font-md);
+    margin-bottom: 0.1rem;
+  }
+
+  .productDescription {
+    font-size: var(--font-sm);
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+  }
+
+  .priceSection {
+    gap: 0.1rem;
+  }
+
+  .currentPrice {
+    font-size: var(--font-md);
+  }
+
+  .originalPrice {
+    font-size: var(--font-sm);
+  }
+
+  .discount {
+    font-size: var(--font-xs);
+    padding: 0.075rem 0.2rem;
+  }
+
+  .quantityInfo {
+    gap: 0.1rem;
+  }
+
+  .quantityItem {
+    font-size: var(--font-sm);
+  }
+
+  .statusBadge {
+    font-size: var(--font-sm);
+    padding: 0.2rem 0.4rem;
   }
 
   .actions {
     flex-direction: column;
-    gap: 0.25rem;
+    gap: 0.2rem;
+    min-height: auto;
+  }
+
+  .editButton,
+  .deleteButton {
+    width: 100%;
+    justify-content: center;
+    padding: 0.35rem 0.45rem;
+    font-size: var(--font-sm);
+  }
+
+  .editButton svg,
+  .deleteButton svg {
+    width: 11px;
+    height: 11px;
   }
 
   /* Image Upload Field Mobile */
@@ -978,57 +1254,435 @@
   }
   
   .imageUploadField :global(.dropZoneText) {
-    font-size: 14px;
+    font-size: var(--font-sm);
   }
   
   .imageUploadField :global(.dropZoneSubtext) {
-    font-size: 12px;
-  }
-
-  .editButton,
-  .deleteButton {
-    width: 100%;
-    justify-content: center;
+    font-size: var(--font-xs);
   }
 
   .pagination {
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.75rem;
     align-items: stretch;
+    margin-top: 1rem;
+  }
+
+  .paginationInfo {
+    font-size: var(--font-sm);
+    text-align: center;
   }
 
   .paginationControls {
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.75rem;
+  }
+
+  .pageSizeSelect {
+    padding: 0.5rem;
+    font-size: var(--font-base);
   }
 
   .pageButtons {
     justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .pageNumber {
+    padding: 0.375rem 0.5rem;
+    font-size: var(--font-base);
+    min-width: 35px;
+  }
+
+  /* Pagination buttons font size */
+  .pageButtons button {
+    font-size: var(--font-base) !important;
   }
 }
 
 @media (max-width: 480px) {
+  .container {
+    padding: 0.5rem;
+  }
+
   .title {
-    font-size: 1.25rem;
+    font-size: var(--font-2xl);
+  }
+
+  .subtitle {
+    font-size: var(--font-sm);
+  }
+
+  /* Ultra compact stats for very small screens */
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.4rem;
+  }
+
+  .statCard {
+    padding: 0.6rem;
+  }
+
+  /* Products table responsive for small mobile */
+  .productsTable {
+    min-width: 320px; /* Further reduced for 2 columns */
+    font-size: var(--font-xs);
+  }
+
+  .productCell {
+    width: 220px;
+  }
+
+  .actionsCell {
+    width: 90px;
+  }
+
+  /* Modal responsive for small mobile */
+  .modalHeader {
+    padding: 1rem 1rem 0.5rem 1rem;
+  }
+
+  .modalHeader h2 {
+    font-size: var(--font-base);
+  }
+
+  .closeButton {
+    font-size: var(--font-lg);
+    width: 30px;
+    height: 30px;
+  }
+
+  .modalBody {
+    padding: 1rem;
+  }
+
+  .formGroup label {
+    font-size: var(--font-xs);
+  }
+
+  .formInput,
+  .formTextarea,
+  .formSelect {
+    font-size: var(--font-xs);
+    padding: 0.6rem 0.75rem;
+  }
+
+  .modalFooter {
+    padding: 0.5rem 1rem 1rem 1rem;
+  }
+
+  .statIcon {
+    width: 30px;
+    height: 30px;
+  }
+
+  .statIcon svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .statInfo h3 {
+    font-size: 0.6rem;
+  }
+
+  .statNumber {
+    font-size: 1rem;
+  }
+
+  .filtersCard {
+    padding: 0.6rem;
+  }
+
+  .filtersHeader h2 {
+    font-size: 0.8rem;
+  }
+
+  .searchInput {
+    padding: 0.6rem 0.6rem 0.6rem 1.8rem;
+    font-size: 0.65rem; /* Match other mobile elements */
+  }
+
+  .filterSelect {
+    padding: 0.6rem;
+    font-size: 0.65rem; /* Match other mobile elements */
+  }
+
+  /* Filter buttons font size */
+  .filterControls button {
+    font-size: 0.65rem !important;
   }
 
   .tableHeaderCell,
   .tableCell {
-    padding: 0.5rem 0.25rem;
+    padding: 0.3rem 0.1rem;
+    font-size: 0.65rem;
+  }
+
+  .tableHeaderCell {
+    font-size: 0.6rem;
+    padding: 0.3rem 0.1rem;
+  }
+
+  .productImage {
+    width: 28px;
+    height: 28px;
   }
 
   .productName {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
+    margin-bottom: 0.075rem;
   }
 
   .productDescription {
-    font-size: 0.625rem;
+    font-size: 0.55rem;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+  }
+
+  .currentPrice {
+    font-size: 0.7rem;
+  }
+
+  .originalPrice {
+    font-size: 0.55rem;
+  }
+
+  .discount {
+    font-size: 0.45rem;
+    padding: 0.05rem 0.15rem;
+  }
+
+  .quantityItem {
+    font-size: 0.55rem;
+  }
+
+  .statusBadge {
+    font-size: 0.55rem;
+    padding: 0.15rem 0.3rem;
   }
 
   .editButton,
   .deleteButton {
-    font-size: 0.625rem;
-    padding: 0.375rem 0.5rem;
+    padding: 0.25rem 0.35rem;
+    font-size: 0.6rem;
+  }
+
+  .editButton svg,
+  .deleteButton svg {
+    width: 9px;
+    height: 9px;
+  }
+
+  .paginationInfo {
+    font-size: 0.65rem;
+  }
+
+  .pageSizeSelect {
+    padding: 0.35rem;
+    font-size: 0.65rem;
+  }
+
+  .pageNumber {
+    padding: 0.25rem 0.35rem;
+    font-size: 0.65rem;
+    min-width: 28px;
+  }
+
+  /* Pagination buttons font size */
+  .pageButtons button {
+    font-size: 0.65rem !important;
+  }
+}
+
+/* Extra small mobile screens (360px and below) */
+@media (max-width: 360px) {
+  .container {
+    padding: 0.375rem;
+  }
+
+  .title {
+    font-size: var(--font-2xl);
+  }
+
+  .subtitle {
+    font-size: var(--font-sm);
+  }
+
+  .statsGrid {
+    gap: 0.3rem;
+  }
+
+  .statCard {
+    padding: 0.5rem;
+  }
+
+  /* Products table responsive for extra small mobile */
+  .productsTable {
+    min-width: 300px; /* Ultra compact for 2 columns */
+    font-size: var(--font-xs);
+  }
+
+  .productCell {
+    width: 200px;
+  }
+
+  .actionsCell {
+    width: 80px;
+  }
+
+  /* Modal responsive for extra small mobile */
+  .modalHeader {
+    padding: 0.75rem 0.75rem 0.375rem 0.75rem;
+  }
+
+  .modalHeader h2 {
+    font-size: var(--font-sm);
+  }
+
+  .closeButton {
+    font-size: var(--font-base);
+    width: 28px;
+    height: 28px;
+  }
+
+  .modalBody {
+    padding: 0.75rem;
+  }
+
+  .formGroup label {
+    font-size: var(--font-xs);
+  }
+
+  .formInput,
+  .formTextarea,
+  .formSelect {
+    font-size: var(--font-xs);
+    padding: 0.5rem 0.6rem;
+  }
+
+  .modalFooter {
+    padding: 0.375rem 0.75rem 0.75rem 0.75rem;
+  }
+
+  .statIcon {
+    width: 26px;
+    height: 26px;
+  }
+
+  .statIcon svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .statInfo h3 {
+    font-size: 0.55rem;
+  }
+
+  .statNumber {
+    font-size: 0.9rem;
+  }
+
+  .filtersCard {
+    padding: 0.5rem;
+  }
+
+  .filtersHeader h2 {
+    font-size: 0.75rem;
+  }
+
+  .searchInput {
+    padding: 0.5rem 0.5rem 0.5rem 1.6rem;
+    font-size: 0.6rem; /* Match other mobile elements */
+  }
+
+  .filterSelect {
+    padding: 0.5rem;
+    font-size: 0.6rem; /* Match other mobile elements */
+  }
+
+  /* Filter buttons font size */
+  .filterControls button {
+    font-size: 0.6rem !important;
+  }
+
+  .tableHeaderCell,
+  .tableCell {
+    padding: 0.25rem 0.075rem;
+    font-size: 0.6rem;
+  }
+
+  .tableHeaderCell {
+    font-size: 0.55rem;
+    padding: 0.25rem 0.075rem;
+  }
+
+  .productImage {
+    width: 24px;
+    height: 24px;
+  }
+
+  .productName {
+    font-size: 0.65rem;
+    margin-bottom: 0.05rem;
+  }
+
+  .productDescription {
+    font-size: 0.5rem;
+  }
+
+  .currentPrice {
+    font-size: 0.65rem;
+  }
+
+  .originalPrice {
+    font-size: 0.5rem;
+  }
+
+  .discount {
+    font-size: 0.4rem;
+    padding: 0.025rem 0.1rem;
+  }
+
+  .quantityItem {
+    font-size: 0.5rem;
+  }
+
+  .statusBadge {
+    font-size: 0.5rem;
+    padding: 0.1rem 0.25rem;
+  }
+
+  .editButton,
+  .deleteButton {
+    padding: 0.2rem 0.3rem;
+    font-size: 0.55rem;
+  }
+
+  .editButton svg,
+  .deleteButton svg {
+    width: 8px;
+    height: 8px;
+  }
+
+  .paginationInfo {
+    font-size: 0.6rem;
+  }
+
+  .pageSizeSelect {
+    padding: 0.3rem;
+    font-size: 0.6rem;
+  }
+
+  .pageNumber {
+    padding: 0.2rem 0.3rem;
+    font-size: 0.6rem;
+    min-width: 25px;
+  }
+
+  /* Pagination buttons font size */
+  .pageButtons button {
+    font-size: 0.6rem !important;
   }
 }
 
@@ -1124,4 +1778,31 @@
     height: 25px;
     font-size: 0.5rem;
   }
+}
+
+/* Form Input Error Styles */
+.inputError {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2) !important;
+  background: rgba(239, 68, 68, 0.05) !important;
+}
+
+.inputError:focus {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.3) !important;
+}
+
+.errorMessage {
+  color: #ef4444;
+  font-size: var(--font-xs);
+  margin-top: 0.25rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.errorMessage::before {
+  content: "⚠️";
+  font-size: 0.75rem;
 }

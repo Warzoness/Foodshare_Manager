@@ -25,16 +25,74 @@ export default function ProductsManagement() {
   const [newProduct, setNewProduct] = useState({
     name: '',
     description: '',
-    price: 0,
-    originalPrice: 0,
+    price: '',
+    originalPrice: '',
     categoryId: 1,
     imageUrl: '',
     detailImageUrl: '',
     detailImages: [] as string[],
-    quantityAvailable: 0,
-    quantityPending: 0,
+    quantityAvailable: '',
+    quantityPending: '',
     status: '1'
   });
+
+  // Validation states
+  const [priceError, setPriceError] = useState('');
+  const [originalPriceError, setOriginalPriceError] = useState('');
+  const [quantityError, setQuantityError] = useState('');
+
+  // Validation functions
+  const validatePrice = (value: string) => {
+    if (!value.trim()) {
+      setPriceError('Giá không được để trống');
+      return false;
+    }
+    const numValue = parseFloat(value);
+    if (isNaN(numValue) || numValue < 0) {
+      setPriceError('Giá phải là số dương hợp lệ');
+      return false;
+    }
+    setPriceError('');
+    return true;
+  };
+
+  const validateOriginalPrice = (value: string) => {
+    if (!value.trim()) {
+      setOriginalPriceError('');
+      return true; // Original price is optional
+    }
+    const numValue = parseFloat(value);
+    if (isNaN(numValue) || numValue < 0) {
+      setOriginalPriceError('Giá gốc phải là số dương hợp lệ');
+      return false;
+    }
+    const price = parseFloat(newProduct.price);
+    if (!isNaN(price) && numValue <= price) {
+      setOriginalPriceError('Giá gốc phải lớn hơn giá bán');
+      return false;
+    }
+    setOriginalPriceError('');
+    return true;
+  };
+
+  const validateQuantity = (value: string) => {
+    if (!value.trim()) {
+      setQuantityError('Số lượng không được để trống');
+      return false;
+    }
+    const numValue = parseInt(value);
+    if (isNaN(numValue) || numValue < 0) {
+      setQuantityError('Số lượng phải là số nguyên dương');
+      return false;
+    }
+    setQuantityError('');
+    return true;
+  };
+
+  const isFormValid = () => {
+    return !priceError && !originalPriceError && !quantityError && 
+           newProduct.name.trim() && newProduct.price.trim() && newProduct.quantityAvailable.trim();
+  };
 
   // Memoize pagination params
   const paginationParams = useMemo(() => ({
@@ -95,16 +153,20 @@ export default function ProductsManagement() {
     setNewProduct({
       name: product.name || '',
       description: product.description || '',
-      price: product.price || 0,
-      originalPrice: product.originalPrice || 0,
+      price: product.price ? product.price.toString() : '',
+      originalPrice: product.originalPrice ? product.originalPrice.toString() : '',
       categoryId: product.categoryId || 1,
       imageUrl: product.imageUrl || '',
       detailImageUrl: product.detailImageUrl || '',
       detailImages: detailImages,
-      quantityAvailable: product.quantityAvailable || 0,
-      quantityPending: product.quantityPending || 0,
+      quantityAvailable: product.quantityAvailable ? product.quantityAvailable.toString() : '',
+      quantityPending: product.quantityPending ? product.quantityPending.toString() : '',
       status: product.status || '1'
     });
+    // Reset validation states when opening edit form
+    setPriceError('');
+    setOriginalPriceError('');
+    setQuantityError('');
     setShowEditForm(true);
   };
 
@@ -119,27 +181,44 @@ export default function ProductsManagement() {
   };
 
   const handleCreateProduct = async () => {
+    // Validate all fields before submitting
+    const isPriceValid = validatePrice(newProduct.price);
+    const isOriginalPriceValid = validateOriginalPrice(newProduct.originalPrice);
+    const isQuantityValid = validateQuantity(newProduct.quantityAvailable);
+
+    if (!isPriceValid || !isOriginalPriceValid || !isQuantityValid) {
+      return; // Don't submit if validation fails
+    }
+
     try {
       const productData = {
         ...newProduct,
+        price: parseFloat(newProduct.price),
+        originalPrice: newProduct.originalPrice ? parseFloat(newProduct.originalPrice) : 0,
+        quantityAvailable: parseInt(newProduct.quantityAvailable),
+        quantityPending: newProduct.quantityPending ? parseInt(newProduct.quantityPending) : 0,
         shopId: parseInt(shopId),
         detailImageUrl: newProduct.detailImages.join(',')
       };
       await createProduct(productData);
       setShowCreateForm(false);
-        setNewProduct({
-          name: '',
-          description: '',
-          price: 0,
-          originalPrice: 0,
-          categoryId: 1,
-          imageUrl: '',
-          detailImageUrl: '',
-          detailImages: [],
-          quantityAvailable: 0,
-          quantityPending: 0,
-          status: '1'
-        });
+      setNewProduct({
+        name: '',
+        description: '',
+        price: '',
+        originalPrice: '',
+        categoryId: 1,
+        imageUrl: '',
+        detailImageUrl: '',
+        detailImages: [],
+        quantityAvailable: '',
+        quantityPending: '',
+        status: '1'
+      });
+      // Reset validation states
+      setPriceError('');
+      setOriginalPriceError('');
+      setQuantityError('');
         refetchProducts();
     } catch (error) {
     }
@@ -148,14 +227,31 @@ export default function ProductsManagement() {
   const handleUpdateProduct = async () => {
     if (!editingProduct?.id) return;
     
+    // Validate all fields before submitting
+    const isPriceValid = validatePrice(newProduct.price);
+    const isOriginalPriceValid = validateOriginalPrice(newProduct.originalPrice);
+    const isQuantityValid = validateQuantity(newProduct.quantityAvailable);
+
+    if (!isPriceValid || !isOriginalPriceValid || !isQuantityValid) {
+      return; // Don't submit if validation fails
+    }
+    
     try {
       const productData = {
         ...newProduct,
+        price: parseFloat(newProduct.price),
+        originalPrice: newProduct.originalPrice ? parseFloat(newProduct.originalPrice) : 0,
+        quantityAvailable: parseInt(newProduct.quantityAvailable),
+        quantityPending: newProduct.quantityPending ? parseInt(newProduct.quantityPending) : 0,
         detailImageUrl: newProduct.detailImages.join(',')
       };
       await updateProduct(editingProduct.id.toString(), productData);
       setShowEditForm(false);
       setEditingProduct(null);
+      // Reset validation states
+      setPriceError('');
+      setOriginalPriceError('');
+      setQuantityError('');
       refetchProducts();
     } catch (error) {
     }
@@ -375,7 +471,7 @@ export default function ProductsManagement() {
                       className={styles.sortButton}
                       onClick={() => handleSort('name')}
                     >
-                      Hình ảnh & Tên
+                      Sản phẩm
                       {sortBy === 'name' && (
                         <span className={styles.sortIcon}>
                           {sortDirection === 'asc' ? '↑' : '↓'}
@@ -383,7 +479,7 @@ export default function ProductsManagement() {
                       )}
                     </button>
                   </th>
-                  <th className={styles.tableHeaderCell}>
+                  <th className={`${styles.tableHeaderCell} ${styles.hideOnMobile}`}>
                     <button 
                       className={styles.sortButton}
                       onClick={() => handleSort('categoryId')}
@@ -396,7 +492,7 @@ export default function ProductsManagement() {
                       )}
                     </button>
                   </th>
-                  <th className={styles.tableHeaderCell}>
+                  <th className={`${styles.tableHeaderCell} ${styles.hideOnMobile}`}>
                     <button 
                       className={styles.sortButton}
                       onClick={() => handleSort('price')}
@@ -409,7 +505,7 @@ export default function ProductsManagement() {
                       )}
                     </button>
                   </th>
-                  <th className={styles.tableHeaderCell}>
+                  <th className={`${styles.tableHeaderCell} ${styles.hideOnMobile}`}>
                     <button 
                       className={styles.sortButton}
                       onClick={() => handleSort('quantityAvailable')}
@@ -422,7 +518,7 @@ export default function ProductsManagement() {
                       )}
                     </button>
                   </th>
-                  <th className={styles.tableHeaderCell}>
+                  <th className={`${styles.tableHeaderCell} ${styles.hideOnMobile}`}>
                     <button 
                       className={styles.sortButton}
                       onClick={() => handleSort('status')}
@@ -435,7 +531,7 @@ export default function ProductsManagement() {
                       )}
                     </button>
                   </th>
-                  <th className={styles.tableHeaderCell}>Hình chi tiết</th>
+                  <th className={`${styles.tableHeaderCell} ${styles.hideOnMobile}`}>Hình chi tiết</th>
                   <th className={styles.tableHeaderCell}>Thao tác</th>
                 </tr>
               </thead>
@@ -444,39 +540,78 @@ export default function ProductsManagement() {
                   <tr key={product.id || `product-${index}`} className={styles.tableRow}>
                     <td className={styles.tableCell}>
                       <div className={styles.productInfo}>
-              <div className={styles.productImage}>
-                {product.imageUrl ? (
-                  <Image
-                    src={product.imageUrl}
-                    alt={product.name || 'Sản phẩm'}
+                        <div className={styles.productImage}>
+                          {product.imageUrl ? (
+                            <Image
+                              src={product.imageUrl}
+                              alt={product.name || 'Sản phẩm'}
                               width={60}
                               height={60}
-                    className={styles.image}
-                  />
-                ) : (
+                              className={styles.image}
+                            />
+                          ) : (
                             <div className={styles.noImage}>
                               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
                                 <circle cx="8.5" cy="8.5" r="1.5"/>
                                 <polyline points="21,15 16,10 5,21"/>
                               </svg>
-                  </div>
-                )}
+                            </div>
+                          )}
                         </div>
                         <div className={styles.productDetails}>
                           <h3 className={styles.productName}>{product.name || 'Tên sản phẩm'}</h3>
                           <p className={styles.productDescription}>
                             {product.description || 'Không có mô tả'}
                           </p>
+                          
+                          {/* Mobile-only info */}
+                          <div className={styles.mobileOnlyInfo}>
+                            <div className={styles.mobileCategory}>
+                              📂 Danh mục {product.categoryId || 'N/A'}
+                            </div>
+                            <div className={styles.mobilePrice}>
+                              💰 {(product.originalPrice || 0) > (product.price || 0) ? (
+                                <div className={styles.mobilePriceSection}>
+                                  <span className={styles.mobileOriginalPrice}>
+                                    ₫{(product.originalPrice || 0).toLocaleString()}
+                                  </span>
+                                  <span className={styles.mobileCurrentPrice}>
+                                    ₫{(product.price || 0).toLocaleString()}
+                                  </span>
+                                  <span className={styles.mobileDiscount}>
+                                    -{calculateDiscountPercentage(product.originalPrice || 0, product.price || 0)}%
+                                  </span>
+                                </div>
+                              ) : (
+                                <span className={styles.mobileCurrentPrice}>
+                                  ₫{(product.price || 0).toLocaleString()}
+                                </span>
+                              )}
+                            </div>
+                            <div className={styles.mobileQuantity}>
+                              📦 Còn lại: {product.quantityAvailable || 0} | Đang chờ: {product.quantityPending || 0}
+                            </div>
+                            <div className={styles.mobileStatus}>
+                              <span className={`${styles.mobileStatusBadge} ${product.status === '1' ? styles.active : styles.inactive}`}>
+                                {product.status === '1' ? '🟢 Đang bán' : '🔴 Ngừng bán'}
+                              </span>
+                            </div>
+                            {product.detailImageUrl && (
+                              <div className={styles.mobileDetailImages}>
+                                🖼️ {product.detailImageUrl.split(',').filter(url => url.trim()).length} hình chi tiết
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </td>
-                    <td className={styles.tableCell}>
+                    <td className={`${styles.tableCell} ${styles.hideOnMobile}`}>
                       <span className={styles.category}>
                         Danh mục {product.categoryId || 'N/A'}
                       </span>
                     </td>
-                    <td className={styles.tableCell}>
+                    <td className={`${styles.tableCell} ${styles.hideOnMobile}`}>
                       <div className={styles.priceSection}>
                         {(product.originalPrice || 0) > (product.price || 0) ? (
                           <div className={styles.discountPrice}>
@@ -497,7 +632,7 @@ export default function ProductsManagement() {
                         )}
                       </div>
                     </td>
-                    <td className={styles.tableCell}>
+                    <td className={`${styles.tableCell} ${styles.hideOnMobile}`}>
                       <div className={styles.quantityInfo}>
                         <div className={styles.quantityItem}>
                           <span>Còn lại: {product.quantityAvailable || 0}</span>
@@ -507,12 +642,12 @@ export default function ProductsManagement() {
                   </div>
                 </div>
                     </td>
-                    <td className={styles.tableCell}>
+                    <td className={`${styles.tableCell} ${styles.hideOnMobile}`}>
                       <span className={`${styles.statusBadge} ${product.status === '1' ? styles.active : styles.inactive}`}>
                   {product.status === '1' ? 'Đang bán' : 'Ngừng bán'}
                       </span>
                     </td>
-                    <td className={styles.tableCell}>
+                    <td className={`${styles.tableCell} ${styles.hideOnMobile}`}>
                       <div className={styles.detailImagesContainer}>
                         {product.detailImageUrl ? (
                           <div className={styles.detailImagesGrid}>
@@ -707,48 +842,53 @@ export default function ProductsManagement() {
             
             <div className={styles.formRow}>
               <div className={styles.formGroup}>
-                  <label>Giá hiện tại</label>
+                <label>Giá hiện tại</label>
                 <input
-                  type="number"
-                    value={newProduct.price}
-                    onChange={(e) => setNewProduct({...newProduct, price: parseFloat(e.target.value) || 0})}
-                  className={styles.formInput}
+                  type="text"
+                  value={newProduct.price}
+                  onChange={(e) => {
+                    setNewProduct({...newProduct, price: e.target.value});
+                    validatePrice(e.target.value);
+                  }}
+                  onBlur={(e) => validatePrice(e.target.value)}
+                  className={`${styles.formInput} ${priceError ? styles.inputError : ''}`}
+                  placeholder="Nhập giá bán"
                 />
+                {priceError && <div className={styles.errorMessage}>{priceError}</div>}
               </div>
               <div className={styles.formGroup}>
-                  <label>Giá gốc</label>
+                <label>Giá gốc</label>
                 <input
-                  type="number"
-                    value={newProduct.originalPrice}
-                    onChange={(e) => setNewProduct({...newProduct, originalPrice: parseFloat(e.target.value) || 0})}
-                  className={styles.formInput}
+                  type="text"
+                  value={newProduct.originalPrice}
+                  onChange={(e) => {
+                    setNewProduct({...newProduct, originalPrice: e.target.value});
+                    validateOriginalPrice(e.target.value);
+                  }}
+                  onBlur={(e) => validateOriginalPrice(e.target.value)}
+                  className={`${styles.formInput} ${originalPriceError ? styles.inputError : ''}`}
+                  placeholder="Nhập giá gốc"
                 />
+                {originalPriceError && <div className={styles.errorMessage}>{originalPriceError}</div>}
               </div>
             </div>
             
             <div className={styles.formRow}>
               <div className={styles.formGroup}>
-                  <label>Số lượng có sẵn</label>
+                <label>Số lượng có sẵn</label>
                 <input
-                  type="number"
+                  type="text"
                   value={newProduct.quantityAvailable}
-                  onChange={(e) => setNewProduct({...newProduct, quantityAvailable: parseInt(e.target.value) || 0})}
-                    className={styles.formInput}
-                  />
-                </div>
-                <div className={styles.formGroup}>
-                  <label>Danh mục</label>
-                  <select
-                    value={newProduct.categoryId}
-                    onChange={(e) => setNewProduct({...newProduct, categoryId: parseInt(e.target.value)})}
-                    className={styles.formSelect}
-                  >
-                    <option value={1}>Pizza</option>
-                    <option value={2}>Burger</option>
-                    <option value={3}>Salad</option>
-                    <option value={4}>Pasta</option>
-                  </select>
-                </div>
+                  onChange={(e) => {
+                    setNewProduct({...newProduct, quantityAvailable: e.target.value});
+                    validateQuantity(e.target.value);
+                  }}
+                  onBlur={(e) => validateQuantity(e.target.value)}
+                  className={`${styles.formInput} ${quantityError ? styles.inputError : ''}`}
+                  placeholder="Nhập số lượng"
+                />
+                {quantityError && <div className={styles.errorMessage}>{quantityError}</div>}
+              </div>
               </div>
               
               <div className={styles.formGroup}>
@@ -780,7 +920,7 @@ export default function ProductsManagement() {
               </Button>
               <Button 
                 onClick={handleCreateProduct}
-                disabled={creating}
+                disabled={creating || !isFormValid()}
               >
                 {creating ? 'Đang tạo...' : 'Tạo sản phẩm'}
               </Button>
@@ -825,34 +965,52 @@ export default function ProductsManagement() {
             
             <div className={styles.formRow}>
               <div className={styles.formGroup}>
-                  <label>Giá hiện tại</label>
+                <label>Giá hiện tại</label>
                 <input
-                  type="number"
-                    value={newProduct.price}
-                    onChange={(e) => setNewProduct({...newProduct, price: parseFloat(e.target.value) || 0})}
-                  className={styles.formInput}
+                  type="text"
+                  value={newProduct.price}
+                  onChange={(e) => {
+                    setNewProduct({...newProduct, price: e.target.value});
+                    validatePrice(e.target.value);
+                  }}
+                  onBlur={(e) => validatePrice(e.target.value)}
+                  className={`${styles.formInput} ${priceError ? styles.inputError : ''}`}
+                  placeholder="Nhập giá bán"
                 />
+                {priceError && <div className={styles.errorMessage}>{priceError}</div>}
               </div>
               <div className={styles.formGroup}>
-                  <label>Giá gốc</label>
+                <label>Giá gốc</label>
                 <input
-                  type="number"
-                    value={newProduct.originalPrice}
-                    onChange={(e) => setNewProduct({...newProduct, originalPrice: parseFloat(e.target.value) || 0})}
-                  className={styles.formInput}
+                  type="text"
+                  value={newProduct.originalPrice}
+                  onChange={(e) => {
+                    setNewProduct({...newProduct, originalPrice: e.target.value});
+                    validateOriginalPrice(e.target.value);
+                  }}
+                  onBlur={(e) => validateOriginalPrice(e.target.value)}
+                  className={`${styles.formInput} ${originalPriceError ? styles.inputError : ''}`}
+                  placeholder="Nhập giá gốc"
                 />
+                {originalPriceError && <div className={styles.errorMessage}>{originalPriceError}</div>}
               </div>
             </div>
             
             <div className={styles.formRow}>
               <div className={styles.formGroup}>
-                  <label>Số lượng có sẵn</label>
+                <label>Số lượng có sẵn</label>
                 <input
-                  type="number"
-                    value={newProduct.quantityAvailable}
-                    onChange={(e) => setNewProduct({...newProduct, quantityAvailable: parseInt(e.target.value) || 0})}
-                  className={styles.formInput}
+                  type="text"
+                  value={newProduct.quantityAvailable}
+                  onChange={(e) => {
+                    setNewProduct({...newProduct, quantityAvailable: e.target.value});
+                    validateQuantity(e.target.value);
+                  }}
+                  onBlur={(e) => validateQuantity(e.target.value)}
+                  className={`${styles.formInput} ${quantityError ? styles.inputError : ''}`}
+                  placeholder="Nhập số lượng"
                 />
+                {quantityError && <div className={styles.errorMessage}>{quantityError}</div>}
               </div>
               <div className={styles.formGroup}>
                   <label>Trạng thái</label>
@@ -896,7 +1054,7 @@ export default function ProductsManagement() {
               </Button>
               <Button 
                 onClick={handleUpdateProduct}
-                disabled={updating}
+                disabled={updating || !isFormValid()}
               >
                 {updating ? 'Đang cập nhật...' : 'Cập nhật'}
               </Button>

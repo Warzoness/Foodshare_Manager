@@ -257,48 +257,9 @@ export default function SellerSettingsPage() {
               </div>
             </div>
 
-            {profile?.createdAt && (
-              <div className={styles.infoSection}>
-                <h4 className={styles.sectionTitle}>Thông tin tài khoản</h4>
-                <div className={styles.infoGrid}>
-                  <div className={styles.infoItem}>
-                    <span className={styles.infoLabel}>Ngày tạo:</span>
-                    <span className={styles.infoValue}>
-                      {profile.createdAt.toLocaleDateString('vi-VN')}
-                    </span>
-                  </div>
-                  {profile.updatedAt && (
-                    <div className={styles.infoItem}>
-                      <span className={styles.infoLabel}>Cập nhật lần cuối:</span>
-                      <span className={styles.infoValue}>
-                        {profile.updatedAt.toLocaleDateString('vi-VN')}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
           </div>
         </div>
 
-        <div className={styles.securityCard}>
-          <div className={styles.cardHeader}>
-            <h3 className={styles.cardTitle}>Bảo mật</h3>
-          </div>
-          <div className={styles.cardContent}>
-            <div className={styles.securityItem}>
-              <div className={styles.securityInfo}>
-                <h4 className={styles.securityTitle}>Đổi mật khẩu</h4>
-                <p className={styles.securityDescription}>
-                  Cập nhật mật khẩu để bảo vệ tài khoản của bạn
-                </p>
-              </div>
-              <button className={styles.securityButton}>
-                Đổi mật khẩu
-              </button>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );

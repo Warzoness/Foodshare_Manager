@@ -74,6 +74,23 @@ export default function OrdersManagement() {
     hasPrevious: ordersResponse.hasPrevious
   } : null;
 
+  // Calculate statistics
+  const stats = useMemo(() => {
+    const total = orders.length;
+    const pending = orders.filter(order => order.status === '1').length;
+    const confirmed = orders.filter(order => order.status === '2').length;
+    const completed = orders.filter(order => order.status === '4').length;
+    const cancelled = orders.filter(order => order.status === '3').length;
+    
+    return {
+      total,
+      pending,
+      confirmed,
+      completed,
+      cancelled
+    };
+  }, [orders]);
+
   const handleUpdateStatus = async (orderId: string, newStatus: string) => {
     // Xác nhận trước khi thực hiện hành động
     const confirmMessages = {
@@ -191,6 +208,68 @@ export default function OrdersManagement() {
         </div>
       </div>
 
+      {/* Statistics Dashboard */}
+      <div className={styles.statsSection}>
+        <div className={styles.statsGrid}>
+          <div className={styles.statCard}>
+            <div className={styles.statIcon}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="8.5" cy="7" r="4"></circle>
+                <path d="M20 8v6"></path>
+                <path d="M23 11h-6"></path>
+              </svg>
+            </div>
+            <div className={styles.statInfo}>
+              <h3>Tổng đơn hàng</h3>
+              <div className={styles.statNumber}>{stats.total}</div>
+            </div>
+          </div>
+
+          <div className={styles.statCard}>
+            <div className={styles.statIcon}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12,6 12,12 16,14"></polyline>
+              </svg>
+            </div>
+            <div className={styles.statInfo}>
+              <h3>Đang chờ</h3>
+              <div className={styles.statNumber}>{stats.pending}</div>
+            </div>
+          </div>
+
+          <div className={styles.statCard}>
+            <div className={styles.statIcon}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M9 12l2 2 4-4"></path>
+                <path d="M21 12c-1 0-3-1-3-3s2-3 3-3 3 1 3 3-2 3-3 3"></path>
+                <path d="M3 12c1 0 3-1 3-3s-2-3-3-3-3 1-3 3 2 3 3 3"></path>
+                <path d="M12 3c0 1-1 3-3 3s-3-2-3-3 1-3 3-3 3 2 3 3"></path>
+                <path d="M12 21c0-1 1-3 3-3s3 2 3 3-1 3-3 3-3-2-3-3"></path>
+              </svg>
+            </div>
+            <div className={styles.statInfo}>
+              <h3>Đã xác nhận</h3>
+              <div className={styles.statNumber}>{stats.confirmed}</div>
+            </div>
+          </div>
+
+          <div className={styles.statCard}>
+            <div className={styles.statIcon}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22,4 12,14.01 9,11.01"></polyline>
+              </svg>
+            </div>
+            <div className={styles.statInfo}>
+              <h3>Hoàn thành</h3>
+              <div className={styles.statNumber}>{stats.completed}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Advanced Filter */}
       <div className={styles.filterSection}>
         <div className={styles.filterContainer}>
@@ -293,23 +372,23 @@ export default function OrdersManagement() {
         ) : (
           <div className={styles.tableWrapper}>
             <table className={styles.ordersTable}>
-              <thead>
-                <tr>
-                  <th>Mã đơn</th>
-                  <th>Sản phẩm</th>
-                  <th>Khách hàng</th>
-                  <th>Trạng thái</th>
-                  <th>Thời gian nhận</th>
-                  <th>Tổng tiền</th>
-                  <th>Thao tác</th>
-                </tr>
-              </thead>
+                <thead>
+                  <tr>
+                    <th className={styles.hideOnMobile}>Mã đơn</th>
+                    <th>Sản phẩm</th>
+                    <th className={styles.hideOnMobile}>Khách hàng</th>
+                    <th className={styles.hideOnMobile}>Trạng thái</th>
+                    <th className={styles.hideOnMobile}>Thời gian nhận</th>
+                    <th className={styles.hideOnMobile}>Tổng tiền</th>
+                    <th>Thao tác</th>
+                  </tr>
+                </thead>
               <tbody>
                 {orders.map((order: ApiOrder) => {
                   const statusInfo = getStatusInfo(order.status);
                   return (
                     <tr key={order.id} className={styles.tableRow}>
-                      <td className={styles.orderIdCell}>
+                      <td className={`${styles.orderIdCell} ${styles.hideOnMobile}`}>
                         <span className={styles.orderId}>#{order.id}</span>
                       </td>
                       <td className={styles.productCell}>
@@ -321,23 +400,49 @@ export default function OrdersManagement() {
                             height={40}
                             className={styles.productImage}
                           />
-                          <div className={styles.productDetails}>
-                            <div className={styles.productName}>
-                              {order.productName || 'Không có tên'}
+                            <div className={styles.productDetails}>
+                              <div className={styles.productName}>
+                                {order.productName || 'Không có tên'}
+                              </div>
+                              <div className={styles.productQuantity}>
+                                SL: {order.quantity}
+                              </div>
+                              {/* Mobile-only info */}
+                              <div className={styles.mobileOnlyInfo}>
+                                <div className={styles.mobileOrderId}>
+                                  🆔 #{order.id}
+                                </div>
+                                <div className={styles.mobileStatus}>
+                                  <span 
+                                    className={styles.mobileStatusBadge}
+                                    style={{ 
+                                      color: statusInfo.color, 
+                                      background: statusInfo.bgColor 
+                                    }}
+                                  >
+                                    {statusInfo.text}
+                                  </span>
+                                </div>
+                                <div className={styles.mobileCustomerInfo}>
+                                  👤 {order.customerName} | 📞 {order.customerPhone}
+                                </div>
+                                <div className={styles.mobileDateInfo}>
+                                  📅 {formatDate(order.pickupTime)}
+                                </div>
+                                <div className={styles.mobileTotalPrice}>
+                                  💰 {formatPrice(order.totalPrice)}
+                                </div>
+                              </div>
                             </div>
-                            <div className={styles.productQuantity}>
-                              SL: {order.quantity}
-                            </div>
-                          </div>
                         </div>
                       </td>
-                      <td className={styles.customerCell}>
+                      <td className={`${styles.customerCell} ${styles.hideOnMobile}`}>
                         <div className={styles.customerInfo}>
                           <div className={styles.customerName}>{order.customerName}</div>
                           <div className={styles.customerPhone}>📞 {order.customerPhone}</div>
                         </div>
                       </td>
-                      <td className={styles.statusCell}>
+                      <td className={`${styles.statusCell} ${styles.hideOnMobile}`}>
                         <span 
                           className={styles.statusBadge}
                           style={{ 
@@ -348,10 +453,10 @@ export default function OrdersManagement() {
                           {statusInfo.text}
                         </span>
                       </td>
-                      <td className={styles.dateCell}>
+                      <td className={`${styles.dateCell} ${styles.hideOnMobile}`}>
                         <span className={styles.orderDate}>{formatDate(order.pickupTime)}</span>
                       </td>
-                      <td className={styles.totalCell}>
+                      <td className={`${styles.totalCell} ${styles.hideOnMobile}`}>
                         <span className={styles.totalPrice}>{formatPrice(order.totalPrice)}</span>
                       </td>
                       <td className={styles.actionsCell}>

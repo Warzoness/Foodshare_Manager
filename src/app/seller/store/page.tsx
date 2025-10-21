@@ -472,337 +472,151 @@ function CreateShopModal({
         backdropFilter: 'blur(4px)'
       }}
     >
-      <div style={{
-        backgroundColor: 'rgba(30, 41, 59, 0.95)',
-        padding: '0',
-        borderRadius: '16px',
-        minWidth: '500px',
-        maxWidth: '700px',
-        maxHeight: '90vh',
-        overflow: 'hidden',
-        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-        border: '1px solid rgba(84, 166, 92, 0.3)',
-        backdropFilter: 'blur(10px)'
-      }}>
+      <div className={styles.modalContent}>
         {/* Modal Header */}
-        <div style={{
-          padding: '24px 24px 0 24px',
-          borderBottom: '1px solid rgba(84, 166, 92, 0.3)',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center'
-        }}>
-          <h2 style={{ 
-            margin: '0 0 20px 0', 
-            color: '#f1f5f9',
-            fontSize: '1.5rem',
-            fontWeight: '600'
-          }}>
+        <div className={styles.modalHeader}>
+          <h2 className={styles.modalTitle}>
             Tạo cửa hàng mới
           </h2>
           <button 
             onClick={onClose}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#94a3b8',
-              fontSize: '24px',
-              cursor: 'pointer',
-              padding: '4px',
-              borderRadius: '4px',
-              transition: 'all 0.2s ease'
-            }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.color = '#f1f5f9';
-              e.currentTarget.style.backgroundColor = 'rgba(84, 166, 92, 0.1)';
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.color = '#94a3b8';
-              e.currentTarget.style.backgroundColor = 'transparent';
-            }}
+            className={styles.closeButton}
           >
             ×
           </button>
               </div>
               
         {/* Modal Body */}
-        <div style={{ padding: '24px', maxHeight: '60vh', overflowY: 'auto' }}>
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ 
-              display: 'block', 
-              marginBottom: '8px', 
-              color: '#f1f5f9',
-              fontSize: '0.875rem',
-              fontWeight: '500'
-            }}>
+        <div className={styles.modalBody}>
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>
               Tên cửa hàng *
-                </label>
-                <input
+            </label>
+            <input
               type="text"
               placeholder="Nhập tên cửa hàng"
               value={formData.name}
               onChange={(e) => onInputChange('name', e.target.value)}
-              style={{
-                width: '100%',
-                padding: '12px 16px',
-                border: '1px solid rgba(84, 166, 92, 0.3)',
-                borderRadius: '8px',
-                backgroundColor: 'transparent',
-                color: '#f1f5f9',
-                fontSize: '0.875rem',
-                outline: 'none',
-                transition: 'all 0.2s ease'
-              }}
-              onFocus={(e) => {
-                e.target.style.borderColor = '#54A65C';
-                e.target.style.boxShadow = '0 0 0 3px rgba(84, 166, 92, 0.2)';
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = 'rgba(84, 166, 92, 0.3)';
-                e.target.style.boxShadow = 'none';
-              }}
+              className={styles.formInput}
             />
-            </div>
+          </div>
 
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ 
-              display: 'block', 
-              marginBottom: '8px', 
-              color: '#f1f5f9',
-              fontSize: '0.875rem',
-              fontWeight: '500'
-            }}>
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>
               Địa chỉ *
-              </label>
-              <textarea
+            </label>
+            <textarea
               placeholder="Nhập địa chỉ cửa hàng"
-                rows={3}
+              rows={3}
               value={formData.address}
               onChange={(e) => onInputChange('address', e.target.value)}
-              style={{
-                width: '100%',
-                padding: '12px 16px',
-                border: '1px solid rgba(84, 166, 92, 0.3)',
-                borderRadius: '8px',
-                backgroundColor: 'transparent',
-                color: '#f1f5f9',
-                fontSize: '0.875rem',
-                outline: 'none',
-                resize: 'vertical',
-                minHeight: '80px',
-                transition: 'all 0.2s ease'
-              }}
-              onFocus={(e) => {
-                e.target.style.borderColor = '#54A65C';
-                e.target.style.boxShadow = '0 0 0 3px rgba(84, 166, 92, 0.2)';
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = 'rgba(84, 166, 92, 0.3)';
-                e.target.style.boxShadow = 'none';
-              }}
-              />
-            </div>
+              className={styles.formTextarea}
+            />
+          </div>
 
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ 
-              display: 'block', 
-              marginBottom: '8px', 
-              color: '#f1f5f9',
-              fontSize: '0.875rem',
-              fontWeight: '500'
-            }}>
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>
               Số điện thoại *
-                </label>
-                <input
+            </label>
+            <input
               type="tel"
               placeholder="0123456789"
               value={formData.phone}
               onChange={(e) => onInputChange('phone', e.target.value)}
-              style={{
-                width: '100%',
-                padding: '12px 16px',
-                border: '1px solid rgba(84, 166, 92, 0.3)',
-                borderRadius: '8px',
-                backgroundColor: 'transparent',
-                color: '#f1f5f9',
-                fontSize: '0.875rem',
-                outline: 'none',
-                transition: 'all 0.2s ease'
-              }}
-              onFocus={(e) => {
-                e.target.style.borderColor = '#54A65C';
-                e.target.style.boxShadow = '0 0 0 3px rgba(84, 166, 92, 0.2)';
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = 'rgba(84, 166, 92, 0.3)';
-                e.target.style.boxShadow = 'none';
-              }}
-                />
-              </div>
+              className={styles.formInput}
+            />
+          </div>
               
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ 
-              display: 'block', 
-              marginBottom: '8px', 
-              color: '#f1f5f9',
-              fontSize: '0.875rem',
-              fontWeight: '500'
-            }}>
+          <div className={styles.imageUploadSection}>
+            <label className={styles.imageUploadLabel}>
               Hình ảnh cửa hàng
-                </label>
+            </label>
             <div
               onDragOver={onDragOver}
               onDragLeave={onDragLeave}
               onDrop={onDrop}
-              style={{
-                width: '100%',
-                minHeight: '200px',
-                border: `2px dashed ${isDragOver ? '#54A65C' : 'rgba(84, 166, 92, 0.3)'}`,
-                borderRadius: '12px',
-                backgroundColor: isDragOver ? 'rgba(84, 166, 92, 0.1)' : 'rgba(84, 166, 92, 0.05)',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                position: 'relative',
-                overflow: 'hidden'
-              }}
+              className={`${styles.imageUploadArea} ${isDragOver ? styles.dragOver : ''}`}
               onClick={() => document.getElementById('imageInput')?.click()}
             >
               {uploading ? (
-                <div style={{ textAlign: 'center', color: '#94a3b8' }}>
-                  <div style={{ fontSize: '48px', marginBottom: '12px' }}>⏳</div>
-                  <div style={{ fontSize: '0.875rem', marginBottom: '8px' }}>
+                <div className={styles.imageUploadContent}>
+                  <div className={styles.imageUploadIcon}>⏳</div>
+                  <div className={styles.imageUploadText}>
                     Đang tải lên... {uploadProgress}%
                   </div>
-                  <div style={{
-                    width: '100%',
-                    height: '4px',
-                    backgroundColor: 'rgba(84, 166, 92, 0.2)',
-                    borderRadius: '2px',
-                    overflow: 'hidden',
-                    marginTop: '8px'
-                  }}>
-                    <div style={{
-                      width: `${uploadProgress}%`,
-                      height: '100%',
-                      backgroundColor: '#54A65C',
-                      transition: 'width 0.3s ease'
-                    }} />
+                  <div className={styles.progressBar}>
+                    <div 
+                      className={styles.progressFill}
+                      style={{ width: `${uploadProgress}%` }}
+                    />
                   </div>
                 </div>
               ) : uploadError ? (
-                <div style={{ textAlign: 'center', color: '#ef4444' }}>
-                  <div style={{ fontSize: '48px', marginBottom: '12px' }}>❌</div>
-                  <div style={{ fontSize: '0.875rem', marginBottom: '8px' }}>
+                <div className={styles.imageUploadContent} style={{ color: '#ef4444' }}>
+                  <div className={styles.imageUploadIcon}>❌</div>
+                  <div className={styles.imageUploadText}>
                     Lỗi tải lên: {uploadError}
                   </div>
-                  <div style={{ fontSize: '0.75rem', opacity: 0.7 }}>
+                  <div className={styles.imageUploadSubtext}>
                     Thử lại hoặc chọn ảnh khác
-              </div>
-            </div>
+                  </div>
+                </div>
               ) : (formData.imageUrl || previewImage) ? (
-                <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                <div className={styles.imagePreview}>
                   <Image
                     src={previewImage || formData.imageUrl || ''}
                     alt="Preview"
                     width={400}
                     height={200}
-                    style={{
-                      width: '100%',
-                      height: '200px',
-                      objectFit: 'cover',
-                      borderRadius: '10px'
-                    }}
+                    className={styles.imagePreview}
                   />
-                  <div style={{
-                    position: 'absolute',
-                    top: '8px',
-                    right: '8px',
-                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '50%',
-                    width: '30px',
-                    height: '30px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                    fontSize: '16px'
-                  }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onInputChange('imageUrl', '');
-                    setPreviewImage(null);
-                  }}
-                >
-                  ×
-                </div>
-                {previewImage && !formData.imageUrl && (
-                  <div style={{
-                    position: 'absolute',
-                    bottom: '8px',
-                    left: '8px',
-                    right: '8px',
-                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                    color: 'white',
-                    padding: '8px',
-                    borderRadius: '4px',
-                    fontSize: '0.75rem',
-                    fontWeight: '500'
-                  }}>
-                    <div style={{ marginBottom: '4px' }}>
-                      Đang tải lên... {uploadProgress}%
+                  <button 
+                    className={styles.imageRemoveButton}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onInputChange('imageUrl', '');
+                      setPreviewImage(null);
+                    }}
+                  >
+                    ×
+                  </button>
+                  {previewImage && !formData.imageUrl && (
+                    <div className={styles.imageUploadProgress}>
+                      <div>
+                        Đang tải lên... {uploadProgress}%
+                      </div>
+                      <div className={styles.progressBar}>
+                        <div 
+                          className={styles.progressFill}
+                          style={{ width: `${uploadProgress}%` }}
+                        />
+                      </div>
                     </div>
-                    <div style={{
-                      width: '100%',
-                      height: '2px',
-                      backgroundColor: 'rgba(255, 255, 255, 0.3)',
-                      borderRadius: '1px',
-                      overflow: 'hidden'
-                    }}>
-                      <div style={{
-                        width: `${uploadProgress}%`,
-                        height: '100%',
-                        backgroundColor: '#54A65C',
-                        transition: 'width 0.3s ease'
-                      }} />
-                    </div>
-                  </div>
-                )}
+                  )}
                 </div>
               ) : (
-                <div style={{ textAlign: 'center', color: '#94a3b8' }}>
-                  <div style={{ fontSize: '48px', marginBottom: '12px' }}>📷</div>
-                  <div style={{ fontSize: '0.875rem', marginBottom: '8px' }}>
+                <div className={styles.imageUploadContent}>
+                  <div className={styles.imageUploadIcon}>📷</div>
+                  <div className={styles.imageUploadText}>
                     {isDragOver ? 'Thả ảnh vào đây' : 'Kéo thả ảnh hoặc click để chọn'}
                   </div>
-                  <div style={{ fontSize: '0.75rem', opacity: 0.7 }}>
+                  <div className={styles.imageUploadSubtext}>
                     Hỗ trợ: JPG, PNG, GIF, WebP
-          </div>
-            </div>
+                  </div>
+                </div>
               )}
               <input
                 id="imageInput"
                 type="file"
                 accept="image/*"
                 onChange={onImageInputChange}
-                style={{ display: 'none' }}
+                className={styles.imageUploadInput}
               />
             </div>
-      </div>
+          </div>
 
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ 
-              display: 'block', 
-              marginBottom: '8px', 
-              color: '#f1f5f9',
-              fontSize: '0.875rem',
-              fontWeight: '500'
-            }}>
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>
               Mô tả
             </label>
             <textarea
@@ -810,128 +624,41 @@ function CreateShopModal({
               rows={3}
               value={formData.description}
               onChange={(e) => onInputChange('description', e.target.value)}
-              style={{
-                width: '100%',
-                padding: '12px 16px',
-                border: '1px solid rgba(84, 166, 92, 0.3)',
-                borderRadius: '8px',
-                backgroundColor: 'transparent',
-                color: '#f1f5f9',
-                fontSize: '0.875rem',
-                outline: 'none',
-                resize: 'vertical',
-                minHeight: '80px',
-                transition: 'all 0.2s ease'
-              }}
-              onFocus={(e) => {
-                e.target.style.borderColor = '#54A65C';
-                e.target.style.boxShadow = '0 0 0 3px rgba(84, 166, 92, 0.2)';
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = 'rgba(84, 166, 92, 0.3)';
-                e.target.style.boxShadow = 'none';
-              }}
+              className={styles.formTextarea}
             />
           </div>
           
           {/* Location Status */}
-          <div style={{ 
-            marginBottom: '20px',
-            padding: '12px 16px',
-            backgroundColor: locationPermission === 'granted' ? 'rgba(84, 166, 92, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-            border: `1px solid ${locationPermission === 'granted' ? 'rgba(84, 166, 92, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`,
-            borderRadius: '8px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px'
-          }}>
-            <div style={{ fontSize: '20px' }}>
+          <div className={`${styles.locationStatus} ${locationPermission === 'granted' ? styles.granted : styles.denied}`}>
+            <div className={styles.locationIcon}>
               {locationPermission === 'granted' ? '📍' : '⚠️'}
             </div>
-            <div>
-              <div style={{ 
-                fontSize: '0.875rem', 
-                fontWeight: '500',
-                color: locationPermission === 'granted' ? '#54A65C' : '#ef4444'
-              }}>
+            <div className={styles.locationContent}>
+              <div className={`${styles.locationTitle} ${locationPermission === 'granted' ? styles.granted : styles.denied}`}>
                 {locationPermission === 'granted' ? 'Vị trí đã được lấy thành công' : 'Không thể lấy vị trí hiện tại'}
-          </div>
-              <div style={{ 
-                fontSize: '0.75rem', 
-                color: '#94a3b8',
-                marginTop: '2px'
-              }}>
+              </div>
+              <div className={styles.locationSubtitle}>
                 {locationPermission === 'granted' 
                   ? `Lat: ${(formData.latitude || 0).toFixed(6)}, Lng: ${(formData.longitude || 0).toFixed(6)}`
                   : 'Vui lòng cho phép truy cập vị trí để tự động lấy tọa độ'
                 }
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
         {/* Modal Footer */}
-        <div style={{
-          padding: '20px 24px 24px 24px',
-          borderTop: '1px solid rgba(84, 166, 92, 0.3)',
-          display: 'flex',
-          gap: '12px',
-          justifyContent: 'flex-end'
-        }}>
+        <div className={styles.modalFooter}>
           <button 
             onClick={onClose}
-            style={{
-              padding: '12px 24px',
-              backgroundColor: 'transparent',
-              color: '#94a3b8',
-              border: '1px solid rgba(84, 166, 92, 0.3)',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              fontSize: '0.875rem',
-              fontWeight: '500',
-              transition: 'all 0.2s ease'
-            }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.backgroundColor = 'rgba(84, 166, 92, 0.1)';
-              e.currentTarget.style.color = '#f1f5f9';
-              e.currentTarget.style.borderColor = 'rgba(84, 166, 92, 0.5)';
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.backgroundColor = 'transparent';
-              e.currentTarget.style.color = '#94a3b8';
-              e.currentTarget.style.borderColor = 'rgba(84, 166, 92, 0.3)';
-            }}
+            className={`${styles.modalButton} ${styles.modalButtonSecondary}`}
           >
             Hủy
           </button>
           <button 
             onClick={onSubmit}
             disabled={creating}
-            style={{
-              padding: '12px 24px',
-              backgroundColor: creating ? 'rgba(84, 166, 92, 0.3)' : 'linear-gradient(135deg, #54A65C, #7bb881)',
-              background: creating ? 'rgba(84, 166, 92, 0.3)' : 'linear-gradient(135deg, #54A65C, #7bb881)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: creating ? 'not-allowed' : 'pointer',
-              fontSize: '0.875rem',
-              fontWeight: '500',
-              transition: 'all 0.2s ease',
-              boxShadow: creating ? 'none' : '0 4px 14px 0 rgba(84, 166, 92, 0.3)'
-            }}
-            onMouseOver={(e) => {
-              if (!creating) {
-                e.currentTarget.style.transform = 'translateY(-1px)';
-                e.currentTarget.style.boxShadow = '0 6px 20px 0 rgba(84, 166, 92, 0.4)';
-              }
-            }}
-            onMouseOut={(e) => {
-              if (!creating) {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 4px 14px 0 rgba(84, 166, 92, 0.3)';
-              }
-            }}
+            className={`${styles.modalButton} ${styles.modalButtonPrimary}`}
           >
             {creating ? 'Đang tạo...' : 'Tạo cửa hàng'}
           </button>

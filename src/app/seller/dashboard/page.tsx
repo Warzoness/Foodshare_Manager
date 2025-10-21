@@ -1,5 +1,9 @@
 'use client';
 
+// Temporarily commented out - Dashboard not in use yet
+// Original dashboard implementation is preserved in comments below for future use
+
+/*
 import { useSellerDashboardStats, useSellerRecentOrders, useSellerTopProducts } from '@/hooks/useApi';
 import styles from './page.module.css';
 
@@ -14,7 +18,6 @@ export default function SellerDashboard() {
       currency: 'VND'
     }).format(amount);
   };
-
 
   const getStatusText = (status: string) => {
     switch (status) {
@@ -67,7 +70,6 @@ export default function SellerDashboard() {
         </p>
       </div>
 
-      {/* Stats Cards */}
       <div className={styles.statsGrid}>
         <div className={styles.statCard}>
           <div className={styles.statContent}>
@@ -134,7 +136,6 @@ export default function SellerDashboard() {
         </div>
       </div>
 
-      {/* Recent Orders */}
       <div className={styles.contentGrid}>
         <div className={styles.contentCard}>
           <div className={styles.cardHeader}>
@@ -195,6 +196,22 @@ export default function SellerDashboard() {
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+*/
+
+// Temporary placeholder component
+export default function SellerDashboard() {
+  return (
+    <div style={{ 
+      padding: '2rem', 
+      textAlign: 'center', 
+      color: '#666',
+      fontSize: '1.2rem'
+    }}>
+      <h1>Dashboard</h1>
+      <p>Tính năng Dashboard đang được phát triển và sẽ sớm có mặt.</p>
     </div>
   );
 }
