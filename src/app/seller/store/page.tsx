@@ -536,8 +536,6 @@ function CreateShopModal({
   coordinateInput,
   setCoordinateInput,
   onUpdateLocation,
-  isGeocoding,
-  geocodingError,
   onLocationChange
 }: {
   isOpen: boolean;
@@ -704,8 +702,8 @@ function CreateShopModal({
             
             {/* Interactive Map Component */}
             <InteractiveMap
-              latitude={formData.latitude}
-              longitude={formData.longitude}
+              latitude={formData.latitude || 0}
+              longitude={formData.longitude || 0}
               address={formData.address}
               onLocationChange={onLocationChange}
               height={300}

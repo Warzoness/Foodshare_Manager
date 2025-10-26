@@ -6,7 +6,11 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
 // Fix cho default markers trong Leaflet
-delete (L.Icon.Default.prototype as any)._getIconUrl;
+interface IconDefaultPrototype {
+  _getIconUrl?: string;
+}
+
+delete (L.Icon.Default.prototype as IconDefaultPrototype)._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
   iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
@@ -236,7 +240,7 @@ export default function InteractiveMap({
         fontSize: '12px',
         color: '#92400e'
       }}>
-        💡 <strong>Hướng dẫn:</strong> Click vào bản đồ hoặc kéo marker để thay đổi vị trí. Sử dụng nút "Tìm vị trí" ở trên để điều hướng từ địa chỉ.
+        💡 <strong>Hướng dẫn:</strong> Click vào bản đồ hoặc kéo marker để thay đổi vị trí. Sử dụng nút &quot;Tìm vị trí&quot; ở trên để điều hướng từ địa chỉ.
       </div>
     </div>
   );

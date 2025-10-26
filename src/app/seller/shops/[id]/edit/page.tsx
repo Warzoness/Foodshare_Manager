@@ -347,14 +347,14 @@ export default function EditShopPage({params}: EditShopPageProps) {
                                 type="button"
                                 variant="primary"
                                 onClick={async () => {
-                                    if (!formData.address.trim()) {
+                                    if (!formData.address?.trim()) {
                                         alert("Vui lòng nhập địa chỉ trước!");
                                         return;
                                     }
 
                                     try {
                                         const response = await fetch(
-                                            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(formData.address)}&limit=1&countrycodes=vn&addressdetails=1`
+                                            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(formData.address || '')}&limit=1&countrycodes=vn&addressdetails=1`
                                         );
 
                                         if (!response.ok) {
@@ -391,8 +391,8 @@ export default function EditShopPage({params}: EditShopPageProps) {
                             Vị trí cửa hàng *
                         </label>
                         <InteractiveMap
-                            latitude={formData.latitude}
-                            longitude={formData.longitude}
+                            latitude={formData.latitude || 0}
+                            longitude={formData.longitude || 0}
                             address={formData.address}
                             onLocationChange={handleLocationChange}
                             height={300}
