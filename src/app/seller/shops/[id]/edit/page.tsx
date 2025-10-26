@@ -129,20 +129,6 @@ export default function EditShopPage({params}: EditShopPageProps) {
         return {lat: null, lng: null};
     };
 
-    // Handle coordinate input update
-    const handleCoordinateUpdate = () => {
-        const parsed = parseCoordinateInput(coordinateInput);
-
-        if (parsed.lat !== null && parsed.lng !== null) {
-            setFormData(prev => ({
-                ...prev,
-                latitude: parsed.lat!,
-                longitude: parsed.lng!
-            }));
-            updateMapUrl(parsed.lat, parsed.lng);
-        }
-    };
-
     // Load shop data when component mounts
     useEffect(() => {
         if (shopId) {
@@ -175,46 +161,6 @@ export default function EditShopPage({params}: EditShopPageProps) {
             updateMapUrl(lat, lng);
         }
     }, [shop]);
-
-    // Request current location on component mount
-    useEffect(() => {
-        const requestCurrentLocation = async () => {
-            if (!navigator.geolocation) {
-                console.log('Geolocation is not supported by this browser.');
-                return;
-            }
-
-            try {
-                const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-                    navigator.geolocation.getCurrentPosition(resolve, reject, {
-                        enableHighAccuracy: true,
-                        timeout: 10000,
-                        maximumAge: 60000 // Cache for 1 minute
-                    });
-                });
-
-                // Only set if formData hasn't been modified yet (default location)
-                if (formData.latitude === 0 && formData.longitude === 0) {
-                    const lat = position.coords.latitude;
-                    const lng = position.coords.longitude;
-
-                    setFormData(prev => ({
-                        ...prev,
-                        latitude: lat,
-                        longitude: lng
-                    }));
-
-                    setCoordinateInput(`${lat}, ${lng}`);
-                    updateMapUrl(lat, lng);
-                }
-            } catch (error) {
-                console.log('Geolocation error:', error);
-                // Don't show error, let user manually enter coordinates
-            }
-        };
-
-        requestCurrentLocation();
-    }, []);
 
     // Handle image drag and drop
     const handleDragOver = (e: React.DragEvent) => {
