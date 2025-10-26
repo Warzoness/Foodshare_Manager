@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import InteractiveMap from '@/components/ui/InteractiveMap';
 import { useSellerShops, useCreateSellerShop } from '@/hooks/useApi';
 import { SellerShop, CreateSellerShopRequest } from '@/types';
 import styles from './page.module.css';
@@ -135,6 +136,20 @@ export default function StoreList() {
     }
   };
 
+  // Handle location change from interactive map
+  const handleLocationChange = (lat: number, lng: number, address?: string) => {
+    console.log('Location changed:', { lat, lng, address });
+    setFormData(prev => ({
+      ...prev,
+      latitude: lat,
+      longitude: lng,
+      address: address || prev.address
+    }));
+    
+    setCoordinateInput(`${lat}, ${lng}`);
+    updateMapUrl(lat, lng);
+  };
+
   // Request current location when modal opens
   useEffect(() => {
     if (showCreateModal) {
@@ -247,6 +262,14 @@ export default function StoreList() {
     setFormData(prev => ({
       ...prev,
       [field]: value
+    }));
+  };
+
+  // Handle address change from autocomplete
+  const handleAddressChange = (address: string) => {
+    setFormData(prev => ({
+      ...prev,
+      address
     }));
   };
 
@@ -371,9 +394,10 @@ export default function StoreList() {
           previewImage={previewImage}
           setPreviewImage={setPreviewImage}
           mapUrl={mapUrl}
-          coordinateInput={coordinateInput}
-          setCoordinateInput={setCoordinateInput}
-          onUpdateLocation={handleCoordinateUpdate}
+            coordinateInput={coordinateInput}
+            setCoordinateInput={setCoordinateInput}
+            onUpdateLocation={handleCoordinateUpdate}
+            onLocationChange={handleLocationChange}
         />
       </div>
     );
@@ -481,9 +505,10 @@ export default function StoreList() {
           previewImage={previewImage}
           setPreviewImage={setPreviewImage}
           mapUrl={mapUrl}
-          coordinateInput={coordinateInput}
-          setCoordinateInput={setCoordinateInput}
-          onUpdateLocation={handleCoordinateUpdate}
+            coordinateInput={coordinateInput}
+            setCoordinateInput={setCoordinateInput}
+            onUpdateLocation={handleCoordinateUpdate}
+            onLocationChange={handleLocationChange}
         />
     </div>
   );
@@ -510,7 +535,10 @@ function CreateShopModal({
   mapUrl,
   coordinateInput,
   setCoordinateInput,
-  onUpdateLocation
+  onUpdateLocation,
+  isGeocoding,
+  geocodingError,
+  onLocationChange
 }: {
   isOpen: boolean;
   onClose: () => void;
@@ -532,6 +560,7 @@ function CreateShopModal({
   coordinateInput: string;
   setCoordinateInput: (input: string) => void;
   onUpdateLocation: () => void;
+  onLocationChange: (lat: number, lng: number, address?: string) => void;
 }) {
   if (!isOpen) return null;
 
@@ -585,31 +614,106 @@ function CreateShopModal({
             />
           </div>
 
+          {/*<div className={styles.formGroup}>*/}
+          {/*  <label className={styles.formLabel}>*/}
+          {/*    Địa chỉ **/}
+          {/*  </label>*/}
+          {/*  <AddressAutocomplete*/}
+          {/*    value={formData.address}*/}
+          {/*    onChange={(address) => onInputChange('address', address)}*/}
+          {/*    onLocationSelect={(lat, lng, address) => {*/}
+          {/*      onInputChange('address', address);*/}
+          {/*      onLocationChange(lat, lng, address);*/}
+          {/*    }}*/}
+          {/*    placeholder="Nhập địa chỉ hoặc vị trí cửa hàng"*/}
+          {/*  />*/}
+          {/*</div>*/}
+
+          {/* Phone Input moved first */}
           <div className={styles.formGroup}>
-            <label className={styles.formLabel}>
-              Địa chỉ *
-            </label>
-            <textarea
-              placeholder="Nhập địa chỉ cửa hàng"
-              rows={3}
-              value={formData.address}
-              onChange={(e) => onInputChange('address', e.target.value)}
-              className={styles.formTextarea}
+            <label className={styles.formLabel}>Số điện thoại *</label>
+            <input
+                type="tel"
+                placeholder="0123456789"
+                value={formData.phone}
+                onChange={(e) => onInputChange('phone', e.target.value)}
+                className={styles.formInput}
             />
           </div>
 
+          {/* Address Input + Search Button */}
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>Địa chỉ *</label>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <input
+                type="text"
+                placeholder="Nhập địa chỉ cửa hàng"
+                value={formData.address}
+                onChange={(e) => onInputChange('address', e.target.value)}
+                className={styles.formInput}
+                style={{ flex: 1 }}
+              />
+              <Button
+                type="button"
+                variant="primary"
+                onClick={async () => {
+                  if (!formData.address.trim()) {
+                    alert("Vui lòng nhập địa chỉ trước!");
+                    return;
+                  }
+
+                  try {
+                    const response = await fetch(
+                      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(formData.address)}&limit=1&countrycodes=vn&addressdetails=1`
+                    );
+                    
+                    if (!response.ok) {
+                      throw new Error('Geocoding failed');
+                    }
+                    
+                    const data = await response.json();
+                    
+                    if (data.length > 0) {
+                      const result = data[0];
+                      const lat = parseFloat(result.lat);
+                      const lng = parseFloat(result.lon);
+                      onLocationChange(lat, lng, formData.address);
+                    } else {
+                      alert('Không tìm thấy địa chỉ này!');
+                    }
+                  } catch (err) {
+                    console.error(err);
+                    alert("Lỗi tìm kiếm địa chỉ!");
+                  }
+                }}
+                style={{
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                🔍 Tìm vị trí
+              </Button>
+            </div>
+          </div>
+
+
+          {/* Location Picker - Di chuyển lên gần ô địa chỉ */}
           <div className={styles.formGroup}>
             <label className={styles.formLabel}>
-              Số điện thoại *
+              Vị trí cửa hàng *
             </label>
-            <input
-              type="tel"
-              placeholder="0123456789"
-              value={formData.phone}
-              onChange={(e) => onInputChange('phone', e.target.value)}
-              className={styles.formInput}
+            
+            {/* Interactive Map Component */}
+            <InteractiveMap
+              latitude={formData.latitude}
+              longitude={formData.longitude}
+              address={formData.address}
+              onLocationChange={onLocationChange}
+              height={300}
+              className={styles.mapContainer}
+              mode="create"
             />
           </div>
+
               
           <div className={styles.imageUploadSection}>
             <label className={styles.imageUploadLabel}>
@@ -710,59 +814,6 @@ function CreateShopModal({
               onChange={(e) => onInputChange('description', e.target.value)}
               className={styles.formTextarea}
             />
-          </div>
-          
-          {/* Location Picker */}
-          <div className={styles.formGroup}>
-            <label className={styles.formLabel}>
-              Vị trí cửa hàng *
-            </label>
-            
-            {/* Google Maps iframe */}
-            <div className={styles.mapContainer}>
-              {mapUrl ? (
-                <iframe
-                  src={mapUrl}
-                  width="100%"
-                  height="300"
-                  style={{ border: 0 }}
-                  allowFullScreen
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  className={styles.mapIframe}
-                />
-              ) : (
-                <div className={styles.mapPlaceholder}>
-                  <div className={styles.uploadIcon}>📍</div>
-                  <div className={styles.uploadText}>Vui lòng nhập tọa độ để hiển thị bản đồ</div>
-                </div>
-              )}
-            </div>
-            
-            {/* Coordinate input */}
-            <div className={styles.coordinateInputContainer}>
-              <label className={styles.coordinateLabel}>Tọa độ (Latitude, Longitude)</label>
-              <div className={styles.coordinateInputRow}>
-                <input
-                  type="text"
-                  placeholder="21.059788079405156, 105.78357288474545"
-                  value={coordinateInput}
-                  onChange={(e) => setCoordinateInput(e.target.value)}
-                  className={styles.formInput}
-                />
-                <Button 
-                  variant="primary"
-                  onClick={onUpdateLocation}
-                  className={styles.updateLocationBtn}
-                >
-                  Cập nhật vị trí
-                </Button>
-              </div>
-            </div>
-            
-            <div className={styles.locationHint}>
-              💡 Vị trí mặc định sẽ là vị trí hiện tại của bạn. Để thay đổi, tìm địa chỉ trên Google Maps, click chuột phải và chọn &quot;What&apos;s here?&quot; để lấy tọa độ, sau đó dán vào ô trên.
-            </div>
           </div>
         </div>
 
