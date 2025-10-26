@@ -28,6 +28,9 @@ export default function StoreDetailPage() {
     status: '1'
   });
 
+  const [mapUrl, setMapUrl] = useState<string>('');
+  const [coordinateInput, setCoordinateInput] = useState<string>('');
+
   // Products pagination state
   const [currentPage, setCurrentPage] = useState(0);
   const [pageSize] = useState(20);
@@ -86,7 +89,7 @@ export default function StoreDetailPage() {
         } else {
           setError('Không thể tải thông tin cửa hàng');
         }
-      } catch (err) {
+      } catch (_err) {
         setError('Lỗi khi tải dữ liệu');
       } finally {
         setLoading(false);
@@ -109,7 +112,7 @@ export default function StoreDetailPage() {
           if (response.success && response.data) {
             setStore(response.data);
           }
-        } catch (err) {
+        } catch (_err) {
         }
       };
       fetchStoreDetail();
@@ -135,6 +138,109 @@ export default function StoreDetailPage() {
         return status || 'Không xác định';
     }
   };
+
+  // Update map URL when coordinates change
+  const updateMapUrl = (lat: number, lng: number) => {
+    if (lat && lng) {
+      const publicUrl = `https://www.google.com/maps?q=${lat},${lng}&output=embed`;
+      setMapUrl(publicUrl);
+    }
+  };
+
+  // Parse coordinate input - supports various formats
+  const parseCoordinateInput = (input: string): { lat: number | null, lng: number | null } => {
+    if (!input || !input.trim()) {
+      return { lat: null, lng: null };
+    }
+
+    const trimmed = input.trim();
+    
+    // Try to parse Google Maps URL
+    const googleMapsMatch = trimmed.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+    if (googleMapsMatch) {
+      return {
+        lat: parseFloat(googleMapsMatch[1]),
+        lng: parseFloat(googleMapsMatch[2])
+      };
+    }
+
+    // Try to parse "lat,lng" or "lat lng" format
+    const commaMatch = trimmed.match(/^(-?\d+\.?\d*)[,\s]+(-?\d+\.?\d*)$/);
+    if (commaMatch) {
+      return {
+        lat: parseFloat(commaMatch[1]),
+        lng: parseFloat(commaMatch[2])
+      };
+    }
+
+    // Single number
+    const singleNumber = parseFloat(trimmed);
+    if (!isNaN(singleNumber)) {
+      return { lat: singleNumber, lng: null };
+    }
+
+    return { lat: null, lng: null };
+  };
+
+  // Handle coordinate input update
+  const handleCoordinateUpdate = () => {
+    const parsed = parseCoordinateInput(coordinateInput);
+    
+    if (parsed.lat !== null && parsed.lng !== null) {
+      setFormData(prev => ({
+        ...prev,
+        latitude: parsed.lat!,
+        longitude: parsed.lng!
+      }));
+      updateMapUrl(parsed.lat, parsed.lng);
+    }
+  };
+
+  // Request current location only for new stores (when coordinates are 0,0)
+  // For existing stores, keep their original location
+  useEffect(() => {
+    if (isEditing && formData.latitude === 0 && formData.longitude === 0) {
+      const requestCurrentLocation = async () => {
+        if (!navigator.geolocation) {
+          return;
+        }
+
+        try {
+          const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, {
+              enableHighAccuracy: true,
+              timeout: 10000,
+              maximumAge: 60000
+            });
+          });
+
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          
+          setFormData(prev => ({
+            ...prev,
+            latitude: lat,
+            longitude: lng
+          }));
+          
+            setCoordinateInput(`${lat}, ${lng}`);
+          updateMapUrl(lat, lng);
+        } catch (_error) {
+          // Don't show error
+        }
+      };
+
+      requestCurrentLocation();
+    }
+  }, [isEditing, formData.latitude, formData.longitude]);
+
+  // Update map URL when formData coordinates change
+  useEffect(() => {
+    if (isEditing && formData.latitude && formData.longitude) {
+      updateMapUrl(formData.latitude, formData.longitude);
+      setCoordinateInput(`${formData.latitude}, ${formData.longitude}`);
+    }
+  }, [formData.latitude, formData.longitude, isEditing]);
 
   // Form handlers
   const handleInputChange = (field: keyof UpdateStoreRequest, value: string | number) => {
@@ -409,28 +515,53 @@ export default function StoreDetailPage() {
               />
             </div>
 
-            <div className={styles.formRow}>
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Vĩ độ *</label>
-                <input
-                  type="number"
-                  step="any"
-                  value={formData.latitude}
-                  onChange={(e) => handleInputChange('latitude', parseFloat(e.target.value))}
-                  className={styles.formInput}
-                  required
-                />
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Vị trí cửa hàng *</label>
+              
+              {/* Google Maps iframe */}
+              <div className={styles.mapContainer}>
+                {mapUrl ? (
+                  <iframe
+                    src={mapUrl}
+                    width="100%"
+                    height="300"
+                    style={{ border: 0 }}
+                    allowFullScreen
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    className={styles.mapIframe}
+                  />
+                ) : (
+                  <div className={styles.mapPlaceholder}>
+                    <div className={styles.uploadIcon}>📍</div>
+                    <div className={styles.uploadText}>Vui lòng nhập tọa độ để hiển thị bản đồ</div>
+                  </div>
+                )}
               </div>
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Kinh độ *</label>
-                <input
-                  type="number"
-                  step="any"
-                  value={formData.longitude}
-                  onChange={(e) => handleInputChange('longitude', parseFloat(e.target.value))}
-                  className={styles.formInput}
-                  required
-                />
+              
+              {/* Coordinate input */}
+              <div className={styles.coordinateInputContainer}>
+                <label className={styles.coordinateLabel}>Tọa độ (Latitude, Longitude)</label>
+                <div className={styles.coordinateInputRow}>
+                  <input
+                    type="text"
+                    placeholder="21.059788079405156, 105.78357288474545"
+                    value={coordinateInput}
+                    onChange={(e) => setCoordinateInput(e.target.value)}
+                    className={styles.formInput}
+                  />
+                  <Button 
+                    variant="primary"
+                    onClick={handleCoordinateUpdate}
+                    className={styles.updateLocationBtn}
+                  >
+                    Cập nhật vị trí
+                  </Button>
+                </div>
+              </div>
+              
+              <div className={styles.locationHint}>
+                💡 Vị trí mặc định sẽ là vị trí hiện tại của bạn. Để thay đổi, tìm địa chỉ trên Google Maps, click chuột phải và chọn &quot;What&apos;s here?&quot; để lấy tọa độ, sau đó dán vào ô trên.
               </div>
             </div>
 

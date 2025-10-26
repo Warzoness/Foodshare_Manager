@@ -77,7 +77,7 @@ export default function ProductDetailPage() {
           if (response.success && response.data) {
             setProduct(response.data);
           }
-        } catch (err) {
+        } catch (_err) {
         }
       };
       fetchProductDetail();

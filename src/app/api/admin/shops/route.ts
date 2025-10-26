@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
 
     if (!response.ok) {
       const errorText = await response.text();
-(`Backend API error: ${response.status} - ${errorText}`);
+      console.log(`Backend API error: ${response.status} - ${errorText}`);
       
       // Return specific error based on status code
       if (response.status === 401) {
@@ -63,7 +63,7 @@ export async function GET(request: NextRequest) {
       throw new Error(`Backend API error: ${response.status} - ${errorText}`);
     }
 
-    const data = await response.json();
+    const _data = await response.json();
 
   } catch (error) {
     return NextResponse.json(

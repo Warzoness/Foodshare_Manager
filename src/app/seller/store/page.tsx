@@ -30,8 +30,9 @@ export default function StoreList() {
   });
 
   const [isDragOver, setIsDragOver] = useState(false);
-  const [locationPermission, setLocationPermission] = useState<'granted' | 'denied' | 'prompt'>('prompt');
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [mapUrl, setMapUrl] = useState<string>('');
+  const [coordinateInput, setCoordinateInput] = useState<string>('');
 
   // Simple image upload function
   const uploadImage = async (file: File) => {
@@ -75,35 +76,102 @@ export default function StoreList() {
   // Ensure shops is always an array
   const shopsArray = Array.isArray(shops) ? shops : [];
 
-  // Request location permission and get current position
+  // Update map URL when coordinates change
+  const updateMapUrl = (lat: number, lng: number) => {
+    if (lat && lng) {
+      const _url = `https://www.google.com/maps/embed/v1/search?key=YOUR_API_KEY&q=${lat},${lng}`;
+      // For public embed without API key, use this format:
+      const publicUrl = `https://www.google.com/maps?q=${lat},${lng}&output=embed`;
+      setMapUrl(publicUrl);
+    }
+  };
+  
+  // Parse coordinate input - supports various formats
+  const parseCoordinateInput = (input: string): { lat: number | null, lng: number | null } => {
+    if (!input || !input.trim()) {
+      return { lat: null, lng: null };
+    }
+
+    const trimmed = input.trim();
+    
+    // Try to parse Google Maps URL
+    const googleMapsMatch = trimmed.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+    if (googleMapsMatch) {
+      return {
+        lat: parseFloat(googleMapsMatch[1]),
+        lng: parseFloat(googleMapsMatch[2])
+      };
+    }
+
+    // Try to parse "lat,lng" or "lat lng" format
+    const commaMatch = trimmed.match(/^(-?\d+\.?\d*)[,\s]+(-?\d+\.?\d*)$/);
+    if (commaMatch) {
+      return {
+        lat: parseFloat(commaMatch[1]),
+        lng: parseFloat(commaMatch[2])
+      };
+    }
+
+    // Single number
+    const singleNumber = parseFloat(trimmed);
+    if (!isNaN(singleNumber)) {
+      return { lat: singleNumber, lng: null };
+    }
+
+    return { lat: null, lng: null };
+  };
+
+  // Handle coordinate input update
+  const handleCoordinateUpdate = () => {
+    const parsed = parseCoordinateInput(coordinateInput);
+    
+    if (parsed.lat !== null && parsed.lng !== null) {
+      setFormData(prev => ({
+        ...prev,
+        latitude: parsed.lat!,
+        longitude: parsed.lng!
+      }));
+      updateMapUrl(parsed.lat, parsed.lng);
+    }
+  };
+
+  // Request current location when modal opens
   useEffect(() => {
-    const requestLocationPermission = async () => {
-      if (!navigator.geolocation) {
-        return;
-      }
+    if (showCreateModal) {
+      const requestCurrentLocation = async () => {
+        if (!navigator.geolocation) {
+          return;
+        }
 
-      try {
-        const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(resolve, reject, {
-            enableHighAccuracy: true,
-            timeout: 10000,
-            maximumAge: 0
+        try {
+          const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, {
+              enableHighAccuracy: true,
+              timeout: 10000,
+              maximumAge: 60000
+            });
           });
-        });
 
-        setFormData(prev => ({
-          ...prev,
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude
-        }));
-        setLocationPermission('granted');
-      } catch (error) {
-        setLocationPermission('denied');
-      }
-    };
+          // Set as default location
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          
+          setFormData(prev => ({
+            ...prev,
+            latitude: lat,
+            longitude: lng
+          }));
+          
+          setCoordinateInput(`${lat}, ${lng}`);
+          updateMapUrl(lat, lng);
+        } catch (_error) {
+          // Don't show error, let user manually enter coordinates
+        }
+      };
 
-    requestLocationPermission();
-  }, []);
+      requestCurrentLocation();
+    }
+  }, [showCreateModal]);
 
   // Handle image drag and drop
   const handleDragOver = (e: React.DragEvent) => {
@@ -209,6 +277,8 @@ export default function StoreList() {
       status: '1'
     });
     setPreviewImage(null);
+    setMapUrl('');
+    setCoordinateInput('');
   };
 
   // Handle successful shop creation
@@ -227,6 +297,8 @@ export default function StoreList() {
         status: '1'
       });
       setPreviewImage(null);
+      setMapUrl('');
+      setCoordinateInput('');
       refetchShops();
     }
   }, [createSuccess, refetchShops]);
@@ -293,12 +365,15 @@ export default function StoreList() {
           onDrop={handleDrop}
           onImageInputChange={handleImageInputChange}
           isDragOver={isDragOver}
-          locationPermission={locationPermission}
           uploading={uploading}
           uploadProgress={uploadProgress}
           uploadError={uploadError}
           previewImage={previewImage}
           setPreviewImage={setPreviewImage}
+          mapUrl={mapUrl}
+          coordinateInput={coordinateInput}
+          setCoordinateInput={setCoordinateInput}
+          onUpdateLocation={handleCoordinateUpdate}
         />
       </div>
     );
@@ -400,12 +475,15 @@ export default function StoreList() {
           onDrop={handleDrop}
           onImageInputChange={handleImageInputChange}
           isDragOver={isDragOver}
-          locationPermission={locationPermission}
           uploading={uploading}
           uploadProgress={uploadProgress}
           uploadError={uploadError}
           previewImage={previewImage}
           setPreviewImage={setPreviewImage}
+          mapUrl={mapUrl}
+          coordinateInput={coordinateInput}
+          setCoordinateInput={setCoordinateInput}
+          onUpdateLocation={handleCoordinateUpdate}
         />
     </div>
   );
@@ -424,12 +502,15 @@ function CreateShopModal({
   onDrop,
   onImageInputChange,
   isDragOver,
-  locationPermission,
   uploading,
   uploadProgress,
   uploadError,
   previewImage,
-  setPreviewImage
+  setPreviewImage,
+  mapUrl,
+  coordinateInput,
+  setCoordinateInput,
+  onUpdateLocation
 }: {
   isOpen: boolean;
   onClose: () => void;
@@ -442,12 +523,15 @@ function CreateShopModal({
   onDrop: (e: React.DragEvent) => void;
   onImageInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   isDragOver: boolean;
-  locationPermission: 'granted' | 'denied' | 'prompt';
   uploading: boolean;
   uploadProgress: number;
   uploadError: string | null;
   previewImage: string | null;
   setPreviewImage: (image: string | null) => void;
+  mapUrl: string;
+  coordinateInput: string;
+  setCoordinateInput: (input: string) => void;
+  onUpdateLocation: () => void;
 }) {
   if (!isOpen) return null;
 
@@ -628,21 +712,56 @@ function CreateShopModal({
             />
           </div>
           
-          {/* Location Status */}
-          <div className={`${styles.locationStatus} ${locationPermission === 'granted' ? styles.granted : styles.denied}`}>
-            <div className={styles.locationIcon}>
-              {locationPermission === 'granted' ? '📍' : '⚠️'}
+          {/* Location Picker */}
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>
+              Vị trí cửa hàng *
+            </label>
+            
+            {/* Google Maps iframe */}
+            <div className={styles.mapContainer}>
+              {mapUrl ? (
+                <iframe
+                  src={mapUrl}
+                  width="100%"
+                  height="300"
+                  style={{ border: 0 }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  className={styles.mapIframe}
+                />
+              ) : (
+                <div className={styles.mapPlaceholder}>
+                  <div className={styles.uploadIcon}>📍</div>
+                  <div className={styles.uploadText}>Vui lòng nhập tọa độ để hiển thị bản đồ</div>
+                </div>
+              )}
             </div>
-            <div className={styles.locationContent}>
-              <div className={`${styles.locationTitle} ${locationPermission === 'granted' ? styles.granted : styles.denied}`}>
-                {locationPermission === 'granted' ? 'Vị trí đã được lấy thành công' : 'Không thể lấy vị trí hiện tại'}
+            
+            {/* Coordinate input */}
+            <div className={styles.coordinateInputContainer}>
+              <label className={styles.coordinateLabel}>Tọa độ (Latitude, Longitude)</label>
+              <div className={styles.coordinateInputRow}>
+                <input
+                  type="text"
+                  placeholder="21.059788079405156, 105.78357288474545"
+                  value={coordinateInput}
+                  onChange={(e) => setCoordinateInput(e.target.value)}
+                  className={styles.formInput}
+                />
+                <Button 
+                  variant="primary"
+                  onClick={onUpdateLocation}
+                  className={styles.updateLocationBtn}
+                >
+                  Cập nhật vị trí
+                </Button>
               </div>
-              <div className={styles.locationSubtitle}>
-                {locationPermission === 'granted' 
-                  ? `Lat: ${(formData.latitude || 0).toFixed(6)}, Lng: ${(formData.longitude || 0).toFixed(6)}`
-                  : 'Vui lòng cho phép truy cập vị trí để tự động lấy tọa độ'
-                }
-              </div>
+            </div>
+            
+            <div className={styles.locationHint}>
+              💡 Vị trí mặc định sẽ là vị trí hiện tại của bạn. Để thay đổi, tìm địa chỉ trên Google Maps, click chuột phải và chọn &quot;What&apos;s here?&quot; để lấy tọa độ, sau đó dán vào ô trên.
             </div>
           </div>
         </div>

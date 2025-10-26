@@ -199,7 +199,7 @@ export default function ProductsManagement() {
     if (!productToDelete) return;
     try {
       await executeDelete(productToDelete.id.toString());
-    } catch (error) {
+    } catch (_error) {
     }
   };
 

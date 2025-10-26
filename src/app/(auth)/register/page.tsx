@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useRegister } from '@/hooks/useApi';
 import { useAuth } from '@/contexts/AuthContext';
 import { hasRole } from '@/lib/auth';
+import { VietnameseValidator } from '@/lib/validation';
 import styles from './page.module.css';
 
 export default function RegisterPage() {
@@ -16,9 +17,16 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [isRegistering, setIsRegistering] = useState(false);
+  
+  // Validation errors
+  const [nameError, setNameError] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [confirmPasswordError, setConfirmPasswordError] = useState('');
+
   const router = useRouter();
-  const { user, login: setUser, loading: authLoading } = useAuth();
-  const { execute: register, loading: registering, success: registerSuccess, data: registerData, error: registerError } = useRegister();
+  const { user, loading: authLoading } = useAuth();
+  const { execute: register, loading: registering, success: registerSuccess, error: registerError } = useRegister();
 
   // Redirect if already logged in (but not during registration process)
   useEffect(() => {
@@ -49,54 +57,47 @@ export default function RegisterPage() {
     }
   }, [registerError]);
 
+  // Validation functions
+  const validateName = (value: string) => {
+    const result = VietnameseValidator.validateName(value);
+    setNameError(result.message);
+    return result.isValid;
+  };
+
+  const validateEmail = (value: string) => {
+    const result = VietnameseValidator.validateEmail(value);
+    setEmailError(result.message);
+    return result.isValid;
+  };
+
+  const validatePassword = (value: string) => {
+    const result = VietnameseValidator.validatePassword(value);
+    setPasswordError(result.message);
+    return result.isValid;
+  };
+
+  const validateConfirmPassword = (value: string) => {
+    const result = VietnameseValidator.validateConfirmPassword(password, value);
+    setConfirmPasswordError(result.message);
+    return result.isValid;
+  };
+
+  const isFormValid = () => {
+    return validateName(name) && 
+           validateEmail(email) && 
+           validatePassword(password) && 
+           validateConfirmPassword(confirmPassword);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
     setIsRegistering(true);
 
-    // Validation
-    if (!name.trim()) {
-      setError('Vui lòng nhập tên');
-      setLoading(false);
-      setIsRegistering(false);
-      return;
-    }
-
-    if (!email.trim()) {
-      setError('Vui lòng nhập email');
-      setLoading(false);
-      setIsRegistering(false);
-      return;
-    }
-
-    if (!password.trim()) {
-      setError('Vui lòng nhập mật khẩu');
-      setLoading(false);
-      setIsRegistering(false);
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setError('Mật khẩu xác nhận không khớp');
-      setLoading(false);
-      setIsRegistering(false);
-      return;
-    }
-
-    if (password.length < 6) {
-      setError('Mật khẩu phải có ít nhất 6 ký tự');
-      setLoading(false);
-      setIsRegistering(false);
-      return;
-    }
-
-    // Validate password complexity - must have at least 1 uppercase and 1 lowercase
-    const hasUppercase = /[A-Z]/.test(password);
-    const hasLowercase = /[a-z]/.test(password);
-    
-    if (!hasUppercase || !hasLowercase) {
-      setError('Mật khẩu phải có ít nhất 1 chữ hoa và 1 chữ thường');
+    // Validate all fields
+    if (!isFormValid()) {
+      setError('Vui lòng kiểm tra lại thông tin đã nhập');
       setLoading(false);
       setIsRegistering(false);
       return;
@@ -137,48 +138,65 @@ export default function RegisterPage() {
         <form onSubmit={handleSubmit} className={styles.form}>
           <div className={styles.formGroup}>
             <label htmlFor="name" className={styles.label}>
-              Họ và tên
+              Họ và tên <span className={styles.required}>*</span>
             </label>
             <input
               type="text"
               id="name"
               value={name}
-              onChange={(e) => setName(e.target.value)}
-              className={styles.input}
+              onChange={(e) => {
+                setName(e.target.value);
+                if (nameError) validateName(e.target.value);
+              }}
+              onBlur={() => validateName(name)}
+              className={`${styles.input} ${nameError ? styles.inputError : ''}`}
               placeholder="Nhập họ và tên"
               required
             />
+            {nameError && <div className={styles.errorMessage}>{nameError}</div>}
           </div>
 
           <div className={styles.formGroup}>
             <label htmlFor="email" className={styles.label}>
-              Email
+              Email <span className={styles.required}>*</span>
             </label>
             <input
               type="email"
               id="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className={styles.input}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (emailError) validateEmail(e.target.value);
+              }}
+              onBlur={() => validateEmail(email)}
+              className={`${styles.input} ${emailError ? styles.inputError : ''}`}
               placeholder="Nhập email"
               required
             />
+            {emailError && <div className={styles.errorMessage}>{emailError}</div>}
           </div>
 
           <div className={styles.formGroup}>
             <label htmlFor="password" className={styles.label}>
-              Mật khẩu
+              Mật khẩu <span className={styles.required}>*</span>
             </label>
             <input
               type="password"
               id="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className={styles.input}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                if (passwordError) validatePassword(e.target.value);
+                // Re-validate confirm password when password changes
+                if (confirmPassword) validateConfirmPassword(confirmPassword);
+              }}
+              onBlur={() => validatePassword(password)}
+              className={`${styles.input} ${passwordError ? styles.inputError : ''}`}
               placeholder="Nhập mật khẩu"
               required
               minLength={6}
             />
+            {passwordError && <div className={styles.errorMessage}>{passwordError}</div>}
             <div className={styles.passwordRules}>
               <p>Quy tắc mật khẩu:</p>
               <ul>
@@ -191,17 +209,22 @@ export default function RegisterPage() {
 
           <div className={styles.formGroup}>
             <label htmlFor="confirmPassword" className={styles.label}>
-              Xác nhận mật khẩu
+              Xác nhận mật khẩu <span className={styles.required}>*</span>
             </label>
             <input
               type="password"
               id="confirmPassword"
               value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className={styles.input}
+              onChange={(e) => {
+                setConfirmPassword(e.target.value);
+                if (confirmPasswordError) validateConfirmPassword(e.target.value);
+              }}
+              onBlur={() => validateConfirmPassword(confirmPassword)}
+              className={`${styles.input} ${confirmPasswordError ? styles.inputError : ''}`}
               placeholder="Nhập lại mật khẩu"
               required
             />
+            {confirmPasswordError && <div className={styles.errorMessage}>{confirmPasswordError}</div>}
           </div>
 
           {error && (

@@ -66,7 +66,7 @@ export default function SettingsPage() {
         phoneNumber: '', // API doesn't return phone, will be empty
         address: '' // API doesn't return address, will be empty
       });
-    } catch (err) {
+    } catch (_err) {
       setError('Không thể tải thông tin người dùng.');
     } finally {
       setUserLoading(false);
@@ -79,7 +79,7 @@ export default function SettingsPage() {
       setError(null);
       const response = await adminManagementService.getAdmins();
       setAdmins(response.content);
-    } catch (err) {
+    } catch (_err) {
       setError('Không thể tải danh sách admin. Vui lòng thử lại.');
     } finally {
       setLoading(false);

@@ -43,7 +43,7 @@ export default function SellerSettingsPage() {
         } else {
           setError(response.error || 'Không thể tải thông tin người dùng');
         }
-      } catch (err) {
+      } catch (_err) {
         setError('Có lỗi xảy ra khi tải thông tin');
       } finally {
         setLoading(false);
@@ -84,7 +84,7 @@ export default function SellerSettingsPage() {
       }
       
       setIsEditing(false);
-    } catch (err) {
+    } catch (_err) {
       setError('Có lỗi xảy ra khi cập nhật thông tin');
     } finally {
       setLoading(false);

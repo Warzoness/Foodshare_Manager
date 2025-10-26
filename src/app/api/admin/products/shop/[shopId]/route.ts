@@ -49,7 +49,7 @@ export async function GET(
 
     if (!response.ok) {
       const errorText = await response.text();
-(`Backend API error: ${response.status} - ${errorText}`);
+      console.log(`Backend API error: ${response.status} - ${errorText}`);
       
       // Return specific error based on status code
       if (response.status === 401) {

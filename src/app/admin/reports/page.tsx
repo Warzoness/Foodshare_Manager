@@ -155,39 +155,27 @@ export default function ReportsPage() {
                 </tr>
               </thead>
               <tbody className={styles.tableBody}>
-                {[
-                  { name: 'Pizza House Q1', revenue: '15,500,000đ', orders: 156, rating: 4.8, growth: '+12%' },
-                  { name: 'Burger King Q3', revenue: '12,300,000đ', orders: 128, rating: 4.5, growth: '+8%' },
-                  { name: 'Pasta Corner Q7', revenue: '10,800,000đ', orders: 95, rating: 4.6, growth: '+15%' },
-                  { name: 'Coffee Shop Q2', revenue: '8,500,000đ', orders: 89, rating: 4.2, growth: '-3%' },
-                ].map((store, index) => (
-                  <tr key={index} className={styles.tableRow}>
-                    <td className={styles.tableCell}>
-                      <div className={styles.storeName}>{store.name}</div>
-                    </td>
-                    <td className={styles.tableCell}>
-                      <div className={styles.revenueAmount}>{store.revenue}</div>
-                    </td>
-                    <td className={styles.tableCell}>
-                      <div className={styles.orderCount}>{store.orders}</div>
-                    </td>
-                    <td className={styles.tableCell}>
-                      <div className={styles.ratingContainer}>
-                        <div className={styles.stars}>
-                          {'★'.repeat(Math.floor(store.rating))}
-                        </div>
-                        <span className={styles.ratingText}>{store.rating}</span>
-                      </div>
-                    </td>
-                    <td className={styles.tableCell}>
-                      <span className={`${styles.growthValue} ${
-                        store.growth.startsWith('+') ? styles.positive : styles.negative
-                      }`}>
-                        {store.growth}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
+                {/* Data sẽ được tải từ API */}
+                <tr className={styles.tableRow}>
+                  <td className={styles.tableCell}>
+                    <div className={styles.storeName}>Đang tải dữ liệu...</div>
+                  </td>
+                  <td className={styles.tableCell}>
+                    <div className={styles.revenueAmount}>-</div>
+                  </td>
+                  <td className={styles.tableCell}>
+                    <div className={styles.orderCount}>-</div>
+                  </td>
+                  <td className={styles.tableCell}>
+                    <div className={styles.ratingContainer}>
+                      <div className={styles.stars}>-</div>
+                      <span className={styles.ratingText}>-</span>
+                    </div>
+                  </td>
+                  <td className={styles.tableCell}>
+                    <span className={styles.growthValue}>-</span>
+                  </td>
+                </tr>
               </tbody>
             </table>
           </div>

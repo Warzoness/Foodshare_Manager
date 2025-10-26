@@ -114,7 +114,7 @@ export function ImageUpload({
         setPreviewImage(url);
         onImageUpload?.(url);
       }
-    } catch (error) {
+    } catch (_error) {
       alert('Có lỗi xảy ra khi upload ảnh');
     } finally {
       setUploading(false);

@@ -27,7 +27,7 @@ export async function POST(
     }
 
     const body: UpdateUserRequest = await request.json();
-    const { name, email, phoneNumber, profilePictureUrl, role } = body;
+    const { name, email, phoneNumber, profilePictureUrl: _profilePictureUrl, role } = body;
 
     // Validation
     if (!name || !email) {
@@ -131,24 +131,15 @@ export async function POST(
     //   }
     // });
 
-    // Mock response for now
-    const mockUpdatedUser = {
-      id: parseInt(userId),
-      name,
-      email,
-      phoneNumber,
-      profilePictureUrl,
-      role: role || 'USER', // Default role if not provided
-      updatedAt: new Date().toISOString()
-    };
-
+    // TODO: Implement actual user update logic
+    // const updatedUser = await updateUser(userId, { name, email, phoneNumber, profilePictureUrl, role });
+    
     return NextResponse.json({
       success: false,
-      data: mockUpdatedUser,
-      message: 'Database not connected. Please implement user update.'
+      message: 'Chức năng cập nhật người dùng chưa được triển khai'
     }, { status: 501 });
 
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json(
       {
         success: false,

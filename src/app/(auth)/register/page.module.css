@@ -76,6 +76,21 @@
   background: white;
 }
 
+.inputError {
+  border-color: #dc2626 !important;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1) !important;
+}
+
+.inputError:focus {
+  border-color: #dc2626 !important;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1) !important;
+}
+
+.required {
+  color: #dc2626;
+  font-weight: 600;
+}
+
 .input::placeholder {
   color: #9ca3af;
 }

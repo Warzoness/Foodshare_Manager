@@ -120,7 +120,7 @@ export default function OrdersManagement() {
         const errorMessage = response.error || 'Không thể cập nhật trạng thái';
         alert(`❌ Lỗi: ${errorMessage}`);
       }
-    } catch (error) {
+    } catch (_error) {
       alert('❌ Có lỗi xảy ra khi cập nhật trạng thái đơn hàng');
     }
   };

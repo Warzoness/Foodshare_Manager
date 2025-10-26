@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { ImageUpload } from '@/components/ui/ImageUpload';
 import { useSellerShopProducts, useDeleteSellerProduct, useCreateSellerProduct, useUpdateSellerProduct } from '@/hooks/useApi';
 import { SellerProduct } from '@/types';
+import { VietnameseValidator } from '@/lib/validation';
 import styles from './page.module.css';
 
 export default function ProductsManagement() {
@@ -43,17 +44,9 @@ export default function ProductsManagement() {
 
   // Validation functions
   const validatePrice = (value: string) => {
-    if (!value.trim()) {
-      setPriceError('Giá không được để trống');
-      return false;
-    }
-    const numValue = parseFloat(value);
-    if (isNaN(numValue) || numValue < 0) {
-      setPriceError('Giá phải là số dương hợp lệ');
-      return false;
-    }
-    setPriceError('');
-    return true;
+    const result = VietnameseValidator.validatePrice(value);
+    setPriceError(result.message);
+    return result.isValid;
   };
 
   const validateOriginalPrice = (value: string) => {
@@ -61,13 +54,13 @@ export default function ProductsManagement() {
       setOriginalPriceError('');
       return true; // Original price is optional
     }
-    const numValue = parseFloat(value);
-    if (isNaN(numValue) || numValue < 0) {
-      setOriginalPriceError('Giá gốc phải là số dương hợp lệ');
+    const result = VietnameseValidator.validatePrice(value);
+    if (!result.isValid) {
+      setOriginalPriceError(result.message);
       return false;
     }
     const price = parseFloat(newProduct.price);
-    if (!isNaN(price) && numValue <= price) {
+    if (!isNaN(price) && parseFloat(value) <= price) {
       setOriginalPriceError('Giá gốc phải lớn hơn giá bán');
       return false;
     }
@@ -76,17 +69,9 @@ export default function ProductsManagement() {
   };
 
   const validateQuantity = (value: string) => {
-    if (!value.trim()) {
-      setQuantityError('Số lượng không được để trống');
-      return false;
-    }
-    const numValue = parseInt(value);
-    if (isNaN(numValue) || numValue < 0) {
-      setQuantityError('Số lượng phải là số nguyên dương');
-      return false;
-    }
-    setQuantityError('');
-    return true;
+    const result = VietnameseValidator.validateQuantity(value);
+    setQuantityError(result.message);
+    return result.isValid;
   };
 
   const isFormValid = () => {
@@ -102,7 +87,7 @@ export default function ProductsManagement() {
     sortDirection
   }), [currentPage, pageSize, sortBy, sortDirection]);
 
-  const { data: productsResponse, loading, error, execute: refetchProducts } = useSellerShopProducts(shopId, paginationParams);
+  const { data: productsResponse, loading, error: _error, execute: refetchProducts } = useSellerShopProducts(shopId, paginationParams);
   const { execute: deleteProduct, loading: deleting } = useDeleteSellerProduct();
   const { execute: createProduct, loading: creating } = useCreateSellerProduct();
   const { execute: updateProduct, loading: updating } = useUpdateSellerProduct();
@@ -175,7 +160,7 @@ export default function ProductsManagement() {
       try {
         await deleteProduct(productId.toString());
         refetchProducts();
-      } catch (error) {
+      } catch (_error) {
       }
     }
   };
@@ -220,7 +205,7 @@ export default function ProductsManagement() {
       setOriginalPriceError('');
       setQuantityError('');
         refetchProducts();
-    } catch (error) {
+    } catch (_error) {
     }
   };
 
@@ -253,7 +238,7 @@ export default function ProductsManagement() {
       setOriginalPriceError('');
       setQuantityError('');
       refetchProducts();
-    } catch (error) {
+    } catch (_error) {
     }
   };
 
@@ -434,7 +419,7 @@ export default function ProductsManagement() {
             <div className={styles.spinner}></div>
             <p>Đang tải sản phẩm...</p>
           </div>
-        ) : error ? (
+        ) : _error ? (
           <div className={styles.errorState}>
             <svg className={styles.errorIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="12" cy="12" r="10"/>
@@ -442,7 +427,7 @@ export default function ProductsManagement() {
               <line x1="9" y1="9" x2="15" y2="15"/>
             </svg>
             <h3>Lỗi tải dữ liệu</h3>
-            <p>{error}</p>
+            <p>{_error}</p>
             <Button onClick={() => refetchProducts()}>Thử lại</Button>
           </div>
         ) : filteredProducts.length === 0 ? (

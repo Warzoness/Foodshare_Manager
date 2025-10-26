@@ -40,8 +40,9 @@ export default function EditShopPage({ params }: EditShopPageProps) {
   });
 
   const [isDragOver, setIsDragOver] = useState(false);
-  const [locationPermission, setLocationPermission] = useState<'granted' | 'denied' | 'prompt'>('prompt');
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [mapUrl, setMapUrl] = useState<string>('');
+  const [coordinateInput, setCoordinateInput] = useState<string>('');
 
   // Simple image upload function
   const uploadImage = async (file: File) => {
@@ -82,6 +83,65 @@ export default function EditShopPage({ params }: EditShopPageProps) {
     }
   };
 
+  // Update map URL when coordinates change
+  const updateMapUrl = (lat: number, lng: number) => {
+    if (lat && lng) {
+      const _url = `https://www.google.com/maps/embed/v1/search?key=YOUR_API_KEY&q=${lat},${lng}`;
+      // For public embed without API key, use this format:
+      const publicUrl = `https://www.google.com/maps?q=${lat},${lng}&output=embed`;
+      setMapUrl(publicUrl);
+    }
+  };
+  
+  // Parse coordinate input - supports various formats
+  const parseCoordinateInput = (input: string): { lat: number | null, lng: number | null } => {
+    if (!input || !input.trim()) {
+      return { lat: null, lng: null };
+    }
+
+    const trimmed = input.trim();
+    
+    // Try to parse Google Maps URL
+    const googleMapsMatch = trimmed.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+    if (googleMapsMatch) {
+      return {
+        lat: parseFloat(googleMapsMatch[1]),
+        lng: parseFloat(googleMapsMatch[2])
+      };
+    }
+
+    // Try to parse "lat,lng" or "lat lng" format
+    const commaMatch = trimmed.match(/^(-?\d+\.?\d*)[,\s]+(-?\d+\.?\d*)$/);
+    if (commaMatch) {
+      return {
+        lat: parseFloat(commaMatch[1]),
+        lng: parseFloat(commaMatch[2])
+      };
+    }
+
+    // Single number
+    const singleNumber = parseFloat(trimmed);
+    if (!isNaN(singleNumber)) {
+      return { lat: singleNumber, lng: null };
+    }
+
+    return { lat: null, lng: null };
+  };
+
+  // Handle coordinate input update
+  const handleCoordinateUpdate = () => {
+    const parsed = parseCoordinateInput(coordinateInput);
+    
+    if (parsed.lat !== null && parsed.lng !== null) {
+      setFormData(prev => ({
+        ...prev,
+        latitude: parsed.lat!,
+        longitude: parsed.lng!
+      }));
+      updateMapUrl(parsed.lat, parsed.lng);
+    }
+  };
+
   // Load shop data when component mounts
   useEffect(() => {
     if (shopId) {
@@ -92,24 +152,34 @@ export default function EditShopPage({ params }: EditShopPageProps) {
   // Populate form when shop data is loaded
   useEffect(() => {
     if (shop) {
+      const lat = shop.latitude || 0;
+      const lng = shop.longitude || 0;
+      
       setFormData({
         name: shop.name || '',
         address: shop.address || '',
         phone: shop.phone || '',
         imageUrl: shop.imageUrl || '',
-        latitude: shop.latitude || 0,
-        longitude: shop.longitude || 0,
+        latitude: lat,
+        longitude: lng,
         description: shop.description || '',
         rating: shop.rating || 0,
         status: shop.status || '1'
       });
+      
+      // Update coordinate input
+      setCoordinateInput(`${lat}, ${lng}`);
+      
+      // Update map URL
+      updateMapUrl(lat, lng);
     }
   }, [shop]);
 
-  // Request location permission and get current position
+  // Request current location on component mount
   useEffect(() => {
-    const requestLocationPermission = async () => {
+    const requestCurrentLocation = async () => {
       if (!navigator.geolocation) {
+        console.log('Geolocation is not supported by this browser.');
         return;
       }
 
@@ -118,22 +188,31 @@ export default function EditShopPage({ params }: EditShopPageProps) {
           navigator.geolocation.getCurrentPosition(resolve, reject, {
             enableHighAccuracy: true,
             timeout: 10000,
-            maximumAge: 0
+            maximumAge: 60000 // Cache for 1 minute
           });
         });
 
-        setFormData(prev => ({
-          ...prev,
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude
-        }));
-        setLocationPermission('granted');
+        // Only set if formData hasn't been modified yet (default location)
+        if (formData.latitude === 0 && formData.longitude === 0) {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          
+          setFormData(prev => ({
+            ...prev,
+            latitude: lat,
+            longitude: lng
+          }));
+          
+          setCoordinateInput(`${lat}, ${lng}`);
+          updateMapUrl(lat, lng);
+        }
       } catch (error) {
-        setLocationPermission('denied');
+        console.log('Geolocation error:', error);
+        // Don't show error, let user manually enter coordinates
       }
     };
 
-    requestLocationPermission();
+    requestCurrentLocation();
   }, []);
 
   // Handle image drag and drop
@@ -394,21 +473,56 @@ export default function EditShopPage({ params }: EditShopPageProps) {
             />
           </div>
 
-          {/* Location Status */}
-          <div className={`${styles.locationStatus} ${locationPermission === 'granted' ? styles.locationGranted : styles.locationDenied}`}>
-            <div className={styles.locationIcon}>
-              {locationPermission === 'granted' ? '📍' : '⚠️'}
+          {/* Location Picker */}
+          <div className={styles.formSection}>
+            <label className={styles.formLabel}>
+              Vị trí cửa hàng *
+            </label>
+            
+            {/* Google Maps iframe */}
+            <div className={styles.mapContainer}>
+              {mapUrl ? (
+                <iframe
+                  src={mapUrl}
+                  width="100%"
+                  height="300"
+                  style={{ border: 0 }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  className={styles.mapIframe}
+                />
+              ) : (
+                <div className={styles.mapPlaceholder}>
+                  <div className={styles.uploadIcon}>📍</div>
+                  <div className={styles.uploadText}>Vui lòng nhập tọa độ để hiển thị bản đồ</div>
+                </div>
+              )}
             </div>
-            <div className={styles.locationInfo}>
-              <div className={styles.locationTitle}>
-                {locationPermission === 'granted' ? 'Vị trí đã được lấy thành công' : 'Không thể lấy vị trí hiện tại'}
+            
+            {/* Coordinate input */}
+            <div className={styles.coordinateInputContainer}>
+              <label className={styles.coordinateLabel}>Tọa độ (Latitude, Longitude)</label>
+              <div className={styles.coordinateInputRow}>
+                <input
+                  type="text"
+                  placeholder="21.059788079405156, 105.78357288474545"
+                  value={coordinateInput}
+                  onChange={(e) => setCoordinateInput(e.target.value)}
+                  className={styles.formInput}
+                />
+                <Button 
+                  variant="primary"
+                  onClick={handleCoordinateUpdate}
+                  className={styles.updateLocationBtn}
+                >
+                  Cập nhật vị trí
+                </Button>
               </div>
-              <div className={styles.locationSubtext}>
-                {locationPermission === 'granted' 
-                  ? `Lat: ${(formData.latitude || 0).toFixed(6)}, Lng: ${(formData.longitude || 0).toFixed(6)}`
-                  : 'Vui lòng cho phép truy cập vị trí để tự động lấy tọa độ'
-                }
-              </div>
+            </div>
+            
+            <div className={styles.locationHint}>
+              💡 Vị trí mặc định sẽ là vị trí hiện tại của bạn. Để thay đổi, tìm địa chỉ trên Google Maps, click chuột phải và chọn &quot;What&apos;s here?&quot; để lấy tọa độ, sau đó dán vào ô trên.
             </div>
           </div>
         </div>
