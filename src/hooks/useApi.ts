@@ -858,7 +858,15 @@ export function useSellerShopOrders(params?: {
   const apiCall = useCallback(() => {
     return sellerService.getShopOrders(params);
   }, [paramsString]);
-  return useApi(apiCall, { immediate: true });
+  const apiResult = useApi(apiCall, { immediate: false });
+  
+  // Re-execute when params change
+  useEffect(() => {
+    apiResult.execute();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [paramsString]);
+  
+  return apiResult;
 }
 
 export function useDeleteSellerProduct() {

@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { Select } from '@/components/ui/Select';
 import styles from './page.module.css';
 import { useAdminProducts, useDeleteProduct } from '@/hooks/useApi';
 import { Product } from '@/types';
@@ -312,26 +313,28 @@ export default function ProductsManagement() {
             onChange={(e) => handleSearch(e.target.value)}
             className={styles.searchInput}
           />
-          <select 
-            className={styles.filterSelect}
+          <Select
             value={statusFilter}
-            onChange={(e) => handleStatusFilter(e.target.value)}
-          >
-            <option value="">Tất cả trạng thái</option>
-            <option value="active">Khả dụng</option>
-            <option value="inactive">Không khả dụng</option>
-          </select>
-          <select 
-            className={styles.filterSelect}
+            onChange={(value) => handleStatusFilter(value)}
+            placeholder="Tất cả trạng thái"
+            options={[
+              { value: '', label: 'Tất cả trạng thái' },
+              { value: 'active', label: 'Khả dụng' },
+              { value: 'inactive', label: 'Không khả dụng' }
+            ]}
+          />
+          <Select
             value={sortBy.length > 0 ? `${sortBy[0].split(',')[0]}-${sortBy[0].split(',')[1]}` : ''}
-            onChange={(e) => handleSort(e.target.value)}
-          >
-            <option value="">Sắp xếp mặc định</option>
-            <option value="name-asc">Tên sản phẩm A-Z</option>
-            <option value="name-desc">Tên sản phẩm Z-A</option>
-            <option value="price-desc">Giá cao nhất</option>
-            <option value="price-asc">Giá thấp nhất</option>
-          </select>
+            onChange={(value) => handleSort(value)}
+            placeholder="Sắp xếp mặc định"
+            options={[
+              { value: '', label: 'Sắp xếp mặc định' },
+              { value: 'name-asc', label: 'Tên sản phẩm A-Z' },
+              { value: 'name-desc', label: 'Tên sản phẩm Z-A' },
+              { value: 'price-desc', label: 'Giá cao nhất' },
+              { value: 'price-asc', label: 'Giá thấp nhất' }
+            ]}
+          />
         </div>
       </div>
 
@@ -444,26 +447,27 @@ export default function ProductsManagement() {
                       <td className={styles.tableCell}>
                         <div className={styles.actionButtons}>
                           <Button 
-                            variant="primary"
+                            variant="secondary"
                             size="sm"
                             onClick={() => handleViewProduct(product.id)}
                           >
-                            Xem
+                            👁️ Xem
                           </Button>
                           <Button 
                             variant="secondary"
                             size="sm"
                             onClick={() => handleViewProduct(product.id)}
                           >
-                            Sửa
+                            ✏️ Sửa
                           </Button>
                           <Button 
                             variant="danger"
                             size="sm"
                             onClick={() => handleDeleteClick(product)}
                             disabled={deleteLoading}
+                            loading={deleteLoading && productToDelete?.id === product.id}
                           >
-                            {deleteLoading && productToDelete?.id === product.id ? 'Đang xóa...' : 'Xóa'}
+                            🗑️ Xóa
                           </Button>
                         </div>
                       </td>
@@ -516,12 +520,14 @@ export default function ProductsManagement() {
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
               <h3>Xác nhận xóa sản phẩm</h3>
-              <button 
-                className={styles.closeButton}
+              <Button 
+                variant="ghost"
+                size="sm"
                 onClick={handleDeleteCancel}
+                className={styles.closeButton}
               >
                 ×
-              </button>
+              </Button>
             </div>
             <div className={styles.modalContent}>
               <p>Bạn có chắc chắn muốn xóa sản phẩm <strong>&quot;{productToDelete.name}&quot;</strong>?</p>

@@ -124,6 +124,7 @@
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
   padding: 1.5rem;
   color: #f1f5f9;
+  overflow: visible;
 }
 
 /* Header Section */
@@ -284,10 +285,16 @@
   margin-bottom: 1.5rem;
   animation: fadeInUp 0.5s ease-out;
   backdrop-filter: blur(10px);
+  overflow: visible;
+  position: relative;
+  z-index: 100;
 }
 
 .filtersHeader {
   margin-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .filtersHeader h2 {
@@ -297,55 +304,182 @@
   margin: 0;
 }
 
-.filtersContent {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+/* Mobile Filter Bar */
+.mobileFilterBar {
+  display: none;
 }
 
-.searchBox {
-  position: relative;
+.desktopFiltersForm {
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .filtersHeader {
+    margin-bottom: 0.75rem;
+  }
+  
+  .mobileFilterBar {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    padding: 0;
+  }
+  
+  .desktopFiltersForm {
+    display: none;
+  }
+}
+
+.mobileSearchInput {
   flex: 1;
-  min-width: 16rem;
-}
-
-.searchIcon {
-  position: absolute;
-  left: 0.75rem;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 16px;
-  height: 16px;
-  color: #94a3b8;
-}
-
-.searchInput {
-  width: 100%;
-  padding: 0.75rem 0.75rem 0.75rem 2.5rem;
+  padding: 10px 12px;
   border: 1px solid rgba(84, 166, 92, 0.3);
-  border-radius: var(--border-radius);
-  font-size: 0.875rem;
-  background: rgba(30, 41, 59, 0.6);
+  border-radius: 8px;
+  background: rgba(30, 41, 59, 0.9);
   color: #f1f5f9;
-  backdrop-filter: blur(10px);
+  font-size: 14px;
   transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
 }
 
-.searchInput:focus {
+.mobileSearchInput:focus {
   outline: none;
   border-color: #54A65C;
-  box-shadow: 0 0 0 3px rgba(84, 166, 92, 0.1);
+  box-shadow: 0 0 0 3px rgba(84, 166, 92, 0.2);
 }
 
-.searchInput::placeholder {
-  color: #94a3b8;
+.mobileSearchInput::placeholder {
+  color: #64748b;
 }
 
-.filterControls {
+.mobileFilterIconButton {
+  background: rgba(30, 41, 59, 0.9);
+  border: 1px solid rgba(84, 166, 92, 0.3);
+  border-radius: 8px;
+  padding: 10px;
   display: flex;
-  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.mobileFilterIconButton svg {
+  width: 20px;
+  height: 20px;
+  color: #54A65C;
+}
+
+.mobileFilterIconButton:hover {
+  background: rgba(84, 166, 92, 0.2);
+  border-color: #54A65C;
+}
+
+.mobileSearchButton {
+  white-space: nowrap;
+  min-height: 44px;
+  font-size: 14px !important;
+  padding: 10px 16px !important;
+}
+
+.filtersContent {
+  overflow: visible;
+}
+
+.filterRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
-  align-items: end;
+  margin-bottom: 1rem;
+  overflow: visible;
+}
+
+.filterGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  overflow: visible;
+}
+
+.filterLabel {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #f1f5f9;
+}
+
+.filterInput {
+  padding: 0.75rem 1rem;
+  border: 1px solid rgba(84, 166, 92, 0.3);
+  border-radius: 0.5rem;
+  background: rgba(30, 41, 59, 0.9);
+  font-size: 0.875rem;
+  color: #f1f5f9;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+}
+
+.filterInput:focus {
+  outline: none;
+  border-color: #54A65C;
+  box-shadow: 0 0 0 3px rgba(84, 166, 92, 0.2);
+  background: rgba(30, 41, 59, 1);
+}
+
+.filterInput::placeholder {
+  color: #64748b;
+}
+
+.filterActions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.filterLoadingIndicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #54A65C;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.miniSpinner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid rgba(84, 166, 92, 0.3);
+  border-top: 2px solid #54A65C;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.filterLoadingOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(30, 41, 59, 0.95);
+  backdrop-filter: blur(8px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  border-radius: var(--border-radius-lg);
+  gap: 1rem;
+}
+
+.filterLoadingOverlay p {
+  color: #f1f5f9;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin: 0;
 }
 
 .filterSelect {
@@ -379,9 +513,11 @@
   border-radius: var(--border-radius-lg);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
   border: 1px solid rgba(84, 166, 92, 0.3);
-  overflow: hidden;
+  overflow: visible;
   backdrop-filter: blur(10px);
   animation: fadeInUp 0.5s ease-out 0.1s both;
+  position: relative;
+  z-index: 1;
 }
 
 .tableHeader {
@@ -400,6 +536,7 @@
 /* Table Styles */
 .tableContainer {
   overflow-x: auto;
+  overflow-y: visible;
 }
 
 .productsTable {
@@ -622,51 +759,27 @@
   min-height: 60px;
 }
 
-.editButton,
-.deleteButton {
-  padding: 0.5rem 0.75rem;
-  border-radius: var(--border-radius);
-  font-size: 0.75rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
+/* Mobile optimizations for action buttons */
+@media (max-width: 768px) {
+  .actions button {
+    width: 100%;
+    padding: 10px 12px !important;
+    font-size: 13px !important;
+    min-height: 40px;
+    font-weight: 600;
+    border-radius: 8px;
+  }
 }
 
-.editButton {
-  background: rgba(30, 41, 59, 0.8);
-  color: #f1f5f9;
-  border: 1px solid rgba(84, 166, 92, 0.3);
-  backdrop-filter: blur(10px);
+@media (max-width: 480px) {
+  .actions button {
+    padding: 8px 10px !important;
+    font-size: 12px !important;
+    min-height: 36px;
+  }
 }
 
-.editButton:hover {
-  background: rgba(84, 166, 92, 0.2);
-  border-color: #54A65C;
-  color: #54A65C;
-}
-
-.deleteButton {
-  background: rgba(239, 68, 68, 0.1);
-  color: #ef4444;
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  backdrop-filter: blur(10px);
-}
-
-.deleteButton:hover {
-  background: rgba(239, 68, 68, 0.2);
-  border-color: #ef4444;
-  color: #fca5a5;
-}
-
-.editButton svg,
-.deleteButton svg {
-  width: 14px;
-  height: 14px;
-}
+/* Button styles now handled by Button component */
 
 /* Loading, Error, Empty States */
 .loadingState,
@@ -790,6 +903,128 @@
   border-color: var(--primary);
 }
 
+/* Filter Modal */
+.filterModal {
+  background: rgba(30, 41, 59, 0.98);
+  border: 1px solid rgba(84, 166, 92, 0.3);
+  border-radius: 16px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.filterModalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid rgba(84, 166, 92, 0.2);
+}
+
+.filterModalHeader h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #f1f5f9;
+  margin: 0;
+}
+
+.filterModalClose {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 2rem;
+  cursor: pointer;
+  padding: 0;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  line-height: 1;
+}
+
+.filterModalClose:hover {
+  background: rgba(84, 166, 92, 0.2);
+  color: #54A65C;
+}
+
+.filterModalBody {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.filterModalGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filterModalFooter {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid rgba(84, 166, 92, 0.2);
+  background: rgba(15, 23, 42, 0.5);
+}
+
+.filterModalFooter button {
+  flex: 1;
+  min-height: 44px;
+  font-size: 15px !important;
+  font-weight: 600;
+}
+
+@media (max-width: 480px) {
+  .filterModal {
+    width: 95%;
+    max-height: 85vh;
+  }
+  
+  .filterModalHeader {
+    padding: 1rem 1.25rem;
+  }
+  
+  .filterModalHeader h3 {
+    font-size: 1rem;
+  }
+  
+  .filterModalBody {
+    padding: 1.25rem;
+    gap: 1rem;
+  }
+  
+  .filterModalFooter {
+    padding: 0.875rem 1.25rem;
+    flex-direction: column;
+  }
+  
+  .filterModalFooter button {
+    width: 100%;
+  }
+}
+
 /* Modals */
 .modalOverlay {
   position: fixed;
@@ -797,7 +1032,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(10px);
   display: flex;
   align-items: center;
@@ -1073,33 +1308,24 @@
     font-size: var(--font-lg);
   }
 
-  .searchBox {
-    margin-bottom: 0.75rem;
-  }
-
-  .searchInput {
-    padding: 0.75rem 0.75rem 0.75rem 2.25rem;
-    font-size: var(--font-base);
-  }
-
-  .filterControls {
-    flex-direction: column;
+  .filterRow {
+    grid-template-columns: 1fr;
     gap: 0.75rem;
   }
 
-  .filterSelect {
+  .filterInput {
     padding: 0.75rem;
     font-size: var(--font-base);
   }
 
   /* Filter buttons font size */
-  .filterControls button {
+  .filterActions button {
     font-size: var(--font-base) !important;
   }
 
   .tableCard {
     border-radius: 0.5rem;
-    overflow: hidden;
+    overflow: visible;
   }
 
   /* Hide category and detail images columns on mobile */
@@ -1114,7 +1340,7 @@
 
   .productsTable {
     min-width: 350px; /* Reduced for 2 columns only */
-    font-size: var(--font-sm);
+    font-size: 15px; /* Increased from var(--font-sm) for better readability */
   }
 
   .productCell {
@@ -1159,15 +1385,15 @@
     padding: 0.75rem 1.5rem 1.5rem 1.5rem;
   }
 
-  .tableHeaderCell,
+  .tableHeaderCell {
+    padding: 0.5rem 0.25rem;
+    font-size: 16px; /* Increased header font size for better readability */
+    font-weight: 700;
+  }
+  
   .tableCell {
     padding: 0.5rem 0.25rem;
-    font-size: var(--font-sm);
-  }
-
-  .tableHeaderCell {
-    font-size: var(--font-xs);
-    padding: 0.5rem 0.25rem;
+    font-size: 15px; /* Increased from var(--font-sm) */
   }
 
   .productInfo {
@@ -1183,12 +1409,12 @@
   }
 
   .productName {
-    font-size: var(--font-md);
+    font-size: 15px; /* Increased from var(--font-md) */
     margin-bottom: 0.1rem;
   }
 
   .productDescription {
-    font-size: var(--font-sm);
+    font-size: 13px; /* Increased from var(--font-sm) */
     -webkit-line-clamp: 1;
     line-clamp: 1;
   }
@@ -1198,15 +1424,15 @@
   }
 
   .currentPrice {
-    font-size: var(--font-md);
+    font-size: 15px; /* Increased from var(--font-md) */
   }
 
   .originalPrice {
-    font-size: var(--font-sm);
+    font-size: 13px; /* Increased from var(--font-sm) */
   }
 
   .discount {
-    font-size: var(--font-xs);
+    font-size: 12px; /* Increased from var(--font-xs) */
     padding: 0.075rem 0.2rem;
   }
 
@@ -1215,12 +1441,47 @@
   }
 
   .quantityItem {
-    font-size: var(--font-sm);
+    font-size: 14px; /* Increased for better readability */
+    font-weight: 600;
   }
 
   .statusBadge {
-    font-size: var(--font-sm);
+    font-size: 13px; /* Increased from var(--font-sm) */
     padding: 0.2rem 0.4rem;
+  }
+  
+  /* Mobile-only info increased font sizes */
+  .mobileCategory {
+    font-size: 13px; /* Increased from var(--font-xs) */
+  }
+  
+  .mobilePrice {
+    font-size: 14px; /* Increased */
+  }
+  
+  .mobileOriginalPrice {
+    font-size: 12px; /* Increased from var(--font-xs) */
+  }
+  
+  .mobileCurrentPrice {
+    font-size: 14px; /* Increased from var(--font-sm) */
+  }
+  
+  .mobileDiscount {
+    font-size: 12px; /* Increased from var(--font-xs) */
+  }
+  
+  .mobileQuantity {
+    font-size: 14px; /* Increased for better readability */
+    font-weight: 600;
+  }
+  
+  .mobileStatusBadge {
+    font-size: 13px; /* Increased from var(--font-xs) */
+  }
+  
+  .mobileDetailImages {
+    font-size: 13px; /* Increased from var(--font-xs) */
   }
 
   .actions {
@@ -1229,19 +1490,7 @@
     min-height: auto;
   }
 
-  .editButton,
-  .deleteButton {
-    width: 100%;
-    justify-content: center;
-    padding: 0.35rem 0.45rem;
-    font-size: var(--font-sm);
-  }
-
-  .editButton svg,
-  .deleteButton svg {
-    width: 11px;
-    height: 11px;
-  }
+  /* Button styles now handled by Button component */
 
   /* Image Upload Field Mobile */
   .imageUploadField :global(.dropZone) {
@@ -1398,18 +1647,18 @@
     font-size: 0.8rem;
   }
 
-  .searchInput {
-    padding: 0.6rem 0.6rem 0.6rem 1.8rem;
-    font-size: 0.65rem; /* Match other mobile elements */
+  .filterRow {
+    grid-template-columns: 1fr;
+    gap: 0.6rem;
   }
 
-  .filterSelect {
+  .filterInput {
     padding: 0.6rem;
-    font-size: 0.65rem; /* Match other mobile elements */
+    font-size: 0.65rem;
   }
 
   /* Filter buttons font size */
-  .filterControls button {
+  .filterActions button {
     font-size: 0.65rem !important;
   }
 
@@ -1462,17 +1711,7 @@
     padding: 0.15rem 0.3rem;
   }
 
-  .editButton,
-  .deleteButton {
-    padding: 0.25rem 0.35rem;
-    font-size: 0.6rem;
-  }
-
-  .editButton svg,
-  .deleteButton svg {
-    width: 9px;
-    height: 9px;
-  }
+  /* Button styles now handled by Button component */
 
   .paginationInfo {
     font-size: 0.65rem;
@@ -1591,18 +1830,18 @@
     font-size: 0.75rem;
   }
 
-  .searchInput {
-    padding: 0.5rem 0.5rem 0.5rem 1.6rem;
-    font-size: 0.6rem; /* Match other mobile elements */
+  .filterRow {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
   }
 
-  .filterSelect {
+  .filterInput {
     padding: 0.5rem;
-    font-size: 0.6rem; /* Match other mobile elements */
+    font-size: 0.6rem;
   }
 
   /* Filter buttons font size */
-  .filterControls button {
+  .filterActions button {
     font-size: 0.6rem !important;
   }
 
@@ -1653,17 +1892,7 @@
     padding: 0.1rem 0.25rem;
   }
 
-  .editButton,
-  .deleteButton {
-    padding: 0.2rem 0.3rem;
-    font-size: 0.55rem;
-  }
-
-  .editButton svg,
-  .deleteButton svg {
-    width: 8px;
-    height: 8px;
-  }
+  /* Button styles now handled by Button component */
 
   .paginationInfo {
     font-size: 0.6rem;

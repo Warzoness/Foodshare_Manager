@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
+import { Button } from '@/components/ui/Button';
 import { useUsers } from '@/hooks/useApi';
 import { User } from '@/types';
 import styles from './page.module.css';
@@ -66,7 +67,7 @@ export default function UsersManagement() {
             Quản lý tài khoản người dùng trong hệ thống
           </p>
         </div>
-        <button className={styles.addButton}>+ Thêm người dùng mới</button>
+        <Button variant="primary" size="lg">+ Thêm người dùng mới</Button>
       </div>
 
       {/* Filters */}
@@ -141,9 +142,9 @@ export default function UsersManagement() {
                   <td colSpan={6} className={styles.emptyState}>
                     <div className={styles.errorMessage}>
                       <p>Lỗi khi tải dữ liệu: {error}</p>
-                      <button onClick={() => refetchUsers()} className={styles.retryButton}>
-                        Thử lại
-                      </button>
+                      <Button variant="outline" size="md" onClick={() => refetchUsers()}>
+                        🔄 Thử lại
+                      </Button>
                     </div>
                   </td>
                 </tr>
@@ -186,9 +187,9 @@ export default function UsersManagement() {
                     </td>
                     <td className={styles.tableCell}>
                       <div className={styles.actionButtons}>
-                        <button className={`${styles.actionButton} ${styles.secondary}`}>Xem</button>
-                        <button className={`${styles.actionButton} ${styles.secondary}`}>Sửa</button>
-                        <button className={`${styles.actionButton} ${styles.danger}`}>Khóa</button>
+                        <Button variant="secondary" size="sm">👁️ Xem</Button>
+                        <Button variant="secondary" size="sm">✏️ Sửa</Button>
+                        <Button variant="danger" size="sm">🔒 Khóa</Button>
                       </div>
                     </td>
                   </tr>
@@ -210,23 +211,25 @@ export default function UsersManagement() {
             của <span className="font-medium">{totalItems}</span> kết quả
           </div>
           <div className={styles.paginationButtons}>
-            <button 
-              className={styles.paginationButton}
+            <Button 
+              variant="outline"
+              size="md"
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 0}
             >
-              Trước
-            </button>
+              ← Trước
+            </Button>
             <span className={styles.pageInfo}>
               Trang {currentPage + 1} / {totalPages}
             </span>
-            <button 
-              className={styles.paginationButton}
+            <Button 
+              variant="outline"
+              size="md"
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage >= totalPages - 1}
             >
-              Sau
-            </button>
+              Sau →
+            </Button>
           </div>
         </div>
       )}

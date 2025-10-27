@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/contexts/AuthContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import styles from './layout.module.css';
@@ -72,12 +73,14 @@ export default function AdminLayout({
                   <p className={styles.userEmail}>{user?.email || 'admin@foodshare.com'}</p>
                 </div>
               </div>
-              <button 
+              <Button 
                 onClick={handleLogout}
+                variant="danger"
+                size="sm"
                 className={styles.logoutButton}
               >
-                Đăng xuất
-              </button>
+                🚪 Đăng xuất
+              </Button>
             </div>
           </div>
         </div>
@@ -87,8 +90,10 @@ export default function AdminLayout({
       <div className={styles.mainContent}>
         {/* Top bar */}
         <div className={styles.topBar}>
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="sm"
             className={styles.mobileMenuButton}
             onClick={() => setSidebarOpen(true)}
           >
@@ -96,7 +101,7 @@ export default function AdminLayout({
             <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
-          </button>
+          </Button>
           <div className={styles.topBarContent}>
             <div className={styles.searchContainer}>
               <div className={styles.searchWrapper}>
@@ -141,15 +146,17 @@ export default function AdminLayout({
           <div className={styles.mobileOverlayBg} onClick={() => setSidebarOpen(false)} />
           <div className={styles.mobileSidebar}>
             <div className={styles.mobileCloseButton}>
-              <button
+              <Button
                 type="button"
+                variant="ghost"
+                size="sm"
                 onClick={() => setSidebarOpen(false)}
               >
                 <span className="sr-only">Close sidebar</span>
                 <svg className="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
-              </button>
+              </Button>
             </div>
             {/* Mobile sidebar content - same as desktop */}
             <div className={styles.mobileSidebarContent}>
@@ -187,12 +194,14 @@ export default function AdminLayout({
                     <p className={styles.mobileUserEmail}>{user?.email || 'admin@foodshare.com'}</p>
                   </div>
                 </div>
-                <button 
+                <Button 
                   onClick={handleLogout}
+                  variant="danger"
+                  size="sm"
                   className={styles.mobileLogoutButton}
                 >
-                  Đăng xuất
-                </button>
+                  🚪 Đăng xuất
+                </Button>
               </div>
             </div>
           </div>

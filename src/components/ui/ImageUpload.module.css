@@ -1,38 +1,39 @@
 .uploadContainer {
   width: 100%;
+  margin-bottom: 1.25rem;
 }
 
 .label {
   display: block;
-  font-weight: 600;
-  margin-bottom: 8px;
-  color: #374151;
-  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: #f1f5f9;
+  font-size: 0.875rem;
 }
 
 .dropZone {
-  border: 2px dashed #d1d5db;
-  border-radius: 8px;
+  border: 2px dashed rgba(84, 166, 92, 0.3);
+  border-radius: 12px;
   padding: 24px;
   text-align: center;
   cursor: pointer;
   transition: all 0.2s ease;
-  background-color: #f9fafb;
+  background: rgba(84, 166, 92, 0.05);
   position: relative;
-  min-height: 120px;
+  min-height: 200px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .dropZone:hover {
-  border-color: #3b82f6;
-  background-color: #eff6ff;
+  border-color: #54A65C;
+  background: rgba(84, 166, 92, 0.1);
 }
 
 .dropZone.dragging {
-  border-color: #3b82f6;
-  background-color: #dbeafe;
+  border-color: #54A65C;
+  background: rgba(84, 166, 92, 0.1);
   transform: scale(1.02);
 }
 
@@ -41,24 +42,27 @@
   flex-direction: column;
   align-items: center;
   gap: 8px;
+  color: #94a3b8;
 }
 
 .uploadIcon {
-  font-size: 32px;
-  opacity: 0.6;
+  font-size: 48px;
+  margin-bottom: 12px;
 }
 
 .dropZoneText {
-  font-size: 16px;
-  font-weight: 500;
-  color: #374151;
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: #f1f5f9;
   margin: 0;
+  margin-bottom: 8px;
 }
 
 .dropZoneSubtext {
-  font-size: 14px;
-  color: #6b7280;
+  font-size: 0.75rem;
+  color: #94a3b8;
   margin: 0;
+  opacity: 0.7;
 }
 
 .previewContainer {
@@ -76,7 +80,7 @@
   position: relative;
   border-radius: 8px;
   overflow: hidden;
-  border: 1px solid #e5e7eb;
+  border: 1px solid rgba(84, 166, 92, 0.3);
 }
 
 .previewImage {
@@ -88,29 +92,29 @@
 
 .removeButton {
   position: absolute;
-  top: 4px;
-  right: 4px;
-  background-color: #ef4444;
+  top: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.7);
   color: white;
   border: none;
   border-radius: 50%;
-  width: 24px;
-  height: 24px;
+  width: 30px;
+  height: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   font-size: 16px;
-  font-weight: bold;
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .removeButton:hover {
-  background-color: #dc2626;
+  background: rgba(0, 0, 0, 0.9);
+  transform: scale(1.1);
 }
 
 .removeButton:disabled {
-  background-color: #9ca3af;
+  background: rgba(0, 0, 0, 0.5);
   cursor: not-allowed;
 }
 
@@ -120,7 +124,7 @@
   align-items: center;
   margin-bottom: 12px;
   font-weight: 500;
-  color: #374151;
+  color: #f1f5f9;
 }
 
 .hiddenInput {
@@ -133,20 +137,21 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(255, 255, 255, 0.9);
+  background: rgba(30, 41, 59, 0.95);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
+  border-radius: 12px;
   z-index: 10;
+  color: #f1f5f9;
 }
 
 .uploadingSpinner {
   width: 32px;
   height: 32px;
-  border: 3px solid #e5e7eb;
-  border-top: 3px solid #3b82f6;
+  border: 3px solid rgba(84, 166, 92, 0.3);
+  border-top: 3px solid #54A65C;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-bottom: 8px;
@@ -296,18 +301,18 @@
   
   .dropZone {
     padding: 16px;
-    min-height: 100px;
+    min-height: 150px;
   }
   
   .uploadIcon {
-    font-size: 24px;
+    font-size: 36px;
   }
   
   .dropZoneText {
-    font-size: 14px;
+    font-size: 0.8rem;
   }
   
   .dropZoneSubtext {
-    font-size: 12px;
+    font-size: 0.7rem;
   }
 }

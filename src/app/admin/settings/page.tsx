@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/Button';
 import styles from './page.module.css';
 import { adminManagementService, Admin, CreateAdminRequest } from '../../../services/adminManagementService';
 import { userService, CurrentUser } from '../../../services/userService';
@@ -362,9 +363,10 @@ export default function SettingsPage() {
                 )}
 
                 <div className={styles.buttonGroup}>
-                  <button 
+                  <Button 
                     type="button" 
-                    className={`${styles.button} ${styles.secondary}`}
+                    variant="secondary"
+                    size="md"
                     onClick={() => {
                       if (currentUser) {
                         setGeneralForm({
@@ -377,15 +379,17 @@ export default function SettingsPage() {
                     }}
                     disabled={userLoading}
                   >
-                    Hủy
-                  </button>
-                  <button 
+                    ❌ Hủy
+                  </Button>
+                  <Button 
                     type="submit" 
-                    className={`${styles.button} ${styles.primary}`}
+                    variant="primary"
+                    size="md"
                     disabled={userLoading}
+                    loading={userLoading}
                   >
-                    {userLoading ? 'Đang lưu...' : 'Lưu thay đổi'}
-                  </button>
+                    💾 Lưu thay đổi
+                  </Button>
                 </div>
               </form>
             )}
@@ -437,12 +441,12 @@ export default function SettingsPage() {
               </div>
 
               <div className={styles.buttonGroup}>
-                <button type="button" className={`${styles.button} ${styles.secondary}`}>
-                  Hủy
-                </button>
-                <button type="submit" className={`${styles.button} ${styles.primary}`}>
-                  Lưu thay đổi
-                </button>
+                <Button type="button" variant="secondary" size="md">
+                  ❌ Hủy
+                </Button>
+                <Button type="submit" variant="primary" size="md">
+                  💾 Lưu thay đổi
+                </Button>
               </div>
             </form>
           </div>
@@ -493,12 +497,12 @@ export default function SettingsPage() {
               </div>
 
               <div className={styles.buttonGroup}>
-                <button type="button" className={`${styles.button} ${styles.secondary}`}>
-                  Hủy
-                </button>
-                <button type="submit" className={`${styles.button} ${styles.primary}`}>
-                  Lưu thay đổi
-                </button>
+                <Button type="button" variant="secondary" size="md">
+                  ❌ Hủy
+                </Button>
+                <Button type="submit" variant="primary" size="md">
+                  💾 Lưu thay đổi
+                </Button>
               </div>
             </form>
           </div>
@@ -560,9 +564,10 @@ export default function SettingsPage() {
               </div>
 
               <div className={styles.buttonGroup}>
-                <button 
+                <Button 
                   type="button" 
-                  className={`${styles.button} ${styles.secondary}`}
+                  variant="secondary"
+                  size="md"
                   onClick={() => setPasswordForm({
                     currentPassword: '',
                     newPassword: '',
@@ -570,15 +575,17 @@ export default function SettingsPage() {
                   })}
                   disabled={userLoading}
                 >
-                  Hủy
-                </button>
-                <button 
+                  ❌ Hủy
+                </Button>
+                <Button 
                   type="submit" 
-                  className={`${styles.button} ${styles.primary}`}
+                  variant="primary"
+                  size="md"
                   disabled={userLoading}
+                  loading={userLoading}
                 >
-                  {userLoading ? 'Đang cập nhật...' : 'Cập nhật bảo mật'}
-                </button>
+                  🔒 Cập nhật bảo mật
+                </Button>
               </div>
             </form>
           </div>
@@ -588,13 +595,14 @@ export default function SettingsPage() {
         <div className={styles.settingsCard}>
           <div className={styles.cardHeader}>
             <h3 className={styles.cardTitle}>Quản lý Admin</h3>
-            <button 
+            <Button 
               type="button" 
-              className={`${styles.button} ${styles.primary}`}
+              variant={showAddAdminForm ? "secondary" : "primary"}
+              size="md"
               onClick={() => setShowAddAdminForm(!showAddAdminForm)}
             >
-              {showAddAdminForm ? 'Hủy' : 'Thêm Admin'}
-            </button>
+              {showAddAdminForm ? '❌ Hủy' : '➕ Thêm Admin'}
+            </Button>
           </div>
           <div className={styles.cardContent}>
             {/* Add Admin Form */}
@@ -661,16 +669,17 @@ export default function SettingsPage() {
                 </div>
 
                 <div className={styles.buttonGroup}>
-                  <button 
+                  <Button 
                     type="button" 
-                    className={`${styles.button} ${styles.secondary}`}
+                    variant="secondary"
+                    size="md"
                     onClick={() => setShowAddAdminForm(false)}
                   >
-                    Hủy
-                  </button>
-                  <button type="submit" className={`${styles.button} ${styles.primary}`}>
-                    Thêm Admin
-                  </button>
+                    ❌ Hủy
+                  </Button>
+                  <Button type="submit" variant="primary" size="md">
+                    ➕ Thêm Admin
+                  </Button>
                 </div>
               </form>
             )}
@@ -683,13 +692,15 @@ export default function SettingsPage() {
                   {error && (
                     <div className={styles.errorMessage}>
                       {error}
-                      <button 
-                        className={styles.retryButton}
+                      <Button 
+                        variant="outline"
+                        size="sm"
                         onClick={loadAdmins}
                         disabled={loading}
+                        loading={loading}
                       >
-                        Thử lại
-                      </button>
+                        🔄 Thử lại
+                      </Button>
                     </div>
                   )}
                 </div>
@@ -724,13 +735,15 @@ export default function SettingsPage() {
                             </button>
                             
                             {admin.role !== 'SUPER_ADMIN' && (
-                              <button
-                                className={styles.deleteButton}
+                              <Button
+                                variant="danger"
+                                size="sm"
                                 onClick={() => handleDeleteAdmin(admin.id)}
                                 disabled={loading}
+                                loading={loading}
                               >
-                                Xóa
-                              </button>
+                                🗑️ Xóa
+                              </Button>
                             )}
                           </div>
                         </div>

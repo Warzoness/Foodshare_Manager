@@ -157,13 +157,14 @@
   border-radius: var(--border-radius-lg);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
   border: 1px solid rgba(84, 166, 92, 0.3);
-  overflow: hidden;
+  overflow: visible;
   animation: fadeInUp 0.6s ease-out;
   backdrop-filter: blur(10px);
 }
 
 .tableContainer {
   overflow-x: auto;
+  overflow-y: visible;
 }
 
 .table {
@@ -649,22 +650,6 @@
   border: 1px solid rgba(84, 166, 92, 0.3);
 }
 
-.mockNotice {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  background: rgba(59, 130, 246, 0.1);
-  border: 1px solid rgba(59, 130, 246, 0.3);
-  border-radius: var(--border-radius);
-  margin-bottom: 1rem;
-}
-
-.mockNotice p {
-  color: #3b82f6;
-  font-weight: 500;
-  margin: 0;
-}
 
 @media (max-width: 768px) {
   .storesContainer {

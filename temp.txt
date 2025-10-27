@@ -1,0 +1,100 @@
+      setState({
+        data: null,
+        loading: false,
+        error: errorMessage,
+        success: false,
+      });
+      return errorResponse;
+    }
+  }, []);
+
+  const reset = useCallback(() => {
+    setState({
+      data: null,
+      loading: false,
+      error: null,
+      success: false,
+    });
+  }, []);
+
+  return {
+    ...state,
+    execute,
+    reset,
+  };
+}
+
+export function useSellerShopOrders(params?: {
+  shopId?: number;
+  status?: string;
+  fromDate?: string;
+  toDate?: string;
+  page?: number;
+  size?: number;
+  sortBy?: string;
+  sortDirection?: 'asc' | 'desc';
+}) {
+  const paramsString = JSON.stringify(params);
+  const apiCall = useCallback(() => {
+    return sellerService.getShopOrders(params);
+  }, [paramsString]);
+  return useApi(apiCall, { immediate: true });
+}
+
+export function useDeleteSellerProduct() {
+  const [state, setState] = useState<UseApiState<unknown>>({
+    data: null,
+    loading: false,
+    error: null,
+    success: false,
+  });
+
+  const execute = useCallback(async (productId: string) => {
+    setState(prev => ({ ...prev, loading: true, error: null }));
+    
+    try {
+      const response = await sellerService.deleteProduct(productId);
+      
+      if (response.success) {
+        setState({
+          data: response.data,
+          loading: false,
+          error: null,
+          success: true,
+        });
+      } else {
+        setState({
+          data: null,
+          loading: false,
+          error: response.error || 'Unknown error',
+          success: false,
+        });
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      setState({
+        data: null,
+        loading: false,
+        error: errorMessage,
+        success: false,
+      });
+    }
+  }, []);
+
+  const reset = useCallback(() => {
+    setState({
+      data: null,
+      loading: false,
+      error: null,
+      success: false,
+    });
+  }, []);
+
+  return {
+    ...state,
+    execute,
+    reset,
+  };
+}
+
+// Auth hooks

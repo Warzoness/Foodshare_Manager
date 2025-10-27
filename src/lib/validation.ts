@@ -43,9 +43,14 @@ export class VietnameseValidator {
 
     const hasUppercase = /[A-Z]/.test(password);
     const hasLowercase = /[a-z]/.test(password);
+    const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
     
     if (!hasUppercase || !hasLowercase) {
       return { isValid: false, message: 'Mật khẩu phải có ít nhất 1 chữ hoa và 1 chữ thường' };
+    }
+
+    if (!hasSpecialChar) {
+      return { isValid: false, message: 'Mật khẩu phải có ít nhất 1 ký tự đặc biệt (!@#$%^&*...)' };
     }
 
     return { isValid: true, message: '' };
@@ -65,8 +70,9 @@ export class VietnameseValidator {
       return { isValid: false, message: 'Tên không được vượt quá 100 ký tự' };
     }
 
-    // Allow Vietnamese characters, spaces, and common name characters
-    const nameRegex = /^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂÂÊÔƠưăâêôơ\s]+$/;
+    // Allow Vietnamese characters (full support for all Vietnamese diacritics), spaces, and common name characters
+    // Includes: a-z, A-Z, and all Vietnamese characters with diacritics
+    const nameRegex = /^[a-zA-ZàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐ\s]+$/;
     if (!nameRegex.test(name.trim())) {
       return { isValid: false, message: 'Tên chỉ được chứa chữ cái và khoảng trắng' };
     }

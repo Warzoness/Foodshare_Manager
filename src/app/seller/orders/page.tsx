@@ -1,17 +1,22 @@
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useState, useMemo, useCallback, useEffect, Suspense } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from '@/components/ui/Button';
+import { Select } from '@/components/ui/Select';
+import { DatePicker } from '@/components/ui/DatePicker';
 import { useSellerShopOrders, useUpdateOrderStatus } from '@/hooks/useApi';
 import { ApiOrder } from '@/types';
 import styles from './page.module.css';
 import sharedStyles from '../shared.module.css';
 
-export default function OrdersManagement() {
+function OrdersManagementContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const shopId = searchParams.get('shopId');
+  
+  // API filter states (used for actual API calls)
   const [statusFilter, setStatusFilter] = useState('');
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
@@ -19,6 +24,18 @@ export default function OrdersManagement() {
   const [pageSize, setPageSize] = useState(20);
   const [sortBy, setSortBy] = useState('createdAt');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+  
+  // UI filter states (temporary, for input fields)
+  const [uiStatusFilter, setUiStatusFilter] = useState('');
+  const [uiFromDate, setUiFromDate] = useState('');
+  const [uiToDate, setUiToDate] = useState('');
+  const [uiSortBy, setUiSortBy] = useState('createdAt');
+  const [uiSortDirection, setUiSortDirection] = useState<'asc' | 'desc'>('desc');
+  
+  // Track initial load to differentiate from filter refreshes
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  
+  const [showFilterModal, setShowFilterModal] = useState(false);
 
   // Build API parameters theo request body
   const apiParams = useMemo(() => {
@@ -36,10 +53,12 @@ export default function OrdersManagement() {
       params.status = statusFilter;
     }
     if (fromDate) {
-      params.fromDate = new Date(fromDate).toISOString();
+      // Format for Java LocalDateTime: yyyy-MM-ddTHH:mm:ss (no timezone)
+      params.fromDate = `${fromDate}T00:00:00`;
     }
     if (toDate) {
-      params.toDate = new Date(toDate).toISOString();
+      // Format for Java LocalDateTime: yyyy-MM-ddTHH:mm:ss (no timezone)
+      params.toDate = `${toDate}T23:59:59`;
     }
 
     return params;
@@ -48,20 +67,39 @@ export default function OrdersManagement() {
   const { data: ordersResponse, loading, error, execute: refetchOrders } = useSellerShopOrders(apiParams);
   const { execute: updateOrderStatus, loading: updating } = useUpdateOrderStatus();
 
-  // Function to handle filter button click
-  const handleFilter = useCallback(() => {
-    setCurrentPage(0); // Reset to first page
-    refetchOrders(); // Trigger API call
-  }, [refetchOrders]);
+  // Mark initial load as complete after first data fetch
+  useEffect(() => {
+    if (ordersResponse && isInitialLoad) {
+      setIsInitialLoad(false);
+    }
+  }, [ordersResponse, isInitialLoad]);
+
+  // Function to apply filters (copy UI state to API state)
+  const handleApplyFilters = useCallback(() => {
+    setStatusFilter(uiStatusFilter);
+    setFromDate(uiFromDate);
+    setToDate(uiToDate);
+    setSortBy(uiSortBy);
+    setSortDirection(uiSortDirection);
+    setCurrentPage(0); // Reset to first page when applying filters
+  }, [uiStatusFilter, uiFromDate, uiToDate, uiSortBy, uiSortDirection]);
 
   // Function to clear all filters
   const handleClearFilters = useCallback(() => {
+    // Clear API states
     setStatusFilter('');
     setFromDate('');
     setToDate('');
     setSortBy('createdAt');
     setSortDirection('desc');
     setCurrentPage(0);
+    
+    // Clear UI states
+    setUiStatusFilter('');
+    setUiFromDate('');
+    setUiToDate('');
+    setUiSortBy('createdAt');
+    setUiSortDirection('desc');
   }, []);
 
   const orders = ordersResponse?.content || [];
@@ -158,7 +196,7 @@ export default function OrdersManagement() {
     }).format(price);
   };
 
-  if (loading) {
+  if (loading && isInitialLoad) {
     return (
       <div className={sharedStyles.pageContainer}>
         <div className={styles.loadingContainer}>
@@ -192,7 +230,7 @@ export default function OrdersManagement() {
           <Button 
             variant="secondary" 
             size="sm"
-            onClick={() => window.location.href = '/seller/store'}
+            onClick={() => router.push('/seller/store')}
             className={styles.backButton}
           >
             ← Quay lại
@@ -270,94 +308,252 @@ export default function OrdersManagement() {
         </div>
       </div>
 
-      {/* Advanced Filter */}
+      {/* Desktop Filter */}
       <div className={styles.filterSection}>
-        <div className={styles.filterContainer}>
+        {/* Mobile Filter Bar */}
+        <div className={styles.mobileFilterBar}>
+          <button
+            type="button"
+            onClick={() => setShowFilterModal(true)}
+            className={styles.mobileFilterIconButton}
+            aria-label="Mở bộ lọc"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+            </svg>
+            <span>Bộ lọc</span>
+          </button>
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={handleApplyFilters}
+            className={styles.mobileSearchButton}
+          >
+            🔍 Tìm kiếm
+          </Button>
+        </div>
+        
+        {/* Desktop Filter Form */}
+        <form 
+          className={styles.desktopFiltersForm}
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleApplyFilters();
+          }}
+        >
+          <div className={styles.filterContainer}>
           <div className={styles.filterRow}>
             <div className={styles.filterGroup}>
-              <label className={styles.filterLabel}>Trạng thái</label>
-              <select 
-                className={styles.filterSelect}
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-              >
-                <option value="">Tất cả trạng thái</option>
-                <option value="1">Đang chờ</option>
-                <option value="2">Đã xác nhận</option>
-                <option value="3">Đã hủy</option>
-                <option value="4">Hoàn thành</option>
-              </select>
-            </div>
-
-            <div className={styles.filterGroup}>
-              <label className={styles.filterLabel}>Từ ngày</label>
-              <input
-                type="date"
-                className={styles.filterInput}
-                value={fromDate}
-                onChange={(e) => setFromDate(e.target.value)}
+              <Select
+                label="Trạng thái"
+                value={uiStatusFilter}
+                onChange={(value) => setUiStatusFilter(value)}
+                placeholder="Tất cả trạng thái"
+                options={[
+                  { value: '', label: 'Tất cả trạng thái' },
+                  { value: '1', label: 'Đang chờ' },
+                  { value: '2', label: 'Đã xác nhận' },
+                  { value: '3', label: 'Đã hủy' },
+                  { value: '4', label: 'Hoàn thành' }
+                ]}
               />
             </div>
 
             <div className={styles.filterGroup}>
-              <label className={styles.filterLabel}>Đến ngày</label>
-              <input
-                type="date"
-                className={styles.filterInput}
-                value={toDate}
-                onChange={(e) => setToDate(e.target.value)}
+              <DatePicker
+                label="Từ ngày"
+                value={uiFromDate}
+                onChange={(value) => setUiFromDate(value)}
+                placeholder="Chọn ngày bắt đầu"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleApplyFilters();
+                  }
+                }}
               />
             </div>
 
             <div className={styles.filterGroup}>
-              <label className={styles.filterLabel}>Sắp xếp theo</label>
-              <select 
-                className={styles.filterSelect}
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-              >
-                <option value="createdAt">Ngày tạo</option>
-                <option value="pickupTime">Thời gian nhận</option>
-                <option value="totalPrice">Tổng tiền</option>
-                <option value="status">Trạng thái</option>
-              </select>
+              <DatePicker
+                label="Đến ngày"
+                value={uiToDate}
+                onChange={(value) => setUiToDate(value)}
+                placeholder="Chọn ngày kết thúc"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleApplyFilters();
+                  }
+                }}
+              />
             </div>
 
             <div className={styles.filterGroup}>
-              <label className={styles.filterLabel}>Thứ tự</label>
-              <select 
-                className={styles.filterSelect}
-                value={sortDirection}
-                onChange={(e) => setSortDirection(e.target.value as 'asc' | 'desc')}
-              >
-                <option value="desc">Giảm dần</option>
-                <option value="asc">Tăng dần</option>
-              </select>
+              <Select
+                label="Sắp xếp theo"
+                value={uiSortBy}
+                onChange={(value) => setUiSortBy(value)}
+                options={[
+                  { value: 'createdAt', label: 'Ngày tạo' },
+                  { value: 'pickupTime', label: 'Thời gian nhận' },
+                  { value: 'totalPrice', label: 'Tổng tiền' },
+                  { value: 'status', label: 'Trạng thái' }
+                ]}
+              />
+            </div>
+
+            <div className={styles.filterGroup}>
+              <Select
+                label="Thứ tự"
+                value={uiSortDirection}
+                onChange={(value) => setUiSortDirection(value as 'asc' | 'desc')}
+                options={[
+                  { value: 'desc', label: 'Giảm dần' },
+                  { value: 'asc', label: 'Tăng dần' }
+                ]}
+              />
             </div>
           </div>
 
           <div className={styles.filterActions}>
             <Button 
+              type="submit"
               variant="primary" 
-              onClick={handleFilter}
-              disabled={loading}
-              className={styles.filterButton}
+              size="md"
             >
-              {loading ? '⏳ Đang lọc...' : '🔍 Lọc'}
+              🔍 Lọc
             </Button>
             <Button 
-              variant="secondary" 
+              variant="outline" 
+              size="md"
               onClick={handleClearFilters}
-              className={styles.clearButton}
+              type="button"
             >
               🗑️ Xóa bộ lọc
             </Button>
+            {loading && (
+              <div className={styles.filterLoadingIndicator}>
+                <div className={styles.miniSpinner}></div>
+                <span>Đang tải...</span>
+              </div>
+            )}
           </div>
-        </div>
+          </div>
+        </form>
       </div>
 
+      {/* Mobile Filter Modal */}
+      {showFilterModal && (
+        <div className={styles.modalOverlay} onClick={() => setShowFilterModal(false)}>
+          <div className={styles.filterModal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.filterModalHeader}>
+              <h3>Bộ lọc nâng cao</h3>
+              <button
+                type="button"
+                onClick={() => setShowFilterModal(false)}
+                className={styles.filterModalClose}
+              >
+                ×
+              </button>
+            </div>
+            
+            <div className={styles.filterModalBody}>
+              <div className={styles.filterModalGroup}>
+                <Select
+                  label="Trạng thái"
+                  value={uiStatusFilter}
+                  onChange={(value) => setUiStatusFilter(value)}
+                  placeholder="Tất cả trạng thái"
+                  options={[
+                    { value: '', label: 'Tất cả trạng thái' },
+                    { value: '1', label: 'Đang chờ' },
+                    { value: '2', label: 'Đã xác nhận' },
+                    { value: '3', label: 'Đã hủy' },
+                    { value: '4', label: 'Hoàn thành' }
+                  ]}
+                />
+              </div>
+              
+              <div className={styles.filterModalGroup}>
+                <DatePicker
+                  label="Từ ngày"
+                  value={uiFromDate}
+                  onChange={(value) => setUiFromDate(value)}
+                  placeholder="Chọn ngày bắt đầu"
+                />
+              </div>
+              
+              <div className={styles.filterModalGroup}>
+                <DatePicker
+                  label="Đến ngày"
+                  value={uiToDate}
+                  onChange={(value) => setUiToDate(value)}
+                  placeholder="Chọn ngày kết thúc"
+                />
+              </div>
+              
+              <div className={styles.filterModalGroup}>
+                <Select
+                  label="Sắp xếp theo"
+                  value={uiSortBy}
+                  onChange={(value) => setUiSortBy(value)}
+                  options={[
+                    { value: 'createdAt', label: 'Ngày tạo' },
+                    { value: 'pickupTime', label: 'Thời gian nhận' },
+                    { value: 'totalPrice', label: 'Tổng tiền' },
+                    { value: 'status', label: 'Trạng thái' }
+                  ]}
+                />
+              </div>
+              
+              <div className={styles.filterModalGroup}>
+                <Select
+                  label="Thứ tự"
+                  value={uiSortDirection}
+                  onChange={(value) => setUiSortDirection(value as 'asc' | 'desc')}
+                  options={[
+                    { value: 'desc', label: 'Giảm dần' },
+                    { value: 'asc', label: 'Tăng dần' }
+                  ]}
+                />
+              </div>
+            </div>
+            
+            <div className={styles.filterModalFooter}>
+              <Button
+                variant="outline"
+                size="md"
+                onClick={() => {
+                  handleClearFilters();
+                  setShowFilterModal(false);
+                }}
+              >
+                Xóa bộ lọc
+              </Button>
+              <Button
+                variant="primary"
+                size="md"
+                onClick={() => {
+                  handleApplyFilters();
+                  setShowFilterModal(false);
+                }}
+              >
+                Xác nhận
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Orders Table */}
-      <div className={styles.ordersContainer}>
+      <div className={styles.ordersContainer} style={{ position: 'relative' }}>
+        {loading && !isInitialLoad && (
+          <div className={styles.filterLoadingOverlay}>
+            <div className={styles.loadingSpinner}></div>
+            <p>Đang tải kết quả...</p>
+          </div>
+        )}
         {orders.length === 0 ? (
           <div className={styles.emptyState}>
             <div className={styles.emptyIcon}>📦</div>
@@ -409,9 +605,6 @@ export default function OrdersManagement() {
                               </div>
                               {/* Mobile-only info */}
                               <div className={styles.mobileOnlyInfo}>
-                                <div className={styles.mobileOrderId}>
-                                  🆔 #{order.id}
-                                </div>
                                 <div className={styles.mobileStatus}>
                                   <span 
                                     className={styles.mobileStatusBadge}
@@ -464,44 +657,44 @@ export default function OrdersManagement() {
                           {order.status === '1' && (
                             <div className={styles.actionButtons}>
                               <Button 
-                                variant="primary" 
+                                variant="success" 
                                 size="sm" 
                                 onClick={() => handleUpdateStatus(order.id.toString(), '2')}
                                 disabled={updating}
-                                className={styles.confirmButton}
+                                loading={updating}
                               >
-                                {updating ? '⏳' : '✅'}
+                                ✅ Xác nhận
                               </Button>
                               <Button 
                                 variant="danger" 
                                 size="sm" 
                                 onClick={() => handleUpdateStatus(order.id.toString(), '3')}
                                 disabled={updating}
-                                className={styles.cancelButton}
+                                loading={updating}
                               >
-                                {updating ? '⏳' : '❌'}
+                                ❌ Hủy đơn
                               </Button>
                             </div>
                           )}
                           {order.status === '2' && (
                             <div className={styles.actionButtons}>
                               <Button 
-                                variant="success" 
+                                variant="primary" 
                                 size="sm" 
                                 onClick={() => handleUpdateStatus(order.id.toString(), '4')}
                                 disabled={updating}
-                                className={styles.completeButton}
+                                loading={updating}
                               >
-                                {updating ? '⏳' : '✅'}
+                                🎉 Hoàn thành
                               </Button>
                               <Button 
                                 variant="danger" 
                                 size="sm" 
                                 onClick={() => handleUpdateStatus(order.id.toString(), '3')}
                                 disabled={updating}
-                                className={styles.cancelButton}
+                                loading={updating}
                               >
-                                {updating ? '⏳' : '❌'}
+                                ❌ Hủy đơn
                               </Button>
                             </div>
                           )}
@@ -529,16 +722,17 @@ export default function OrdersManagement() {
           <div className={styles.paginationInfo}>
             <div className={styles.pageSizeSelector}>
               <label className={styles.pageSizeLabel}>Hiển thị:</label>
-              <select 
-                className={styles.pageSizeSelect}
-                value={pageSize}
-                onChange={(e) => setPageSize(parseInt(e.target.value))}
-              >
-                <option value={10}>10</option>
-                <option value={20}>20</option>
-                <option value={50}>50</option>
-                <option value={100}>100</option>
-              </select>
+              <Select
+                value={pageSize.toString()}
+                onChange={(value) => setPageSize(parseInt(value))}
+                size="sm"
+                options={[
+                  { value: '10', label: '10' },
+                  { value: '20', label: '20' },
+                  { value: '50', label: '50' },
+                  { value: '100', label: '100' }
+                ]}
+              />
               <span className={styles.pageSizeText}>đơn hàng/trang</span>
             </div>
             <div className={styles.pageInfo}>
@@ -549,10 +743,10 @@ export default function OrdersManagement() {
           
           <div className={styles.paginationControls}>
             <Button 
-              variant="secondary" 
+              variant="outline" 
+              size="md"
               onClick={() => setCurrentPage(Math.max(0, currentPage - 1))}
               disabled={!pagination.hasPrevious}
-              className={styles.pageButton}
             >
               ← Trước
             </Button>
@@ -574,10 +768,10 @@ export default function OrdersManagement() {
             </div>
             
             <Button 
-              variant="secondary" 
+              variant="outline" 
+              size="md"
               onClick={() => setCurrentPage(currentPage + 1)}
               disabled={!pagination.hasNext}
-              className={styles.pageButton}
             >
               Sau →
             </Button>
@@ -585,5 +779,20 @@ export default function OrdersManagement() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function OrdersManagement() {
+  return (
+    <Suspense fallback={
+      <div className={styles.container}>
+        <div className={styles.loadingState}>
+          <div className={styles.spinner}></div>
+          <p>Đang tải...</p>
+        </div>
+      </div>
+    }>
+      <OrdersManagementContent />
+    </Suspense>
   );
 }

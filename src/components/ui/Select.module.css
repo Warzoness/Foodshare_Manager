@@ -1,0 +1,258 @@
+.selectWrapper {
+  width: 100%;
+  position: relative;
+}
+
+.selectWrapper.wrapperOpen {
+  z-index: 100000;
+}
+
+.label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #f1f5f9;
+  margin-bottom: 0.5rem;
+}
+
+.selectContainer {
+  position: relative;
+  width: 100%;
+}
+
+.selectContainer.containerOpen {
+  z-index: 100000;
+}
+
+.selectTrigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 12px 16px;
+  background: transparent;
+  border: 1px solid rgba(84, 166, 92, 0.3);
+  border-radius: 8px;
+  color: #f1f5f9;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.selectTrigger:hover:not(.disabled) {
+  border-color: #54A65C;
+  background: rgba(84, 166, 92, 0.05);
+}
+
+.selectTrigger.open {
+  border-color: #54A65C;
+  box-shadow: 0 0 0 3px rgba(84, 166, 92, 0.2);
+  position: relative;
+  z-index: 100000;
+}
+
+.selectTrigger:focus {
+  outline: none;
+  border-color: #54A65C;
+  box-shadow: 0 0 0 3px rgba(84, 166, 92, 0.2);
+}
+
+.selectedValue {
+  color: #f1f5f9;
+}
+
+.placeholder {
+  color: #64748b;
+}
+
+.arrow {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  transition: transform 0.2s ease;
+}
+
+.arrowUp {
+  transform: rotate(180deg);
+}
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: rgba(30, 41, 59, 0.98);
+  border: 1px solid rgba(84, 166, 92, 0.3);
+  border-radius: 8px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+  z-index: 99999;
+  max-height: 300px;
+  overflow: hidden;
+  animation: slideDown 0.2s ease;
+  backdrop-filter: blur(10px);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.searchContainer {
+  padding: 8px;
+  border-bottom: 1px solid rgba(84, 166, 92, 0.2);
+}
+
+.searchInput {
+  width: 100%;
+  padding: 8px 12px;
+  background: transparent;
+  border: 1px solid rgba(84, 166, 92, 0.3);
+  border-radius: 6px;
+  color: #f1f5f9;
+  font-size: 0.875rem;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.searchInput:focus {
+  border-color: #54A65C;
+  box-shadow: 0 0 0 2px rgba(84, 166, 92, 0.2);
+}
+
+.searchInput::placeholder {
+  color: #64748b;
+}
+
+.optionsList {
+  list-style: none;
+  margin: 0;
+  padding: 4px;
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.optionsList::-webkit-scrollbar {
+  width: 6px;
+}
+
+.optionsList::-webkit-scrollbar-track {
+  background: rgba(84, 166, 92, 0.1);
+  border-radius: 3px;
+}
+
+.optionsList::-webkit-scrollbar-thumb {
+  background: rgba(84, 166, 92, 0.3);
+  border-radius: 3px;
+}
+
+.optionsList::-webkit-scrollbar-thumb:hover {
+  background: rgba(84, 166, 92, 0.5);
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  color: #f1f5f9;
+  font-size: 0.875rem;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+
+.option:hover:not(.optionDisabled) {
+  background: rgba(84, 166, 92, 0.15);
+}
+
+.option.selected {
+  background: rgba(84, 166, 92, 0.2);
+  color: #54A65C;
+  font-weight: 500;
+}
+
+.option.optionDisabled {
+  color: #64748b;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.checkmark {
+  color: #54A65C;
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.noResults {
+  padding: 12px;
+  color: #94a3b8;
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+.disabled .selectTrigger {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: rgba(84, 166, 92, 0.05);
+}
+
+.error .selectTrigger {
+  border-color: #ef4444;
+}
+
+.error .selectTrigger:hover:not(.disabled),
+.error .selectTrigger:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+}
+
+.errorMessage {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: #ef4444;
+}
+
+/* Size Variants */
+.sm .selectTrigger {
+  padding: 8px 12px;
+  font-size: 0.8125rem;
+}
+
+.md .selectTrigger {
+  padding: 12px 16px;
+  font-size: 0.875rem;
+}
+
+.lg .selectTrigger {
+  padding: 14px 18px;
+  font-size: 1rem;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .dropdown {
+    max-height: 250px;
+  }
+  
+  .selectTrigger {
+    font-size: 16px; /* Prevent zoom on iOS */
+    padding: 14px 16px;
+  }
+  
+  .option {
+    padding: 12px 14px;
+    min-height: 44px; /* Touch-friendly size */
+  }
+  
+  .searchInput {
+    font-size: 16px; /* Prevent zoom on iOS */
+  }
+}
+

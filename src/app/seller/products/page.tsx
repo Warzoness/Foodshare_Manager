@@ -1,25 +1,41 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useState, useMemo, useCallback, useEffect, Suspense } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from '@/components/ui/Button';
+import { Select } from '@/components/ui/Select';
 import { ImageUpload } from '@/components/ui/ImageUpload';
 import { useSellerShopProducts, useDeleteSellerProduct, useCreateSellerProduct, useUpdateSellerProduct } from '@/hooks/useApi';
 import { SellerProduct } from '@/types';
 import { VietnameseValidator } from '@/lib/validation';
 import styles from './page.module.css';
 
-export default function ProductsManagement() {
+function ProductsManagementContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const shopId = searchParams.get('shopId') || '1';
   const [currentPage, setCurrentPage] = useState(0);
   const [pageSize, setPageSize] = useState(20);
+  
+  // API filter states (used for actual filtering)
   const [sortBy, setSortBy] = useState('createdAt');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  
+  // UI filter states (temporary, for input fields)
+  const [uiSortBy, setUiSortBy] = useState('createdAt');
+  const [uiSortDirection, setUiSortDirection] = useState<'asc' | 'desc'>('desc');
+  const [uiSearchTerm, setUiSearchTerm] = useState('');
+  const [uiCategoryFilter, setUiCategoryFilter] = useState('');
+  const [uiStatusFilter, setUiStatusFilter] = useState('');
+  
+  // Track initial load to differentiate from filter refreshes
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  
+  const [showFilterModal, setShowFilterModal] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState<SellerProduct | null>(null);
@@ -92,12 +108,47 @@ export default function ProductsManagement() {
   const { execute: createProduct, loading: creating } = useCreateSellerProduct();
   const { execute: updateProduct, loading: updating } = useUpdateSellerProduct();
 
+  // Mark initial load as complete after first data fetch
+  useEffect(() => {
+    if (productsResponse && isInitialLoad) {
+      setIsInitialLoad(false);
+    }
+  }, [productsResponse, isInitialLoad]);
+
   // Extract data from response
   const products = useMemo(() => productsResponse?.content || [], [productsResponse?.content]);
   const totalElements = productsResponse?.totalElements || 0;
   const totalPages = productsResponse?.totalPages || 0;
   const isFirst = productsResponse?.first || false;
   const isLast = productsResponse?.last || false;
+
+  // Function to apply filters (copy UI state to API state)
+  const handleApplyFilters = useCallback(() => {
+    setSearchTerm(uiSearchTerm);
+    setCategoryFilter(uiCategoryFilter);
+    setStatusFilter(uiStatusFilter);
+    setSortBy(uiSortBy);
+    setSortDirection(uiSortDirection);
+    setCurrentPage(0); // Reset to first page when applying filters
+  }, [uiSearchTerm, uiCategoryFilter, uiStatusFilter, uiSortBy, uiSortDirection]);
+
+  // Function to clear all filters
+  const handleClearFilters = useCallback(() => {
+    // Clear API states
+    setSearchTerm('');
+    setCategoryFilter('');
+    setStatusFilter('');
+    setSortBy('createdAt');
+    setSortDirection('desc');
+    setCurrentPage(0);
+    
+    // Clear UI states
+    setUiSearchTerm('');
+    setUiCategoryFilter('');
+    setUiStatusFilter('');
+    setUiSortBy('createdAt');
+    setUiSortDirection('desc');
+  }, []);
 
   // Filter products based on search and filters
   const filteredProducts = useMemo(() => {
@@ -252,7 +303,7 @@ export default function ProductsManagement() {
       <div className={styles.container}>
         <div className={styles.emptyState}>
           <h2>Vui lòng chọn cửa hàng để quản lý sản phẩm</h2>
-          <Button onClick={() => window.location.href = '/seller/store'}>
+          <Button onClick={() => router.push('/seller/store')}>
             Quay lại danh sách cửa hàng
           </Button>
         </div>
@@ -268,7 +319,7 @@ export default function ProductsManagement() {
           <div className={styles.breadcrumb}>
             <Button 
               variant="ghost" 
-              onClick={() => window.location.href = '/seller/store'}
+              onClick={() => router.push('/seller/store')}
               className={styles.backButton}
             >
               ← Quay lại
@@ -342,79 +393,275 @@ export default function ProductsManagement() {
         </div>
       </div>
 
-      {/* Filters */}
+      {/* Desktop Filters */}
       <div className={styles.filtersCard}>
         <div className={styles.filtersHeader}>
           <h2>Bộ lọc và tìm kiếm</h2>
         </div>
-        <div className={styles.filtersContent}>
-          <div className={styles.searchBox}>
-            <svg className={styles.searchIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="11" cy="11" r="8"/>
-              <path d="m21 21-4.35-4.35"/>
-            </svg>
-            <input
-              type="text"
-              placeholder="Tìm kiếm sản phẩm..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className={styles.searchInput}
-            />
-          </div>
-          
-          <div className={styles.filterControls}>
-          <select 
-            value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value)}
-              className={styles.filterSelect}
-          >
-            <option value="">Tất cả danh mục</option>
-            <option value="1">Pizza</option>
-            <option value="2">Burger</option>
-            <option value="3">Salad</option>
-            <option value="4">Pasta</option>
-          </select>
         
-          <select 
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-              className={styles.filterSelect}
+        {/* Mobile Filter Bar */}
+        <div className={styles.mobileFilterBar}>
+          <input
+            type="text"
+            placeholder="Tìm kiếm sản phẩm..."
+            value={uiSearchTerm}
+            onChange={(e) => setUiSearchTerm(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                handleApplyFilters();
+              }
+            }}
+            className={styles.mobileSearchInput}
+          />
+          <button
+            type="button"
+            onClick={() => setShowFilterModal(true)}
+            className={styles.mobileFilterIconButton}
+            aria-label="Mở bộ lọc"
           >
-            <option value="">Tất cả trạng thái</option>
-            <option value="1">Đang bán</option>
-            <option value="0">Ngừng bán</option>
-          </select>
-            
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className={styles.filterSelect}
-            >
-              <option value="createdAt">Sắp xếp theo ngày tạo</option>
-              <option value="name">Sắp xếp theo tên</option>
-              <option value="price">Sắp xếp theo giá</option>
-              <option value="quantityAvailable">Sắp xếp theo số lượng</option>
-            </select>
-            
-            <select
-              value={sortDirection}
-              onChange={(e) => setSortDirection(e.target.value as 'asc' | 'desc')}
-              className={styles.filterSelect}
-            >
-              <option value="desc">Giảm dần</option>
-              <option value="asc">Tăng dần</option>
-            </select>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+            </svg>
+          </button>
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={handleApplyFilters}
+            className={styles.mobileSearchButton}
+          >
+            Tìm kiếm
+          </Button>
         </div>
-        </div>
+        
+        {/* Desktop Filter Content */}
+        <form 
+          className={styles.desktopFiltersForm}
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleApplyFilters();
+          }}
+        >
+          <div className={styles.filtersContent}>
+          <div className={styles.filterRow}>
+            <div className={styles.filterGroup}>
+              <label className={styles.filterLabel}>Tìm kiếm</label>
+              <input
+                type="text"
+                placeholder="Tìm kiếm sản phẩm..."
+                value={uiSearchTerm}
+                onChange={(e) => setUiSearchTerm(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleApplyFilters();
+                  }
+                }}
+                className={styles.filterInput}
+              />
+            </div>
+            
+            <div className={styles.filterGroup}>
+              <Select
+                label="Danh mục"
+                value={uiCategoryFilter}
+                onChange={(value) => setUiCategoryFilter(value)}
+                placeholder="Tất cả danh mục"
+                options={[
+                  { value: '', label: 'Tất cả danh mục' },
+                  { value: '1', label: 'Pizza' },
+                  { value: '2', label: 'Burger' },
+                  { value: '3', label: 'Salad' },
+                  { value: '4', label: 'Pasta' }
+                ]}
+              />
+            </div>
+          
+            <div className={styles.filterGroup}>
+              <Select
+                label="Trạng thái"
+                value={uiStatusFilter}
+                onChange={(value) => setUiStatusFilter(value)}
+                placeholder="Tất cả trạng thái"
+                options={[
+                  { value: '', label: 'Tất cả trạng thái' },
+                  { value: '1', label: 'Đang bán' },
+                  { value: '0', label: 'Ngừng bán' }
+                ]}
+              />
+            </div>
+              
+            <div className={styles.filterGroup}>
+              <Select
+                label="Sắp xếp theo"
+                value={uiSortBy}
+                onChange={(value) => setUiSortBy(value)}
+                placeholder="Sắp xếp theo"
+                options={[
+                  { value: 'createdAt', label: 'Ngày tạo' },
+                  { value: 'name', label: 'Tên' },
+                  { value: 'price', label: 'Giá' },
+                  { value: 'quantityAvailable', label: 'Số lượng' }
+                ]}
+              />
+            </div>
+              
+            <div className={styles.filterGroup}>
+              <Select
+                label="Thứ tự"
+                value={uiSortDirection}
+                onChange={(value) => setUiSortDirection(value as 'asc' | 'desc')}
+                placeholder="Thứ tự"
+                options={[
+                  { value: 'desc', label: 'Giảm dần' },
+                  { value: 'asc', label: 'Tăng dần' }
+                ]}
+              />
+            </div>
+          </div>
+        
+          <div className={styles.filterActions}>
+            <Button 
+              type="submit"
+              variant="primary" 
+              size="md"
+            >
+              🔍 Lọc
+            </Button>
+            <Button 
+              variant="outline" 
+              size="md"
+              onClick={handleClearFilters}
+              type="button"
+            >
+              🗑️ Xóa bộ lọc
+            </Button>
+            {loading && !isInitialLoad && (
+              <div className={styles.filterLoadingIndicator}>
+                <div className={styles.miniSpinner}></div>
+                <span>Đang lọc...</span>
+              </div>
+            )}
+          </div>
+          </div>
+        </form>
       </div>
 
+      {/* Mobile Filter Modal */}
+      {showFilterModal && (
+        <div className={styles.modalOverlay} onClick={() => setShowFilterModal(false)}>
+          <div className={styles.filterModal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.filterModalHeader}>
+              <h3>Bộ lọc nâng cao</h3>
+              <button
+                type="button"
+                onClick={() => setShowFilterModal(false)}
+                className={styles.filterModalClose}
+              >
+                ×
+              </button>
+            </div>
+            
+            <div className={styles.filterModalBody}>
+              <div className={styles.filterModalGroup}>
+                <Select
+                  label="Danh mục"
+                  value={uiCategoryFilter}
+                  onChange={(value) => setUiCategoryFilter(value)}
+                  placeholder="Tất cả danh mục"
+                  options={[
+                    { value: '', label: 'Tất cả danh mục' },
+                    { value: '1', label: 'Pizza' },
+                    { value: '2', label: 'Burger' },
+                    { value: '3', label: 'Salad' },
+                    { value: '4', label: 'Pasta' }
+                  ]}
+                />
+              </div>
+              
+              <div className={styles.filterModalGroup}>
+                <Select
+                  label="Trạng thái"
+                  value={uiStatusFilter}
+                  onChange={(value) => setUiStatusFilter(value)}
+                  placeholder="Tất cả trạng thái"
+                  options={[
+                    { value: '', label: 'Tất cả trạng thái' },
+                    { value: '1', label: 'Đang bán' },
+                    { value: '0', label: 'Ngừng bán' }
+                  ]}
+                />
+              </div>
+              
+              <div className={styles.filterModalGroup}>
+                <Select
+                  label="Sắp xếp theo"
+                  value={uiSortBy}
+                  onChange={(value) => setUiSortBy(value)}
+                  placeholder="Sắp xếp theo"
+                  options={[
+                    { value: 'createdAt', label: 'Ngày tạo' },
+                    { value: 'name', label: 'Tên' },
+                    { value: 'price', label: 'Giá' },
+                    { value: 'quantityAvailable', label: 'Số lượng' }
+                  ]}
+                />
+              </div>
+              
+              <div className={styles.filterModalGroup}>
+                <Select
+                  label="Thứ tự"
+                  value={uiSortDirection}
+                  onChange={(value) => setUiSortDirection(value as 'asc' | 'desc')}
+                  placeholder="Thứ tự"
+                  options={[
+                    { value: 'desc', label: 'Giảm dần' },
+                    { value: 'asc', label: 'Tăng dần' }
+                  ]}
+                />
+              </div>
+            </div>
+            
+            <div className={styles.filterModalFooter}>
+              <Button
+                variant="outline"
+                size="md"
+                onClick={() => {
+                  handleClearFilters();
+                  setShowFilterModal(false);
+                }}
+              >
+                Xóa bộ lọc
+              </Button>
+              <Button
+                variant="primary"
+                size="md"
+                onClick={() => {
+                  handleApplyFilters();
+                  setShowFilterModal(false);
+                }}
+              >
+                Xác nhận
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Products Table */}
-      <div className={styles.tableCard}>
+      <div className={styles.tableCard} style={{ position: 'relative' }}>
+        {loading && !isInitialLoad && (
+          <div className={styles.filterLoadingOverlay}>
+            <div className={styles.spinner}></div>
+            <p>Đang tải kết quả...</p>
+          </div>
+        )}
+        
         <div className={styles.tableHeader}>
           <h2>Danh sách sản phẩm ({filteredProducts.length})</h2>
         </div>
         
-        {loading ? (
+        {loading && isInitialLoad ? (
           <div className={styles.loadingState}>
             <div className={styles.spinner}></div>
             <p>Đang tải sản phẩm...</p>
@@ -669,33 +916,25 @@ export default function ProductsManagement() {
                     </td>
                     <td className={styles.tableCell}>
                       <div className={styles.actions}>
-                <Button 
-                          variant="outline" 
-                  size="sm"
-                  onClick={() => handleEditProduct(product)}
-                  disabled={updating}
-                          className={styles.editButton}
+                        <Button 
+                          variant="secondary" 
+                          size="sm"
+                          onClick={() => handleEditProduct(product)}
+                          disabled={updating}
+                          loading={updating}
                         >
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                          </svg>
-                          Sửa
-                </Button>
-                <Button 
-                  variant="danger" 
-                  size="sm"
-                  onClick={() => product.id && handleDeleteProduct(product.id)}
-                  disabled={deleting || !product.id}
-                          className={styles.deleteButton}
+                          ✏️ Sửa
+                        </Button>
+                        <Button 
+                          variant="danger" 
+                          size="sm"
+                          onClick={() => product.id && handleDeleteProduct(product.id)}
+                          disabled={deleting || !product.id}
+                          loading={deleting}
                         >
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <polyline points="3,6 5,6 21,6"/>
-                            <path d="M19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"/>
-                          </svg>
-                          Xóa
-                </Button>
-              </div>
+                          🗑️ Xóa
+                        </Button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -716,16 +955,17 @@ export default function ProductsManagement() {
           </div>
           
           <div className={styles.paginationControls}>
-            <select
-              value={pageSize}
-              onChange={(e) => handlePageSizeChange(parseInt(e.target.value))}
-              className={styles.pageSizeSelect}
-            >
-              <option value={10}>10/trang</option>
-              <option value={20}>20/trang</option>
-              <option value={50}>50/trang</option>
-              <option value={100}>100/trang</option>
-            </select>
+            <Select
+              value={pageSize.toString()}
+              onChange={(value) => handlePageSizeChange(parseInt(value))}
+              size="sm"
+              options={[
+                { value: '10', label: '10/trang' },
+                { value: '20', label: '20/trang' },
+                { value: '50', label: '50/trang' },
+                { value: '100', label: '100/trang' }
+              ]}
+            />
             
             <div className={styles.pageButtons}>
               <Button
@@ -797,12 +1037,14 @@ export default function ProductsManagement() {
           <div className={styles.modal}>
             <div className={styles.modalHeader}>
             <h2>Thêm sản phẩm mới</h2>
-              <button 
-                className={styles.closeButton}
+              <Button 
+                variant="ghost"
+                size="xs"
                 onClick={() => setShowCreateForm(false)}
+                className={styles.closeButton}
               >
                 ×
-              </button>
+              </Button>
             </div>
             <div className={styles.modalBody}>
             <div className={styles.formGroup}>
@@ -920,12 +1162,14 @@ export default function ProductsManagement() {
           <div className={styles.modal}>
             <div className={styles.modalHeader}>
             <h2>Sửa sản phẩm</h2>
-              <button 
-                className={styles.closeButton}
+              <Button 
+                variant="ghost"
+                size="xs"
                 onClick={() => setShowEditForm(false)}
+                className={styles.closeButton}
               >
                 ×
-              </button>
+              </Button>
             </div>
             <div className={styles.modalBody}>
               <div className={styles.formGroup}>
@@ -998,15 +1242,15 @@ export default function ProductsManagement() {
                 {quantityError && <div className={styles.errorMessage}>{quantityError}</div>}
               </div>
               <div className={styles.formGroup}>
-                  <label>Trạng thái</label>
-                <select
+                <Select
+                  label="Trạng thái"
                   value={newProduct.status}
-                  onChange={(e) => setNewProduct({...newProduct, status: e.target.value})}
-                    className={styles.formSelect}
-                >
-                  <option value="1">Đang bán</option>
-                  <option value="0">Ngừng bán</option>
-                </select>
+                  onChange={(value) => setNewProduct({...newProduct, status: value})}
+                  options={[
+                    { value: '1', label: 'Đang bán' },
+                    { value: '0', label: 'Ngừng bán' }
+                  ]}
+                />
               </div>
             </div>
             
@@ -1048,5 +1292,20 @@ export default function ProductsManagement() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function ProductsManagement() {
+  return (
+    <Suspense fallback={
+      <div className={styles.container}>
+        <div className={styles.loadingState}>
+          <div className={styles.spinner}></div>
+          <p>Đang tải...</p>
+        </div>
+      </div>
+    }>
+      <ProductsManagementContent />
+    </Suspense>
   );
 }

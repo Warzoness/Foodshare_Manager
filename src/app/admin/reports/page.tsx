@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import { Button } from '@/components/ui/Button';
+import { DatePicker } from '@/components/ui/DatePicker';
 import styles from './page.module.css';
 import { useReports } from '@/hooks/useApi';
 
@@ -61,29 +63,23 @@ export default function ReportsPage() {
             </select>
           </div>
           <div className={styles.filterGroup}>
-            <label className={styles.filterLabel}>
-              Từ ngày
-            </label>
-            <input
-              type="date"
-              className={styles.filterInput}
+            <DatePicker
+              label="Từ ngày"
               value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
+              onChange={(value) => setStartDate(value)}
+              placeholder="Chọn ngày bắt đầu"
             />
           </div>
           <div className={styles.filterGroup}>
-            <label className={styles.filterLabel}>
-              Đến ngày
-            </label>
-            <input
-              type="date"
-              className={styles.filterInput}
+            <DatePicker
+              label="Đến ngày"
               value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
+              onChange={(value) => setEndDate(value)}
+              placeholder="Chọn ngày kết thúc"
             />
           </div>
           <div className={styles.filterGroup}>
-            <button className={styles.generateButton}>Tạo báo cáo</button>
+            <Button variant="primary" size="md">📊 Tạo báo cáo</Button>
           </div>
         </div>
       </div>
@@ -169,7 +165,7 @@ export default function ReportsPage() {
                   <td className={styles.tableCell}>
                     <div className={styles.ratingContainer}>
                       <div className={styles.stars}>-</div>
-                      <span className={styles.ratingText}>-</span>
+                      {/* <span className={styles.ratingText}>-</span> */}
                     </div>
                   </td>
                   <td className={styles.tableCell}>
@@ -190,9 +186,9 @@ export default function ReportsPage() {
             <p className={styles.exportDescription}>Tải báo cáo dưới định dạng Excel hoặc PDF</p>
           </div>
           <div className={styles.exportButtons}>
-            <button className={`${styles.exportButton} ${styles.secondary}`}>📊 Excel</button>
-            <button className={`${styles.exportButton} ${styles.secondary}`}>📄 PDF</button>
-            <button className={`${styles.exportButton} ${styles.primary}`}>📧 Gửi email</button>
+            <Button variant="secondary" size="md">📊 Excel</Button>
+            <Button variant="secondary" size="md">📄 PDF</Button>
+            <Button variant="primary" size="md">📧 Gửi email</Button>
           </div>
         </div>
       </div>

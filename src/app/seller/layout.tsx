@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/contexts/AuthContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import styles from './layout.module.css';
@@ -136,12 +137,14 @@ export default function SellerLayout({
                     <p className={styles.userEmail}>{user?.email || 'seller@foodshare.com'}</p>
                   </div>
                 </div>
-                <button 
+                <Button 
                   onClick={handleLogout}
+                  variant="danger"
+                  size="sm"
                   className={styles.logoutButton}
                 >
-                  Đăng xuất
-                </button>
+                  🚪 Đăng xuất
+                </Button>
               </div>
             </div>
           </div>
@@ -152,8 +155,10 @@ export default function SellerLayout({
       <div className={styles.mainContent}>
         {/* Top bar */}
         <div className={styles.topBar}>
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="sm"
             className={styles.mobileMenuButton}
             onClick={(e) => {
               e.preventDefault();
@@ -179,7 +184,7 @@ export default function SellerLayout({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               )}
             </svg>
-          </button>
+          </Button>
           <div className={styles.topBarContent}>
             <div className={styles.searchContainer}>
               <div className={styles.searchWrapper}>
@@ -271,12 +276,14 @@ export default function SellerLayout({
                     <p className={styles.mobileUserEmail}>{user?.email || 'seller@foodshare.com'}</p>
                   </div>
                 </div>
-                <button 
+                <Button 
                   onClick={handleLogout}
+                  variant="danger"
+                  size="sm"
                   className={styles.mobileLogoutButton}
                 >
-                  Đăng xuất
-                </button>
+                  🚪 Đăng xuất
+                </Button>
               </div>
             </div>
           </div>

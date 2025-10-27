@@ -118,7 +118,12 @@ class ImageUploadService {
       crop?: 'fill' | 'fit' | 'scale' | 'crop';
     }
   ): string {
-    const baseUrl = 'https://res.cloudinary.com/mock-cloud/image/upload';
+    // Get cloud name from environment variable
+    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+    if (!cloudName) {
+      throw new Error('NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME is not configured');
+    }
+    const baseUrl = `https://res.cloudinary.com/${cloudName}/image/upload`;
     
     if (!transformations) {
       return `${baseUrl}/${publicId}`;

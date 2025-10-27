@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import Image from 'next/image';
+import { Button } from '@/components/ui/Button';
 import styles from './page.module.css';
 import { ApiOrder, ApiOrderResponse } from '@/types/admin';
 
@@ -35,9 +36,10 @@ export default function AdminOrdersManagement() {
   const [totalElements, setTotalElements] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [isPaginationLoading, setIsPaginationLoading] = useState(false);
+  const [isFilterLoading, setIsFilterLoading] = useState(false);
 
-  // Fetch orders function
-  const fetchOrders = async (params: OrderFilters) => {
+  // Fetch orders function with useCallback to prevent recreation
+  const fetchOrders = useCallback(async (params: OrderFilters) => {
     setLoading(true);
     setError(null);
     
@@ -88,7 +90,7 @@ export default function AdminOrdersManagement() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   // Memoize params to avoid recreating object on every render
   const ordersParams = useMemo(() => ({
@@ -100,10 +102,11 @@ export default function AdminOrdersManagement() {
   // Fetch orders when params change
   useEffect(() => {
     fetchOrders(ordersParams);
-  }, [ordersParams]);
+  }, [ordersParams, fetchOrders]);
 
   // Handle filter changes
   const handleFilterChange = (key: keyof OrderFilters, value: string) => {
+    setIsFilterLoading(true);
     setFilters(prev => ({
       ...prev,
       [key]: value
@@ -112,6 +115,7 @@ export default function AdminOrdersManagement() {
   };
 
   const handleSortChange = (sortBy: string, sortDirection: string) => {
+    setIsFilterLoading(true);
     setFilters(prev => ({
       ...prev,
       sortBy,
@@ -125,12 +129,17 @@ export default function AdminOrdersManagement() {
     setCurrentPage(newPage);
   };
 
-  // Reset pagination loading when data is loaded
+  // Reset pagination and filter loading when data is loaded
   useEffect(() => {
-    if (!loading && isPaginationLoading) {
-      setIsPaginationLoading(false);
+    if (!loading) {
+      if (isPaginationLoading) {
+        setIsPaginationLoading(false);
+      }
+      if (isFilterLoading) {
+        setIsFilterLoading(false);
+      }
     }
-  }, [loading, isPaginationLoading]);
+  }, [loading, isPaginationLoading, isFilterLoading]);
 
   const getStatusText = (status: string) => {
     switch (status?.toLowerCase()) {
@@ -199,7 +208,12 @@ export default function AdminOrdersManagement() {
       </div>
 
       {/* Filters */}
-      <div className={styles.filtersCard}>
+      <form 
+        className={styles.filtersCard}
+        onSubmit={(e) => {
+          e.preventDefault();
+        }}
+      >
         <div className={styles.filtersContainer}>
           <div className={styles.filterRow}>
             <div className={styles.filterGroup}>
@@ -210,6 +224,11 @@ export default function AdminOrdersManagement() {
                 className={styles.filterInput}
                 value={filters.shopId}
                 onChange={(e) => handleFilterChange('shopId', e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                  }
+                }}
               />
             </div>
             
@@ -235,6 +254,11 @@ export default function AdminOrdersManagement() {
                 className={styles.filterInput}
                 value={filters.fromDate}
                 onChange={(e) => handleFilterChange('fromDate', e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                  }
+                }}
               />
             </div>
 
@@ -245,6 +269,11 @@ export default function AdminOrdersManagement() {
                 className={styles.filterInput}
                 value={filters.toDate}
                 onChange={(e) => handleFilterChange('toDate', e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                  }
+                }}
               />
             </div>
           </div>
@@ -269,9 +298,11 @@ export default function AdminOrdersManagement() {
             </div>
 
             <div className={styles.filterActions}>
-              <button 
-                className={styles.clearFiltersButton}
+              <Button 
+                variant="outline"
+                size="md"
                 onClick={() => {
+                  setIsFilterLoading(true);
                   setFilters({
                     shopId: '',
                     status: '',
@@ -285,12 +316,18 @@ export default function AdminOrdersManagement() {
                   setCurrentPage(0);
                 }}
               >
-                Xóa bộ lọc
-              </button>
+                🗑️ Xóa bộ lọc
+              </Button>
+              {isFilterLoading && !loading && (
+                <div className={styles.filterLoadingIndicator}>
+                  <div className={styles.miniSpinner}></div>
+                  <span>Đang lọc...</span>
+                </div>
+              )}
             </div>
           </div>
         </div>
-      </div>
+      </form>
 
       {/* Loading State */}
       {loading && (
@@ -319,12 +356,13 @@ export default function AdminOrdersManagement() {
             ) : (
               <div>
                 <p className={styles.errorMessage}>Lỗi API: {error}</p>
-                <button 
-                  className={styles.retryButton}
+                <Button 
+                  variant="outline"
+                  size="md"
                   onClick={() => fetchOrders(ordersParams)}
                 >
-                  Thử lại
-                </button>
+                  🔄 Thử lại
+                </Button>
               </div>
             )}
           </div>
@@ -333,7 +371,13 @@ export default function AdminOrdersManagement() {
 
       {/* Orders Table */}
       {!loading && (
-        <div className={styles.tableCard}>
+        <div className={styles.tableCard} style={{ position: 'relative' }}>
+          {isFilterLoading && (
+            <div className={styles.filterLoadingOverlay}>
+              <div className={styles.loadingSpinner}></div>
+              <p>Đang tải kết quả...</p>
+            </div>
+          )}
           <div className={styles.tableContainer}>
             <table className={styles.table}>
               <thead className={styles.tableHead}>
@@ -452,23 +496,27 @@ export default function AdminOrdersManagement() {
             của <span className="font-medium">{totalElements}</span> kết quả
           </div>
           <div className={styles.paginationButtons}>
-            <button 
-              className={styles.paginationButton}
+            <Button 
+              variant="outline"
+              size="md"
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 0 || isPaginationLoading}
+              loading={isPaginationLoading}
             >
-              {isPaginationLoading ? 'Đang tải...' : 'Trước'}
-            </button>
+              ← Trước
+            </Button>
             <span className={styles.pageNumber}>
               Trang {currentPage + 1} / {totalPages}
             </span>
-            <button 
-              className={styles.paginationButton}
+            <Button 
+              variant="outline"
+              size="md"
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage >= totalPages - 1 || isPaginationLoading}
+              loading={isPaginationLoading}
             >
-              {isPaginationLoading ? 'Đang tải...' : 'Sau'}
-            </button>
+              Sau →
+            </Button>
           </div>
         </div>
       )}

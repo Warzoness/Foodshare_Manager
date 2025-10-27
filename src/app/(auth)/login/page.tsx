@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { Button } from '@/components/ui/Button';
 import { login } from '@/lib/auth';
 import { hasRole } from '@/lib/auth';
 import { useAuth } from '@/contexts/AuthContext';
@@ -88,33 +89,33 @@ function LoginForm() {
             FoodShare Manager
           </h2>
           <p className={styles.subtitle}>
-            Sign in to your account
+            Đăng nhập vào tài khoản của bạn
           </p>
         </div>
         
         <form className={styles.form} onSubmit={handleSubmit}>
           <div className={styles.inputGroup}>
-            <label className={styles.label}>Email address</label>
+            <label className={styles.label}>Địa chỉ Email</label>
             <input
               type="email"
               className={styles.input}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              placeholder="Enter your email"
+              placeholder="Nhập email của bạn"
               autoComplete="email"
             />
           </div>
           
           <div className={styles.inputGroup}>
-            <label className={styles.label}>Password</label>
+            <label className={styles.label}>Mật khẩu</label>
             <input
               type="password"
               className={styles.input}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              placeholder="Enter your password"
+              placeholder="Nhập mật khẩu của bạn"
               autoComplete="current-password"
             />
           </div>
@@ -127,14 +128,17 @@ function LoginForm() {
             <div className={styles.errorMessage}>{error}</div>
           )}
 
-          <button
+          <Button
             type="submit"
-            className={styles.submitButton}
+            variant="primary"
+            size="lg"
+            fullWidth
             disabled={loading}
+            loading={loading}
+            className={styles.submitButton}
           >
-            {loading && <div className={styles.loadingSpinner}></div>}
-            Sign in
-          </button>
+            🔐 Đăng nhập
+          </Button>
         </form>
 
         <div className={styles.footer}>
@@ -144,12 +148,6 @@ function LoginForm() {
               Đăng ký tài khoản Seller
             </Link>
           </p>
-        </div>
-
-        <div className={styles.demoAccounts}>
-          <p className={styles.demoTitle}>Đăng nhập với tài khoản của bạn:</p>
-          <p className={styles.demoItem}>Sử dụng email và mật khẩu đã được cấp</p>
-          <p className={styles.demoItem}>Hệ thống sẽ tự động phân quyền dựa trên vai trò</p>
         </div>
       </div>
     </div>

@@ -5,6 +5,7 @@ import {useRouter} from 'next/navigation';
 import Image from 'next/image';
 import {Card} from '@/components/ui/Card';
 import {Button} from '@/components/ui/Button';
+import {Select} from '@/components/ui/Select';
 import InteractiveMap from '@/components/ui/InteractiveMap';
 import {useSellerShop, useUpdateSellerShop} from '@/hooks/useApi';
 import {UpdateSellerShopRequest} from '@/types';
@@ -401,8 +402,8 @@ export default function EditShopPage({params}: EditShopPageProps) {
                         />
                     </div>
 
-                    <div className={styles.formSection}>
-                        <label className={styles.formLabel}>
+                    <div className={styles.imageUploadSection}>
+                        <label className={styles.imageUploadLabel}>
                             Hình ảnh cửa hàng
                         </label>
                         <div
@@ -413,9 +414,9 @@ export default function EditShopPage({params}: EditShopPageProps) {
                             onClick={() => document.getElementById('imageInput')?.click()}
                         >
                             {uploading ? (
-                                <div className={styles.uploadingState}>
-                                    <div className={styles.uploadIcon}>⏳</div>
-                                    <div className={styles.uploadText}>
+                                <div className={styles.imageUploadContent}>
+                                    <div className={styles.imageUploadIcon}>⏳</div>
+                                    <div className={styles.imageUploadText}>
                                         Đang tải lên... {uploadProgress}%
                                     </div>
                                     <div className={styles.progressBar}>
@@ -426,12 +427,12 @@ export default function EditShopPage({params}: EditShopPageProps) {
                                     </div>
                                 </div>
                             ) : uploadError ? (
-                                <div className={styles.errorState}>
-                                    <div className={styles.errorIcon}>❌</div>
-                                    <div className={styles.errorText}>
+                                <div className={styles.imageUploadContent} style={{color: '#ef4444'}}>
+                                    <div className={styles.imageUploadIcon}>❌</div>
+                                    <div className={styles.imageUploadText}>
                                         Lỗi tải lên: {uploadError}
                                     </div>
-                                    <div className={styles.errorSubtext}>
+                                    <div className={styles.imageUploadSubtext}>
                                         Thử lại hoặc chọn ảnh khác
                                     </div>
                                 </div>
@@ -441,11 +442,13 @@ export default function EditShopPage({params}: EditShopPageProps) {
                                         src={previewImage || formData.imageUrl || ''}
                                         alt="Preview"
                                         width={400}
-                                        height={300}
-                                        className={styles.previewImg}
+                                        height={200}
+                                        className={styles.imagePreview}
                                     />
-                                    <button
-                                        className={styles.removeImageBtn}
+                                    <Button
+                                        className={styles.imageRemoveButton}
+                                        variant="danger"
+                                        size="xs"
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             handleInputChange('imageUrl', '');
@@ -453,15 +456,28 @@ export default function EditShopPage({params}: EditShopPageProps) {
                                         }}
                                     >
                                         ×
-                                    </button>
+                                    </Button>
+                                    {previewImage && !formData.imageUrl && (
+                                        <div className={styles.imageUploadProgress}>
+                                            <div>
+                                                Đang tải lên... {uploadProgress}%
+                                            </div>
+                                            <div className={styles.progressBar}>
+                                                <div
+                                                    className={styles.progressFill}
+                                                    style={{width: `${uploadProgress}%`}}
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             ) : (
-                                <div className={styles.uploadPrompt}>
-                                    <div className={styles.uploadIcon}>📷</div>
-                                    <div className={styles.uploadText}>
+                                <div className={styles.imageUploadContent}>
+                                    <div className={styles.imageUploadIcon}>📷</div>
+                                    <div className={styles.imageUploadText}>
                                         {isDragOver ? 'Thả ảnh vào đây' : 'Kéo thả ảnh hoặc click để chọn'}
                                     </div>
-                                    <div className={styles.uploadSubtext}>
+                                    <div className={styles.imageUploadSubtext}>
                                         Hỗ trợ: JPG, PNG, GIF, WebP
                                     </div>
                                 </div>
@@ -471,9 +487,22 @@ export default function EditShopPage({params}: EditShopPageProps) {
                                 type="file"
                                 accept="image/*"
                                 onChange={handleImageInputChange}
-                                className={styles.hiddenInput}
+                                className={styles.imageUploadInput}
                             />
                         </div>
+                    </div>
+
+                    <div className={styles.formSection}>
+                        <Select
+                            label="Trạng thái cửa hàng *"
+                            value={formData.status || '1'}
+                            onChange={(value) => handleInputChange('status', value)}
+                            options={[
+                                { value: '1', label: 'Đang hoạt động' },
+                                { value: '0', label: 'Đóng cửa' },
+                                { value: '2', label: 'Chờ duyệt' }
+                            ]}
+                        />
                     </div>
 
                     <div className={styles.formSection}>

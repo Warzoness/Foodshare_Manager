@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
+import { Select } from '@/components/ui/Select';
+import { Button } from '@/components/ui/Button';
 import styles from './page.module.css';
 import { useDeleteStore, useUpdateStore } from '@/hooks/useApi';
 import { useStores } from '@/hooks/useApi';
@@ -149,7 +151,7 @@ export default function StoresManagement() {
             Quản lý tất cả các cửa hàng trong hệ thống
           </p>
         </div>
-        <button className={styles.addButton}>+ Thêm cửa hàng mới</button>
+        <Button variant="primary" size="lg">+ Thêm cửa hàng mới</Button>
       </div>
 
       {/* Filters */}
@@ -162,31 +164,33 @@ export default function StoresManagement() {
             value={searchTerm}
             onChange={(e) => handleSearch(e.target.value)}
           />
-          <select 
-            className={styles.filterSelect}
+          <Select
             value={statusFilter}
-            onChange={(e) => handleStatusFilter(e.target.value)}
-          >
-            <option value="">Tất cả trạng thái</option>
-            <option value="active">Hoạt động</option>
-            <option value="pending">Chờ duyệt</option>
-            <option value="inactive">Tạm dừng</option>
-            <option value="rejected">Từ chối</option>
-          </select>
-          <select 
-            className={styles.filterSelect}
+            onChange={(value) => handleStatusFilter(value)}
+            placeholder="Tất cả trạng thái"
+            options={[
+              { value: '', label: 'Tất cả trạng thái' },
+              { value: 'active', label: 'Hoạt động' },
+              { value: 'pending', label: 'Chờ duyệt' },
+              { value: 'inactive', label: 'Tạm dừng' },
+              { value: 'rejected', label: 'Từ chối' }
+            ]}
+          />
+          <Select
             value={`${sortBy[0]}-${sortBy[1]}`}
-            onChange={(e) => handleSort(e.target.value)}
-          >
-            <option value="name-asc">Tên cửa hàng A-Z</option>
-            <option value="name-desc">Tên cửa hàng Z-A</option>
-            <option value="createdAt-desc">Mới nhất</option>
-            <option value="createdAt-asc">Cũ nhất</option>
-            <option value="rating-desc">Đánh giá cao nhất</option>
-            <option value="rating-asc">Đánh giá thấp nhất</option>
-            <option value="totalProducts-desc">Nhiều sản phẩm nhất</option>
-            <option value="status-asc">Trạng thái</option>
-          </select>
+            onChange={(value) => handleSort(value)}
+            placeholder="Sắp xếp"
+            options={[
+              { value: 'name-asc', label: 'Tên cửa hàng A-Z' },
+              { value: 'name-desc', label: 'Tên cửa hàng Z-A' },
+              { value: 'createdAt-desc', label: 'Mới nhất' },
+              { value: 'createdAt-asc', label: 'Cũ nhất' },
+              { value: 'rating-desc', label: 'Đánh giá cao nhất' },
+              { value: 'rating-asc', label: 'Đánh giá thấp nhất' },
+              { value: 'totalProducts-desc', label: 'Nhiều sản phẩm nhất' },
+              { value: 'status-asc', label: 'Trạng thái' }
+            ]}
+          />
         </div>
       </div>
 
@@ -205,12 +209,13 @@ export default function StoresManagement() {
         <div className={styles.tableCard}>
           <div className={styles.errorContainer}>
             <p className={styles.errorMessage}>Lỗi API: {error}</p>
-            <button 
-              className={styles.retryButton}
+            <Button 
+              variant="outline"
+              size="md"
               onClick={() => refetchStores()}
             >
-              Thử lại
-            </button>
+              🔄 Thử lại
+            </Button>
           </div>
         </div>
       )}
@@ -268,7 +273,7 @@ export default function StoresManagement() {
                     <td colSpan={6} className={styles.emptyState}>
                       <div className={styles.emptyMessage}>
                         <p>Không có cửa hàng nào</p>
-                        <button className={styles.addButton}>+ Thêm cửa hàng đầu tiên</button>
+                        <Button variant="primary" size="md">+ Thêm cửa hàng đầu tiên</Button>
                       </div>
                     </td>
                   </tr>
@@ -283,7 +288,7 @@ export default function StoresManagement() {
                       </td>
                       <td className={styles.tableCell}>
                         <div className={styles.storeDetails}>
-                          <div className={styles.rating}>⭐ {store.rating || 0}/5</div>
+                          {/* <div className={styles.rating}>⭐ {store.rating || 0}/5</div> */}
                           <div className={styles.productsCount}>{store.totalProducts || 0} sản phẩm</div>
                           <div className={styles.storeDescription}>{store.description || 'Chưa có mô tả'}</div>
                         </div>
@@ -307,31 +312,36 @@ export default function StoresManagement() {
                       </td>
                       <td className={styles.tableCell}>
                         <div className={styles.actionButtons}>
-                          <button 
-                            className={`${styles.actionButton} ${styles.secondary}`}
+                          <Button 
+                            variant="secondary"
+                            size="sm"
                             onClick={() => handleViewStore(store.id)}
                           >
-                            Xem
-                          </button>
-                          <button 
-                            className={`${styles.actionButton} ${styles.secondary}`}
+                            👁️ Xem
+                          </Button>
+                          <Button 
+                            variant="secondary"
+                            size="sm"
                             onClick={() => handleUpdateStore(store.id.toString())}
                             disabled={updateLoading}
+                            loading={updateLoading}
                             title="Sửa cửa hàng"
                           >
-                            {updateLoading ? 'Đang sửa...' : 'Sửa'}
-                          </button>
+                            ✏️ Sửa
+                          </Button>
                           {(store.status || 'inactive') === 'pending' && (
-                            <button className={`${styles.actionButton} ${styles.primary}`}>Duyệt</button>
+                            <Button variant="success" size="sm">✅ Duyệt</Button>
                           )}
-                          <button 
-                            className={`${styles.actionButton} ${styles.danger}`}
+                          <Button 
+                            variant="danger"
+                            size="sm"
                             onClick={() => handleDeleteStore(store.id.toString())}
                             disabled={deleteLoading}
+                            loading={deleteLoading}
                             title="Xóa cửa hàng"
                           >
-                            {deleteLoading ? 'Đang xóa...' : 'Xóa'}
-                          </button>
+                            🗑️ Xóa
+                          </Button>
                         </div>
                       </td>
                     </tr>
@@ -354,23 +364,27 @@ export default function StoresManagement() {
             của <span className="font-medium">{totalItems}</span> kết quả
           </div>
           <div className={styles.paginationButtons}>
-            <button 
-              className={styles.paginationButton}
+            <Button 
+              variant="outline"
+              size="md"
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 0 || isPaginationLoading}
+              loading={isPaginationLoading}
             >
-              {isPaginationLoading ? 'Đang tải...' : 'Trước'}
-            </button>
+              ← Trước
+            </Button>
             <span className={styles.pageNumber}>
               Trang {currentPage + 1} / {totalPages}
             </span>
-            <button 
-              className={styles.paginationButton}
+            <Button 
+              variant="outline"
+              size="md"
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage >= totalPages - 1 || isPaginationLoading}
+              loading={isPaginationLoading}
             >
-              {isPaginationLoading ? 'Đang tải...' : 'Sau'}
-            </button>
+              Sau →
+            </Button>
           </div>
         </div>
       )}

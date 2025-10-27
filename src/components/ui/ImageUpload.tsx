@@ -198,12 +198,12 @@ export function ImageUpload({
             onClick={handleClick}
           >
             <div className={styles.dropZoneContent}>
-              <div className={styles.uploadIcon}>📁</div>
+              <div className={styles.uploadIcon}>📷</div>
               <p className={styles.dropZoneText}>
                 {isDragging ? 'Thả ảnh vào đây' : 'Kéo thả ảnh hoặc click để chọn'}
               </p>
               <p className={styles.dropZoneSubtext}>
-                Tối đa {maxFiles} ảnh, mỗi ảnh tối đa 10MB
+                Hỗ trợ: JPG, PNG, GIF, WebP - Tối đa {maxFiles} ảnh
               </p>
             </div>
           </div>
@@ -272,12 +272,12 @@ export function ImageUpload({
               </div>
             ) : (
               <div className={styles.dropZoneContent}>
-                <div className={styles.uploadIcon}>📁</div>
+                <div className={styles.uploadIcon}>📷</div>
                 <p className={styles.dropZoneText}>
                   {isDragging ? 'Thả ảnh vào đây' : 'Kéo thả ảnh hoặc click để chọn'}
                 </p>
                 <p className={styles.dropZoneSubtext}>
-                  Ảnh tối đa 10MB
+                  Hỗ trợ: JPG, PNG, GIF, WebP
                 </p>
               </div>
             )}

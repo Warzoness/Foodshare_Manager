@@ -7,6 +7,7 @@ import { adminService } from '@/services';
 import { StoreDetail, Product, UpdateStoreRequest } from '@/types';
 import { useUpdateStore, useAdminProductsByShop } from '@/hooks/useApi';
 import { Button } from '@/components/ui/Button';
+import { Select } from '@/components/ui/Select';
 import styles from './page.module.css';
 
 export default function StoreDetailPage() {
@@ -455,16 +456,16 @@ export default function StoreDetailPage() {
                 />
               </div>
               <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Trạng thái *</label>
-                <select
+                <Select
+                  label="Trạng thái *"
                   value={formData.status}
-                  onChange={(e) => handleInputChange('status', e.target.value)}
-                  className={styles.formSelect}
-                >
-                  <option value="1">Hoạt động</option>
-                  <option value="0">Tạm dừng</option>
-                  <option value="2">Chờ duyệt</option>
-                </select>
+                  onChange={(value) => handleInputChange('status', value)}
+                  options={[
+                    { value: '1', label: 'Hoạt động' },
+                    { value: '0', label: 'Tạm dừng' },
+                    { value: '2', label: 'Chờ duyệt' }
+                  ]}
+                />
               </div>
             </div>
 
@@ -490,7 +491,7 @@ export default function StoreDetailPage() {
                   required
                 />
               </div>
-              <div className={styles.formGroup}>
+              {/* <div className={styles.formGroup}>
                 <label className={styles.formLabel}>Đánh giá (0-5)</label>
                 <input
                   type="number"
@@ -501,7 +502,7 @@ export default function StoreDetailPage() {
                   onChange={(e) => handleInputChange('rating', parseFloat(e.target.value))}
                   className={styles.formInput}
                 />
-              </div>
+              </div> */}
             </div>
 
             <div className={styles.formGroup}>
@@ -610,10 +611,10 @@ export default function StoreDetailPage() {
                   <span className={styles.infoLabel}>📞 Điện thoại:</span>
                   <span className={styles.infoValue}>{store.phone}</span>
                 </div>
-                <div className={styles.infoItem}>
+                {/* <div className={styles.infoItem}>
                   <span className={styles.infoLabel}>⭐ Đánh giá:</span>
                   <span className={styles.infoValue}>{store.rating}/5</span>
-                </div>
+                </div> */}
                 <div className={styles.infoItem}>
                   <span className={styles.infoLabel}>🌍 Tọa độ:</span>
                   <span className={styles.infoValue}>
@@ -645,9 +646,9 @@ export default function StoreDetailPage() {
       <div className={styles.productsSection}>
         <div className={styles.sectionHeader}>
           <h2>Sản phẩm ({totalItems})</h2>
-          <button className={`${styles.actionButton} ${styles.primary}`}>
+          <Button variant="primary" size="md">
             + Thêm sản phẩm
-          </button>
+          </Button>
         </div>
 
         {/* Products Filters */}
@@ -660,29 +661,31 @@ export default function StoreDetailPage() {
               value={searchTerm}
               onChange={(e) => handleSearch(e.target.value)}
             />
-            <select 
-              className={styles.filterSelect}
+            <Select
               value={statusFilter}
-              onChange={(e) => handleStatusFilter(e.target.value)}
-            >
-              <option value="">Tất cả trạng thái</option>
-              <option value="active">Hoạt động</option>
-              <option value="pending">Chờ duyệt</option>
-              <option value="inactive">Tạm dừng</option>
-              <option value="rejected">Từ chối</option>
-            </select>
-            <select 
-              className={styles.filterSelect}
+              onChange={(value) => handleStatusFilter(value)}
+              placeholder="Tất cả trạng thái"
+              options={[
+                { value: '', label: 'Tất cả trạng thái' },
+                { value: 'active', label: 'Hoạt động' },
+                { value: 'pending', label: 'Chờ duyệt' },
+                { value: 'inactive', label: 'Tạm dừng' },
+                { value: 'rejected', label: 'Từ chối' }
+              ]}
+            />
+            <Select
               value={`${sortBy[0]}-${sortBy[1]}`}
-              onChange={(e) => handleSort(e.target.value)}
-            >
-              <option value="name-asc">Tên sản phẩm A-Z</option>
-              <option value="name-desc">Tên sản phẩm Z-A</option>
-              <option value="price-desc">Giá cao nhất</option>
-              <option value="price-asc">Giá thấp nhất</option>
-              <option value="createdAt-desc">Mới nhất</option>
-              <option value="createdAt-asc">Cũ nhất</option>
-            </select>
+              onChange={(value) => handleSort(value)}
+              placeholder="Sắp xếp"
+              options={[
+                { value: 'name-asc', label: 'Tên sản phẩm A-Z' },
+                { value: 'name-desc', label: 'Tên sản phẩm Z-A' },
+                { value: 'price-desc', label: 'Giá cao nhất' },
+                { value: 'price-asc', label: 'Giá thấp nhất' },
+                { value: 'createdAt-desc', label: 'Mới nhất' },
+                { value: 'createdAt-asc', label: 'Cũ nhất' }
+              ]}
+            />
           </div>
         </div>
 
@@ -701,12 +704,13 @@ export default function StoreDetailPage() {
           <div className={styles.tableCard}>
             <div className={styles.errorContainer}>
               <p className={styles.errorMessage}>Lỗi API: {productsError}</p>
-              <button 
-                className={styles.retryButton}
+              <Button 
+                variant="outline"
+                size="md"
                 onClick={() => refetchProducts()}
               >
-                Thử lại
-              </button>
+                🔄 Thử lại
+              </Button>
             </div>
           </div>
         )}
@@ -744,7 +748,7 @@ export default function StoreDetailPage() {
                       <td colSpan={6} className={styles.emptyState}>
                         <div className={styles.emptyMessage}>
                           <p>Không có sản phẩm nào</p>
-                          <button className={styles.addButton}>+ Thêm sản phẩm đầu tiên</button>
+                          <Button variant="primary" size="md">+ Thêm sản phẩm đầu tiên</Button>
                         </div>
                       </td>
                     </tr>
@@ -805,25 +809,28 @@ export default function StoreDetailPage() {
                         </td>
                         <td className={styles.tableCell}>
                           <div className={styles.actionButtons}>
-                            <button 
-                              className={`${styles.actionButton} ${styles.secondary}`}
+                            <Button 
+                              variant="secondary"
+                              size="sm"
                               onClick={() => handleViewProduct(product.id)}
                             >
-                              Xem
-                            </button>
-                            <button 
-                              className={`${styles.actionButton} ${styles.secondary}`}
+                              👁️ Xem
+                            </Button>
+                            <Button 
+                              variant="secondary"
+                              size="sm"
                               onClick={() => handleViewProduct(product.id)}
                               title="Sửa sản phẩm"
                             >
-                              Sửa
-                            </button>
-                            <button 
-                              className={`${styles.actionButton} ${styles.danger}`}
+                              ✏️ Sửa
+                            </Button>
+                            <Button 
+                              variant="danger"
+                              size="sm"
                               title="Xóa sản phẩm"
                             >
-                              Xóa
-                            </button>
+                              🗑️ Xóa
+                            </Button>
                           </div>
                         </td>
                       </tr>
@@ -846,23 +853,27 @@ export default function StoreDetailPage() {
               của <span className="font-medium">{totalItems}</span> kết quả
             </div>
             <div className={styles.paginationButtons}>
-              <button 
-                className={styles.paginationButton}
+              <Button 
+                variant="outline"
+                size="md"
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 0 || isPaginationLoading}
+                loading={isPaginationLoading}
               >
-                {isPaginationLoading ? 'Đang tải...' : 'Trước'}
-              </button>
+                ← Trước
+              </Button>
               <span className={styles.pageNumber}>
                 Trang {currentPage + 1} / {totalPages}
               </span>
-              <button 
-                className={styles.paginationButton}
+              <Button 
+                variant="outline"
+                size="md"
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage >= totalPages - 1 || isPaginationLoading}
+                loading={isPaginationLoading}
               >
-                {isPaginationLoading ? 'Đang tải...' : 'Sau'}
-              </button>
+                Sau →
+              </Button>
             </div>
           </div>
         )}

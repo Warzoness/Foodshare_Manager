@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { Button } from '@/components/ui/Button';
 import { useRegister } from '@/hooks/useApi';
 import { useAuth } from '@/contexts/AuthContext';
 import { hasRole } from '@/lib/auth';
@@ -203,6 +204,7 @@ export default function RegisterPage() {
                 <li>Ít nhất 6 ký tự</li>
                 <li>Ít nhất 1 chữ hoa (A-Z)</li>
                 <li>Ít nhất 1 chữ thường (a-z)</li>
+                <li>Ít nhất 1 ký tự đặc biệt (!@#$%^&*...)</li>
               </ul>
             </div>
           </div>
@@ -233,13 +235,17 @@ export default function RegisterPage() {
             </div>
           )}
 
-          <button
+          <Button
             type="submit"
-            className={styles.submitButton}
+            variant="primary"
+            size="lg"
+            fullWidth
             disabled={loading || registering}
+            loading={loading || registering}
+            className={styles.submitButton}
           >
-            {loading || registering ? 'Đang đăng ký...' : 'Đăng ký'}
-          </button>
+            ✨ Đăng ký
+          </Button>
         </form>
 
         <div className={styles.footer}>

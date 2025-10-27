@@ -1,9 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { Select } from '@/components/ui/Select';
 import InteractiveMap from '@/components/ui/InteractiveMap';
 import { useSellerShops, useCreateSellerShop } from '@/hooks/useApi';
 import { SellerShop, CreateSellerShopRequest } from '@/types';
@@ -11,6 +13,7 @@ import styles from './page.module.css';
 import sharedStyles from '../shared.module.css';
 
 export default function StoreList() {
+  const router = useRouter();
   const { data: shops, loading, error, execute: refetchShops } = useSellerShops();
   const { execute: createShop, loading: creating, success: createSuccess } = useCreateSellerShop();
   const [uploading, setUploading] = useState(false);
@@ -245,17 +248,17 @@ export default function StoreList() {
 
   const handleManageProducts = (shopId: string) => {
     // Navigate to products management page for this shop
-    window.location.href = `/seller/products?shopId=${shopId}`;
+    router.push(`/seller/products?shopId=${shopId}`);
   };
 
   const handleEditShop = (shopId: string) => {
     // Navigate to shop edit page
-    window.location.href = `/seller/shops/${shopId}/edit`;
+    router.push(`/seller/shops/${shopId}/edit`);
   };
 
   const handleManageOrders = (shopId: string) => {
     // Navigate to shop orders management page
-    window.location.href = `/seller/orders?shopId=${shopId}`;
+    router.push(`/seller/orders?shopId=${shopId}`);
   };
 
   const handleInputChange = (field: keyof CreateSellerShopRequest, value: string | number) => {
@@ -280,6 +283,37 @@ export default function StoreList() {
     }
 
     await createShop(formData);
+  };
+
+  // Get status badge component
+  const getStatusBadge = (status: string) => {
+    const statusLower = status?.toLowerCase();
+    
+    if (statusLower === '1' || statusLower === 'active') {
+      return (
+        <span className={`${styles.statusBadge} ${styles.statusActive}`}>
+          Đang hoạt động
+        </span>
+      );
+    } else if (statusLower === '0' || statusLower === 'inactive') {
+      return (
+        <span className={`${styles.statusBadge} ${styles.statusInactive}`}>
+          Đóng cửa
+        </span>
+      );
+    } else if (statusLower === 'pending' || statusLower === '2') {
+      return (
+        <span className={`${styles.statusBadge} ${styles.statusPending}`}>
+          Chờ duyệt
+        </span>
+      );
+    } else {
+      return (
+        <span className={`${styles.statusBadge} ${styles.statusDefault}`}>
+          {status}
+        </span>
+      );
+    }
   };
 
   const handleOpenModal = () => {
@@ -430,7 +464,7 @@ export default function StoreList() {
                   <span>🏪</span>
                 </div>
               )}
-              {/* {getStatusBadge(shop.status)} */}
+              {getStatusBadge(shop.status)}
             </div>
             
             <div className={styles.shopInfo}>
@@ -439,13 +473,13 @@ export default function StoreList() {
               <p className={styles.shopPhone}>📞 {shop.phone}</p>
               
               <div className={styles.shopStats}>
-                <div className={styles.statItem}>
+                {/* <div className={styles.statItem}>
                   <span className={styles.statLabel}>Đánh giá:</span>
                   <span className={styles.statValue}>⭐ {shop.rating}/5</span>
-                </div>
+                </div> */}
                 <div className={styles.statItem}>
                   <span className={styles.statLabel}>Trạng thái:</span>
-                  {/* <span className={styles.statValue}>{getStatusBadge(shop.status)}</span> */}
+                  <span className={styles.statValue}>{shop.status === '1' ? 'Đang hoạt động' : 'Đóng cửa'}</span>
                 </div>
               </div>
               
@@ -589,12 +623,14 @@ function CreateShopModal({
           <h2 className={styles.modalTitle}>
             Tạo cửa hàng mới
           </h2>
-          <button 
+          <Button 
             onClick={onClose}
+            variant="ghost"
+            size="xs"
             className={styles.closeButton}
           >
             ×
-          </button>
+          </Button>
               </div>
               
         {/* Modal Body */}
@@ -756,8 +792,10 @@ function CreateShopModal({
                     height={200}
                     className={styles.imagePreview}
                   />
-                  <button 
+                  <Button 
                     className={styles.imageRemoveButton}
+                    variant="danger"
+                    size="xs"
                     onClick={(e) => {
                       e.stopPropagation();
                       onInputChange('imageUrl', '');
@@ -765,7 +803,7 @@ function CreateShopModal({
                     }}
                   >
                     ×
-                  </button>
+                  </Button>
                   {previewImage && !formData.imageUrl && (
                     <div className={styles.imageUploadProgress}>
                       <div>
@@ -802,6 +840,19 @@ function CreateShopModal({
           </div>
 
           <div className={styles.formGroup}>
+            <Select
+              label="Trạng thái cửa hàng *"
+              value={formData.status || '1'}
+              onChange={(value) => onInputChange('status', value)}
+              options={[
+                { value: '1', label: 'Đang hoạt động' },
+                { value: '0', label: 'Đóng cửa' },
+                { value: '2', label: 'Chờ duyệt' }
+              ]}
+            />
+          </div>
+
+          <div className={styles.formGroup}>
             <label className={styles.formLabel}>
               Mô tả
             </label>
@@ -817,19 +868,22 @@ function CreateShopModal({
 
         {/* Modal Footer */}
         <div className={styles.modalFooter}>
-          <button 
+          <Button 
             onClick={onClose}
-            className={`${styles.modalButton} ${styles.modalButtonSecondary}`}
+            variant="secondary"
+            size="md"
           >
-            Hủy
-          </button>
-          <button 
+            ❌ Hủy
+          </Button>
+          <Button 
             onClick={onSubmit}
             disabled={creating}
-            className={`${styles.modalButton} ${styles.modalButtonPrimary}`}
+            loading={creating}
+            variant="primary"
+            size="md"
           >
-            {creating ? 'Đang tạo...' : 'Tạo cửa hàng'}
-          </button>
+            🏪 Tạo cửa hàng
+          </Button>
         </div>
       </div>
     </div>

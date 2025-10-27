@@ -48,18 +48,7 @@ export async function POST(request: NextRequest) {
       
       if (!response.ok) {
         
-        // Handle specific error cases
-        if (response.status === 404 || response.status === 401) {
-          return NextResponse.json(
-            { 
-              code: "404",
-              success: false, 
-              message: 'Email hoặc mật khẩu không đúng' 
-            },
-            { status: 404 }
-          );
-        }
-        
+        // Return error with message from backend
         return NextResponse.json(
           { 
             code: response.status.toString(),
