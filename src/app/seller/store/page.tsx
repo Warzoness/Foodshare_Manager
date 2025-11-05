@@ -80,7 +80,7 @@ export default function StoreList() {
   // Update map URL when coordinates change
   const updateMapUrl = (lat: number, lng: number) => {
     if (lat && lng) {
-      const _url = `https://www.google.com/maps/embed/v1/search?key=YOUR_API_KEY&q=${lat},${lng}`;
+      const _url = `https://www.google.com/maps/embed/v1/search?key=AIzaSyAuanjPK59SnBdvBf_kTqyACP6xYvqG7-8&q=${lat},${lng}`;
       // For public embed without API key, use this format:
       const publicUrl = `https://www.google.com/maps?q=${lat},${lng}&output=embed`;
       setMapUrl(publicUrl);
@@ -661,9 +661,8 @@ function CreateShopModal({
                   }
 
                   try {
-                    const response = await fetch(
-                      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(formData.address)}&limit=1&countrycodes=vn&addressdetails=1`
-                    );
+                    // Gọi trực tiếp Google Geocoding API
+                    const response = await fetch(`https://mapapis.openmap.vn/v1/geocode/forward?address=${encodeURIComponent(formData.address)}&apikey=WbYy44w6zShkSPqH1gybaEtLcHamjRwM`);
                     
                     if (!response.ok) {
                       throw new Error('Geocoding failed');
@@ -671,14 +670,22 @@ function CreateShopModal({
                     
                     const data = await response.json();
                     
-                    if (data.length > 0) {
-                      const result = data[0];
-                      const lat = parseFloat(result.lat);
-                      const lng = parseFloat(result.lon);
-                      onLocationChange(lat, lng, formData.address);
-                    } else {
-                      alert('Không tìm thấy địa chỉ này!');
+                    if (data.status === 'ZERO_RESULTS') {
+                      alert('Không tìm thấy địa chỉ này! Vui lòng thử:\n- Địa chỉ chi tiết hơn (số nhà, tên đường, quận/huyện)\n- Hoặc click trực tiếp trên bản đồ để chọn vị trí');
+                      return;
                     }
+                    
+                    if (data.status !== 'OK') {
+                      console.error('Google Geocoding API error:', data.status, data.error_message);
+                      alert(`Lỗi tìm kiếm địa chỉ: ${data.status}`);
+                      return;
+                    }
+                    
+                    const location = data.results[0].geometry.location;
+                    console.log('Tìm thấy địa chỉ:', data.results[0].formatted_address);
+                    console.log('Tọa độ:', { lat: location.lat, lng: location.lng });
+                    
+                    onLocationChange(location.lat, location.lng, formData.address);
                   } catch (err) {
                     console.error(err);
                     alert("Lỗi tìm kiếm địa chỉ!");

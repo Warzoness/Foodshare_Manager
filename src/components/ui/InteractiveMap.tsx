@@ -125,38 +125,6 @@ export default function InteractiveMap({
     onLocationChange(lat, lng, address);
   };
 
-  // Geocoding miễn phí với OpenStreetMap
-  const geocodeAddress = async (addressText: string) => {
-    if (!addressText.trim()) return null;
-
-    try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addressText)}&limit=1&countrycodes=vn&addressdetails=1`
-      );
-
-      if (!response.ok) {
-        throw new Error('Geocoding failed');
-      }
-
-      const data = await response.json();
-
-      if (data.length > 0) {
-        const result = data[0];
-        return {
-          lat: parseFloat(result.lat),
-          lng: parseFloat(result.lon),
-          address: result.display_name
-        };
-      }
-
-      return null;
-    } catch (error) {
-      console.error('Geocoding error:', error);
-      return null;
-    }
-  };
-
-
   const handleMapClick = (lat: number, lng: number) => {
     console.log('Map clicked at:', { lat, lng });
 
@@ -211,7 +179,7 @@ export default function InteractiveMap({
           style={{ height: '100%', width: '100%' }}
         >
           <TileLayer
-            attribution='&copy; Google Maps'
+            attribution=""
             url="https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}"
           />
 

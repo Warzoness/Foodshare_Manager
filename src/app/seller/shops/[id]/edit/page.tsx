@@ -353,24 +353,23 @@ export default function EditShopPage({params}: EditShopPageProps) {
                                     }
 
                                     try {
-                                        const response = await fetch(
-                                            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(formData.address || '')}&limit=1&countrycodes=vn&addressdetails=1`
-                                        );
-
+                                        // Sử dụng Google Geocoding API thông qua API route
+                                        const response = await fetch(`/api/geocoding?address=${encodeURIComponent(formData.address || '')}`);
+                                        
                                         if (!response.ok) {
-                                            throw new Error('Geocoding failed');
+                                            if (response.status === 404) {
+                                                alert('Không tìm thấy địa chỉ này! Vui lòng thử:\n- Địa chỉ chi tiết hơn (số nhà, tên đường, quận/huyện)\n- Hoặc click trực tiếp trên bản đồ để chọn vị trí');
+                                            } else {
+                                                throw new Error('Geocoding failed');
+                                            }
+                                            return;
                                         }
-
+                                        
                                         const data = await response.json();
-
-                                        if (data.length > 0) {
-                                            const result = data[0];
-                                            const lat = parseFloat(result.lat);
-                                            const lng = parseFloat(result.lon);
-                                            handleLocationChange(lat, lng, formData.address);
-                                        } else {
-                                            alert('Không tìm thấy địa chỉ này!');
-                                        }
+                                        console.log('Tìm thấy địa chỉ:', data.formattedAddress);
+                                        console.log('Tọa độ:', { lat: data.latitude, lng: data.longitude });
+                                        
+                                        handleLocationChange(data.latitude, data.longitude, formData.address);
                                     } catch (err) {
                                         console.error(err);
                                         alert("Lỗi tìm kiếm địa chỉ!");
