@@ -13,7 +13,13 @@ import { UpdateSellerShopRequest } from "@/types";
 import styles from "./page.module.css";
 import sharedStyles from "../../../shared.module.css";
 
-export default function EditShopPage({ params }) {
+interface EditShopPageProps {
+    params: {
+        id: string;
+    };
+}
+
+export default function EditShopPage({ params }: EditShopPageProps) {
     const router = useRouter();
     const { id: shopId } = params;
 
