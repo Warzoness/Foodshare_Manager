@@ -9,6 +9,7 @@ import { ImageUpload } from '@/components/ui/ImageUpload';
 import { useSellerShopProducts, useDeleteSellerProduct, useCreateSellerProduct, useUpdateSellerProduct } from '@/hooks/useApi';
 import { SellerProduct } from '@/types';
 import { VietnameseValidator } from '@/lib/validation';
+import { config } from '@/lib/config';
 import styles from './page.module.css';
 
 function ProductsManagementContent() {
@@ -38,6 +39,9 @@ function ProductsManagementContent() {
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
+  const [showNotifyModal, setShowNotifyModal] = useState(false);
+  const [notifyProductId, setNotifyProductId] = useState<number | null>(null);
+  const [notifying, setNotifying] = useState(false);
   const [editingProduct, setEditingProduct] = useState<SellerProduct | null>(null);
   const [newProduct, setNewProduct] = useState({
     name: '',
@@ -213,6 +217,70 @@ function ProductsManagementContent() {
         refetchProducts();
       } catch (_error) {
       }
+    }
+  };
+
+  const handleOpenNotifyModal = (productId: number) => {
+    setNotifyProductId(productId);
+    setShowNotifyModal(true);
+  };
+
+  const handleNotifyCustomers = async () => {
+    if (!notifyProductId) return;
+    
+    setNotifying(true);
+    try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      const response = await fetch(`${config.api.baseUrl}/api/seller/notify-templates`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token && { 'Authorization': `Bearer ${token}` }),
+        },
+        body: JSON.stringify({
+          shopId: shopId,
+          productId: notifyProductId.toString()
+        }),
+      });
+
+      // Parse response JSON
+      let responseData;
+      try {
+        responseData = await response.json();
+      } catch {
+        // Nếu không parse được JSON, xử lý như lỗi
+        if (!response.ok) {
+          alert('Gửi thông báo thất bại');
+          return;
+        }
+      }
+
+      // Xử lý response
+      if (!response.ok || (responseData && responseData.success === false)) {
+        // Kiểm tra code trong response body hoặc status code
+        const errorCode = responseData?.code || response.status.toString();
+        
+        // Nếu mã lỗi là 400, hiển thị thông báo cụ thể
+        if (errorCode === '400' || errorCode === 400 || response.status === 400) {
+          alert('Cửa hàng chỉ được phép gửi tối đa 3 lần thông báo 1 ngày');
+          return;
+        }
+        
+        // Xử lý các lỗi khác
+        const errorMessage = responseData?.message || responseData?.error || 'Gửi thông báo thất bại';
+        alert(errorMessage);
+        return;
+      }
+
+      // Thành công
+      setShowNotifyModal(false);
+      setNotifyProductId(null);
+      alert('Đã gửi thông báo thành công đến các khách hàng xung quanh!');
+    } catch (error) {
+      // Xử lý lỗi network hoặc lỗi khác
+      alert(error instanceof Error ? error.message : 'Có lỗi xảy ra khi gửi thông báo');
+    } finally {
+      setNotifying(false);
     }
   };
 
@@ -934,6 +1002,14 @@ function ProductsManagementContent() {
                         >
                           🗑️ Xóa
                         </Button>
+                        <Button 
+                          variant="primary" 
+                          size="sm"
+                          onClick={() => product.id && handleOpenNotifyModal(product.id)}
+                          disabled={!product.id}
+                        >
+                          📢 Gửi thông báo
+                        </Button>
                       </div>
                     </td>
                   </tr>
@@ -1286,6 +1362,50 @@ function ProductsManagementContent() {
                 disabled={updating || !isFormValid()}
               >
                 {updating ? 'Đang cập nhật...' : 'Cập nhật'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Notify Customers Modal */}
+      {showNotifyModal && (
+        <div className={styles.modalOverlay} onClick={() => setShowNotifyModal(false)}>
+          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h2>Gửi thông báo đến các cửa hàng gần bạn</h2>
+              <Button 
+                variant="ghost"
+                size="xs"
+                onClick={() => {
+                  setShowNotifyModal(false);
+                  setNotifyProductId(null);
+                }}
+                className={styles.closeButton}
+              >
+                ×
+              </Button>
+            </div>
+            <div className={styles.modalBody}>
+              <p>Bạn có chắc chắn muốn gửi thông báo về sản phẩm này đến các khách hàng xung quanh không?</p>
+            </div>
+            <div className={styles.modalFooter}>
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setShowNotifyModal(false);
+                  setNotifyProductId(null);
+                }}
+                disabled={notifying}
+              >
+                Hủy
+              </Button>
+              <Button 
+                onClick={handleNotifyCustomers}
+                disabled={notifying}
+                loading={notifying}
+              >
+                {notifying ? 'Đang gửi...' : 'Đồng ý'}
               </Button>
             </div>
           </div>
