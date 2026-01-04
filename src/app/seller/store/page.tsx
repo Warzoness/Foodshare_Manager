@@ -7,6 +7,8 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Select } from '@/components/ui/Select';
 import InteractiveMap from '@/components/ui/InteractiveMap';
+import QRCodeModal from '@/components/ui/QRCodeModal';
+import { QRCodeSVG } from 'qrcode.react';
 import { useSellerShops, useCreateSellerShop } from '@/hooks/useApi';
 import { SellerShop, CreateSellerShopRequest } from '@/types';
 import styles from './page.module.css';
@@ -37,6 +39,7 @@ export default function StoreList() {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [mapUrl, setMapUrl] = useState<string>('');
   const [coordinateInput, setCoordinateInput] = useState<string>('');
+  const [selectedShopForQR, setSelectedShopForQR] = useState<SellerShop | null>(null);
 
   // Simple image upload function
   const uploadImage = async (file: File) => {
@@ -468,22 +471,44 @@ export default function StoreList() {
             </div>
             
             <div className={styles.shopInfo}>
-              <h3 className={styles.shopName}>{shop.name}</h3>
-              <p className={styles.shopAddress}>{shop.address}</p>
-              <p className={styles.shopPhone}>📞 {shop.phone}</p>
-              
-              <div className={styles.shopStats}>
-                {/* <div className={styles.statItem}>
-                  <span className={styles.statLabel}>Đánh giá:</span>
-                  <span className={styles.statValue}>⭐ {shop.rating}/5</span>
-                </div> */}
-                <div className={styles.statItem}>
-                  <span className={styles.statLabel}>Trạng thái:</span>
-                  <span className={styles.statValue}>{shop.status === '1' ? 'Đang hoạt động' : 'Đóng cửa'}</span>
+              <div className={styles.shopInfoContent}>
+                <div className={styles.shopInfoLeft}>
+                  <h3 className={styles.shopName}>{shop.name}</h3>
+                  <p className={styles.shopAddress}>{shop.address}</p>
+                  <p className={styles.shopPhone}>📞 {shop.phone}</p>
+                  
+                  <div className={styles.shopStats}>
+                    {/* <div className={styles.statItem}>
+                      <span className={styles.statLabel}>Đánh giá:</span>
+                      <span className={styles.statValue}>⭐ {shop.rating}/5</span>
+                    </div> */}
+                    <div className={styles.statItem}>
+                      <span className={styles.statLabel}>Trạng thái:</span>
+                      <span className={styles.statValue}>{shop.status === '1' ? 'Đang hoạt động' : 'Đóng cửa'}</span>
+                    </div>
+                  </div>
+                  
+                  <p className={styles.shopDescription}>{shop.description}</p>
+                </div>
+                <div className={styles.shopQRCodeContainer}>
+                  <div className={styles.shopQRCode}>
+                    <QRCodeSVG
+                      value={`https://www.miniapp-foodshare.com/stores/${shop.id}`}
+                      size={120}
+                      level="H"
+                      includeMargin={true}
+                    />
+                  </div>
+                  <Button
+                    variant="secondary"
+                    size="xs"
+                    onClick={() => setSelectedShopForQR(shop)}
+                    className={styles.downloadQRButton}
+                  >
+                    📥 Tải ảnh QR
+                  </Button>
                 </div>
               </div>
-              
-              <p className={styles.shopDescription}>{shop.description}</p>
             </div>
             
             <div className={styles.shopActions}>
@@ -544,6 +569,18 @@ export default function StoreList() {
             onUpdateLocation={handleCoordinateUpdate}
             onLocationChange={handleLocationChange}
         />
+
+      {/* QR Code Modal */}
+      {selectedShopForQR && (
+        <QRCodeModal
+          isOpen={!!selectedShopForQR}
+          onClose={() => setSelectedShopForQR(null)}
+          shopName={selectedShopForQR.name}
+          shopAddress={selectedShopForQR.address}
+          shopPhone={selectedShopForQR.phone}
+          shopId={selectedShopForQR.id}
+        />
+      )}
     </div>
   );
 }
